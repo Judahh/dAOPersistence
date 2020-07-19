@@ -1,4 +1,4 @@
-import { settings } from '../../../../dAO/node_modules/ts-mixer';
+import { settings } from 'ts-mixer';
 import DefaultInitializer from './defaultInitializer';
 import { Journaly } from 'journaly';
 settings.initFunction = 'init';

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import { Handler } from '../../../../service/node_modules/flexiblepersistence';
+import { Handler } from 'flexiblepersistence';
 import ServiceAdapter from '../adapter/service/serviceAdapter';
 import DAOAdapter from '../adapter/dAO/dAOAdapter';
-import { Journaly } from '../../../../default/node_modules/journaly';
+import { Journaly } from 'journaly';
 import DatabaseInitializer from './databaseInitializer';
 // @ts-ignore
 export default abstract class DatabaseHandler {

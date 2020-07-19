@@ -2,7 +2,7 @@
 import ServiceRestrictedAdapter from '../adapter/controller/controllerRestrictedAdapter';
 import BaseServiceSelectById from './baseServiceSelectById';
 import BaseServiceSelectAll from './baseServiceSelectAll';
-import { Mixin } from '../../../../dAO/node_modules/ts-mixer';
+import { Mixin } from 'ts-mixer';
 // @ts-ignore
 export default class BaseServiceRestricted
   // @ts-ignore

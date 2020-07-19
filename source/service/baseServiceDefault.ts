@@ -1,4 +1,4 @@
-import { settings } from '../../../../dAO/node_modules/ts-mixer';
+import { settings } from 'ts-mixer';
 import { Handler } from 'flexiblepersistence';
 import Default from '../default/default';
 import BaseServiceDefaultInitializer from './baseServiceDefaultInitializer';

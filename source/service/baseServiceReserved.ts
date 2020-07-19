@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
-import { Mixin } from '../../../../dAO/node_modules/ts-mixer';
+import { Mixin } from 'ts-mixer';
 import ServiceReservedAdapter from '../adapter/controller/controllerReservedAdapter';
 import BaseServiceStore from './baseServiceStore';
 import BaseServiceDelete from './baseServiceDelete';
