@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
-import Default from '../default/default';
+import { Default } from 'default-initializer';
 import BaseDAODefaultInitializer from './baseDAODefaultInitializer';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   protected table: string;
 
@@ -60,6 +60,7 @@ export default class BaseDAODefault extends Default {
     return rows;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   protected fixType(result: any): any {
     if (result.rows[0]) {
       if (result.rows[0].timestamp) {

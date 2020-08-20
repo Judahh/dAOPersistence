@@ -5,17 +5,20 @@ import { DatabaseInfo } from 'flexiblepersistence';
 export class PostgresInfo extends DatabaseInfo {
   public journaly: Journaly<any>;
 
-  constructor(info: {
-    uri?: string;
-    database?: string;
-    host?: string;
-    port?: number | string;
-    username?: string;
-    password?: string;
-    options?: string;
-    connectionType?: string;
-    ssl?: ConnectionOptions | tls.ConnectionOptions | boolean;
-  }, journaly: Journaly<any>) {
+  constructor(
+    info: {
+      uri?: string;
+      database?: string;
+      host?: string;
+      port?: number | string;
+      username?: string;
+      password?: string;
+      options?: string;
+      connectionType?: string;
+      ssl?: ConnectionOptions | tls.ConnectionOptions | boolean;
+    },
+    journaly: Journaly<any>
+  ) {
     super(info);
     this.journaly = journaly;
   }

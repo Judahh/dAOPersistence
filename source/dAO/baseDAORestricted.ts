@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
-import DAORestrictedAdapter from '../adapter/dAO/dAORestrictedAdapter';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import DAORestrictedAdapter from '../adapter/dAORestrictedAdapter';
 import BaseDAOSimple from './baseDAOSimple';
 import BaseDAOStore from './baseDAOStore';
 import BaseDAOUpdate from './baseDAOUpdate';

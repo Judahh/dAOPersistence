@@ -1,6 +1,6 @@
 {
   "name": "@flexiblepersistence/postgres",
-  "version": "0.0.1-t",
+  "version": "0.0.1",
   "description": "",
   "main": "dist/source/index.js",
   "publishConfig": {
@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/Judahh/flexiblePersistence#readme",
   "dependencies": {
+    "default-initializer": "0.0.2",
     "pg": "8.3.0",
     "express": "4.17.1",
     "ts-mixer": "5.3.0",

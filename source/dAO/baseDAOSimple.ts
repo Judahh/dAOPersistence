@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
-import DAOSimpleAdapter from '../adapter/dAO/dAOSimpleAdapter';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import DAOSimpleAdapter from '../adapter/dAOSimpleAdapter';
 import BaseDAOSelectAll from './baseDAOSelectAll';
 import BaseDAOSelectById from './baseDAOSelectById';
 import { Mixin } from 'ts-mixer';

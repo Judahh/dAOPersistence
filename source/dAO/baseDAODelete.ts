@@ -1,4 +1,4 @@
-import DAODeleteAdapter from '../adapter/dAO/dAODeleteAdapter';
+import DAODeleteAdapter from '../adapter/dAODeleteAdapter';
 import BaseDAODefault from './baseDAODefault';
 
 export default class BaseDAODelete extends BaseDAODefault
