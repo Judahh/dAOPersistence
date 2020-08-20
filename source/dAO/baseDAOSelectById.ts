@@ -1,5 +1,5 @@
 import DAOModel from '../model/dAOModel';
-import DAOSelectByIdAdapter from '../adapter/dAO/dAOSelectByIdAdapter';
+import DAOSelectByIdAdapter from '../adapter/dAOSelectByIdAdapter';
 import BaseDAODefault from './baseDAODefault';
 export default class BaseDAOSelectById extends BaseDAODefault
   implements DAOSelectByIdAdapter {

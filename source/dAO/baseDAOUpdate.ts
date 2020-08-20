@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import DAOModel from '../model/dAOModel';
 import DAOSimpleModel from '../model/dAOSimpleModel';
-import DAOUpdateAdapter from '../adapter/dAO/dAOUpdateAdapter';
+import DAOUpdateAdapter from '../adapter/dAOUpdateAdapter';
 import BaseDAORestrictedDefault from './baseDAORestrictedDefault';
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+
 // @ts-ignore
 export default class BaseDAOUpdate extends BaseDAORestrictedDefault
   implements DAOUpdateAdapter {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
   protected abstract updateQuery: string;
 

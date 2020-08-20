@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 import DAOModel from '../model/dAOModel';
 import BaseDAODefault from './baseDAODefault';
-import DAOSelectAllAdapter from '../adapter/dAO/dAOSelectAllAdapter';
+import DAOSelectAllAdapter from '../adapter/dAOSelectAllAdapter';
 export default class BaseDAOSelectAll extends BaseDAODefault
   implements DAOSelectAllAdapter {
   public async selectAll(): Promise<Array<DAOModel>> {

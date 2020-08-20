@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import DAOModel from '../model/dAOModel';
 import DAOSimpleModel from '../model/dAOSimpleModel';
-import DAOStoreAdapter from '../adapter/dAO/dAOStoreAdapter';
+import DAOStoreAdapter from '../adapter/dAOStoreAdapter';
 import BaseDAORestrictedDefault from './baseDAORestrictedDefault';
 // @ts-ignore
 export default class BaseDAOStore extends BaseDAORestrictedDefault
