@@ -541,7 +541,7 @@ test('WRITE add and read array and find object', async (done) => {
       },
       single: true,
       name: 'object',
-      operation: 0,
+      operation: Operation.create,
       timestamp: persistencePromise.receivedItem.timestamp,
     });
 
@@ -555,7 +555,7 @@ test('WRITE add and read array and find object', async (done) => {
         },
         single: true,
         name: 'object',
-        operation: 0,
+        operation: Operation.create,
         timestamp: persistencePromise.receivedItem.timestamp,
       },
     ]);
@@ -578,7 +578,7 @@ test('WRITE add and read array and find object', async (done) => {
       },
       single: true,
       name: 'object',
-      operation: 5,
+      operation: Operation.delete,
       timestamp: persistencePromise2.receivedItem.timestamp,
     });
     expect(persistencePromise2.selectedItem).toStrictEqual(undefined);

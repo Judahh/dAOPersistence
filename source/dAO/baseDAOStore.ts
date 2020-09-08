@@ -4,7 +4,8 @@ import DAOSimpleModel from '../model/dAOSimpleModel';
 import DAOStoreAdapter from '../adapter/dAOStoreAdapter';
 import BaseDAORestrictedDefault from './baseDAORestrictedDefault';
 // @ts-ignore
-export default class BaseDAOStore extends BaseDAORestrictedDefault
+export default class BaseDAOStore
+  extends BaseDAORestrictedDefault
   implements DAOStoreAdapter {
   // @ts-ignore
   protected abstract insert: string;
