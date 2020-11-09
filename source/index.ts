@@ -1,4 +1,3 @@
-import { PostgresInfo } from './database/postgresInfo';
 import { PostgresDB } from './postgresDB';
 import DAOAdapter from './adapter/dAOAdapter';
 import DAODeleteAdapter from './adapter/dAODeleteAdapter';
@@ -25,7 +24,6 @@ import DAOModel from './model/dAOModel';
 import DAOSimpleModel from './model/dAOSimpleModel';
 
 export {
-  PostgresInfo,
   PostgresDB,
   DAOAdapter,
   DAODeleteAdapter,

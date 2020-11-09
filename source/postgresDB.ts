@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   PersistenceAdapter,
-  DatabaseInfo,
+  PersistenceInfo,
   PersistencePromise,
   // RelationValuePostgresDB,
   // SelectedItemValue,
@@ -11,14 +11,13 @@ import {
   PersistenceInputDelete,
 } from 'flexiblepersistence';
 import { Pool } from 'pg';
-import { PostgresInfo } from './database/postgresInfo';
 export class PostgresDB implements PersistenceAdapter {
-  private databaseInfo: PostgresInfo;
+  private persistenceInfo: PersistenceInfo;
   private pool: Pool;
 
-  constructor(databaseInfo: PostgresInfo) {
-    this.databaseInfo = databaseInfo;
-    this.pool = new Pool(this.databaseInfo);
+  constructor(persistenceInfo: PersistenceInfo) {
+    this.persistenceInfo = persistenceInfo;
+    this.pool = new Pool(this.persistenceInfo);
   }
 
   public async correct(
@@ -33,7 +32,7 @@ export class PostgresDB implements PersistenceAdapter {
     //! (input e parametros usados no SimpleAPI).
     //return (await this.service('selectById', id))[0];
     return (
-      await this.databaseInfo.journaly.publish(
+      await this.persistenceInfo.journaly.publish(
         input.scheme + 'Service.correct',
         input
       )
@@ -44,7 +43,7 @@ export class PostgresDB implements PersistenceAdapter {
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
     return (
-      await this.databaseInfo.journaly.publish(
+      await this.persistenceInfo.journaly.publish(
         input.scheme + 'Service.nonexistent',
         input
       )
@@ -55,7 +54,7 @@ export class PostgresDB implements PersistenceAdapter {
     input: PersistenceInputCreate
   ): Promise<PersistencePromise> {
     return (
-      await this.databaseInfo.journaly.publish(
+      await this.persistenceInfo.journaly.publish(
         input.scheme + 'Service.existent',
         input
       )
@@ -66,7 +65,7 @@ export class PostgresDB implements PersistenceAdapter {
     input: PersistenceInputCreate
   ): Promise<PersistencePromise> {
     return (
-      await this.databaseInfo.journaly.publish(
+      await this.persistenceInfo.journaly.publish(
         input.scheme + 'Service.create',
         input
       )
@@ -76,7 +75,7 @@ export class PostgresDB implements PersistenceAdapter {
     input: PersistenceInputUpdate
   ): Promise<PersistencePromise> {
     return (
-      await this.databaseInfo.journaly.publish(
+      await this.persistenceInfo.journaly.publish(
         input.scheme + 'Service.update',
         input
       )
@@ -84,7 +83,7 @@ export class PostgresDB implements PersistenceAdapter {
   }
   public async read(input: PersistenceInputRead): Promise<PersistencePromise> {
     return (
-      await this.databaseInfo.journaly.publish(
+      await this.persistenceInfo.journaly.publish(
         input.scheme + 'Service.read',
         input
       )
@@ -94,15 +93,15 @@ export class PostgresDB implements PersistenceAdapter {
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
     return (
-      await this.databaseInfo.journaly.publish(
+      await this.persistenceInfo.journaly.publish(
         input.scheme + 'Service.delete',
         input
       )
     )[0];
   }
 
-  public getDatabaseInfo(): DatabaseInfo {
-    return this.databaseInfo;
+  public getPersistenceInfo(): PersistenceInfo {
+    return this.persistenceInfo;
   }
 
   public getPool(): Pool {
