@@ -31,13 +31,17 @@ export default class BaseDAOStore
       } stored AS (${insert} ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
+
+    console.log('STORE:', query);
+
     return new Promise((resolve, reject) => {
       this.pool.query(query, values, (error, result) => {
         if (error) {
-          return reject(error);
+          reject(error);
+          return;
         }
         result = this.fixType(result);
-        return resolve(result.rows[0]);
+        resolve(result.rows[0]);
       });
     });
   }

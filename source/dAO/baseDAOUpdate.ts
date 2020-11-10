@@ -5,7 +5,8 @@ import DAOUpdateAdapter from '../adapter/dAOUpdateAdapter';
 import BaseDAORestrictedDefault from './baseDAORestrictedDefault';
 
 // @ts-ignore
-export default class BaseDAOUpdate extends BaseDAORestrictedDefault
+export default class BaseDAOUpdate
+  extends BaseDAORestrictedDefault
   implements DAOUpdateAdapter {
   // @ts-ignore
   protected abstract updateQuery: string;
@@ -28,10 +29,11 @@ export default class BaseDAOUpdate extends BaseDAORestrictedDefault
     return new Promise((resolve, reject) => {
       this.pool.query(query, [id, ...values], (error, result) => {
         if (error) {
-          return reject(error);
+          reject(error);
+          return;
         }
         result = this.fixType(result);
-        return resolve(result.rows[0]);
+        resolve(result.rows[0]);
       });
     });
   }

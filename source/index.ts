@@ -1,4 +1,4 @@
-import { PostgresDB } from './postgresDB';
+import { DAODB } from './dAODB';
 import DAOAdapter from './adapter/dAOAdapter';
 import DAODeleteAdapter from './adapter/dAODeleteAdapter';
 import DAORestrictedAdapter from './adapter/dAORestrictedAdapter';
@@ -24,7 +24,7 @@ import DAOModel from './model/dAOModel';
 import DAOSimpleModel from './model/dAOSimpleModel';
 
 export {
-  PostgresDB,
+  DAODB,
   DAOAdapter,
   DAODeleteAdapter,
   DAORestrictedAdapter,

@@ -3,7 +3,7 @@ import {
   PersistenceAdapter,
   PersistenceInfo,
   PersistencePromise,
-  // RelationValuePostgresDB,
+  // RelationValueDAODB,
   // SelectedItemValue,
   PersistenceInputCreate,
   PersistenceInputUpdate,
@@ -11,7 +11,7 @@ import {
   PersistenceInputDelete,
 } from 'flexiblepersistence';
 import { Pool } from 'pg';
-export class PostgresDB implements PersistenceAdapter {
+export class DAODB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
   private pool: Pool;
 
@@ -24,49 +24,45 @@ export class PostgresDB implements PersistenceAdapter {
     input: PersistenceInputUpdate
   ): Promise<PersistencePromise> {
     //! Envia o input para o service determinado pelo esquema e lá ele faz as
-    //! operações necessárias usando o journaly para acessar outros Services ou
+    //! operações necessárias usando o journaly para acessar outros DAOs ou
     //! DAOs.
     //! Sempre deve-se receber informações do tipo input e o output deve ser
     //! compatível com o input para pemitir retro-alimentação.
     //! Atualizar o input para que utilize o melhor dos dois
     //! (input e parametros usados no SimpleAPI).
     //return (await this.service('selectById', id))[0];
-    return (
-      await this.persistenceInfo.journaly.publish(
-        input.scheme + 'Service.correct',
-        input
-      )
+    return this.persistenceInfo.journaly.publish(
+      input.scheme + 'DAO.correct',
+      input
     )[0];
   }
 
   public async nonexistent(
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
-    return (
-      await this.persistenceInfo.journaly.publish(
-        input.scheme + 'Service.nonexistent',
-        input
-      )
+    return this.persistenceInfo.journaly.publish(
+      input.scheme + 'DAO.nonexistent',
+      input
     )[0];
   }
 
   public async existent(
     input: PersistenceInputCreate
   ): Promise<PersistencePromise> {
-    return (
-      await this.persistenceInfo.journaly.publish(
-        input.scheme + 'Service.existent',
-        input
-      )
+    return this.persistenceInfo.journaly.publish(
+      input.scheme + 'DAO.existent',
+      input
     )[0];
   }
 
   public async create(
     input: PersistenceInputCreate
   ): Promise<PersistencePromise> {
+    console.log('CREATE:', input);
+    console.log('Journaly:');
     return (
       await this.persistenceInfo.journaly.publish(
-        input.scheme + 'Service.create',
+        input.scheme + 'DAO.store',
         input
       )
     )[0];
@@ -74,29 +70,25 @@ export class PostgresDB implements PersistenceAdapter {
   public async update(
     input: PersistenceInputUpdate
   ): Promise<PersistencePromise> {
-    return (
-      await this.persistenceInfo.journaly.publish(
-        input.scheme + 'Service.update',
-        input
-      )
+    return this.persistenceInfo.journaly.publish(
+      input.scheme + 'DAO.update',
+      input
     )[0];
   }
   public async read(input: PersistenceInputRead): Promise<PersistencePromise> {
-    return (
-      await this.persistenceInfo.journaly.publish(
-        input.scheme + 'Service.read',
-        input
-      )
+    return this.persistenceInfo.journaly.publish(
+      input.scheme + 'DAO.read',
+      input
     )[0];
   }
   public async delete(
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
-    return (
-      await this.persistenceInfo.journaly.publish(
-        input.scheme + 'Service.delete',
-        input
-      )
+    console.log('DELETE');
+
+    return this.persistenceInfo.journaly.publish(
+      input.scheme + 'DAO.delete',
+      input
     )[0];
   }
 

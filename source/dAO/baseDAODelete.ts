@@ -1,7 +1,8 @@
 import DAODeleteAdapter from '../adapter/dAODeleteAdapter';
 import BaseDAODefault from './baseDAODefault';
 
-export default class BaseDAODelete extends BaseDAODefault
+export default class BaseDAODelete
+  extends BaseDAODefault
   implements DAODeleteAdapter {
   public delete(id: string): Promise<boolean> {
     // console.log(this.table);
@@ -11,17 +12,19 @@ export default class BaseDAODelete extends BaseDAODefault
         [id],
         (error, result) => {
           if (error) {
-            return reject(error);
+            reject(error);
+            return;
           }
           if (result.rowCount) {
-            return resolve(true);
+            resolve(true);
+            return;
           }
           // console.log(result);
 
           error = new Error();
           error.name = 'RemoveError';
           error.message = 'Unable to remove a non existent element.';
-          return reject(error);
+          reject(error);
         }
       );
     });
