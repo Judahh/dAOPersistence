@@ -59,13 +59,17 @@ export class DAODB implements PersistenceAdapter {
     input: PersistenceInputCreate
   ): Promise<PersistencePromise> {
     console.log('CREATE:', input);
-    console.log('Journaly:');
-    return (
-      await this.persistenceInfo.journaly.publish(
-        input.scheme + 'DAO.store',
-        input
-      )
-    )[0];
+    // console.log('Journaly:');
+    return new Promise(async (resolve) => {
+      resolve(
+        (
+          await this.persistenceInfo.journaly.publish(
+            input.scheme + 'DAO.store',
+            input
+          )
+        )[0]
+      );
+    });
   }
   public async update(
     input: PersistenceInputUpdate

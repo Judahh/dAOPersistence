@@ -32,6 +32,7 @@ export default class BaseDAOStore
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
 
+    console.log('content:', content);
     console.log('STORE:', query);
 
     return new Promise((resolve, reject) => {

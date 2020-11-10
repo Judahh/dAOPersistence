@@ -15,9 +15,9 @@ CREATE TABLE IF NOT EXISTS Object (
 );
 
 CREATE TABLE IF NOT EXISTS Objects (
-    _id varchar (24) NOT NULL,
+    id varchar (24) NOT NULL,
     test VARCHAR (100),
     testNumber INTEGER,
-    CONSTRAINT Objects_PK PRIMARY KEY (_id)
+    CONSTRAINT Objects_PK PRIMARY KEY (id)
 );
 

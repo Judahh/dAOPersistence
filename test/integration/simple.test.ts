@@ -117,11 +117,11 @@ test('add and read array and find object', async (done) => {
       })
     );
 
-    console.log('fuc2:', persistencePromise6);
+    // console.log('fuc2:', persistencePromise6);
     expect(persistencePromise6.receivedItem).toStrictEqual([]);
     expect(persistencePromise6.selectedItem).toStrictEqual(undefined);
     expect(persistencePromise6.sentItem).toStrictEqual(undefined);
-    console.log('fuc3');
+    // console.log('fuc3');
   } catch (error) {
     await handler.addEvent(
       new Event({
