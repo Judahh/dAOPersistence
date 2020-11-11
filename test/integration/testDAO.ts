@@ -3,8 +3,6 @@ import { BaseDAO, DAOSimpleModel } from '../../source/index';
 export default class TestDAO extends BaseDAO {
   protected table = 'tests';
 
-  protected values = 'element.ID ';
-
   protected insert = 'id';
 
   protected insertValues = '$1';

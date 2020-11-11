@@ -16,6 +16,7 @@ import BaseDAORestricted from './dAO/baseDAORestricted';
 import BaseDAORestrictedDefault from './dAO/baseDAORestrictedDefault';
 import BaseDAOSelectAll from './dAO/baseDAOSelectAll';
 import BaseDAOSelectById from './dAO/baseDAOSelectById';
+import BaseDAOSelect from './dAO/baseDAOSelect';
 import BaseDAOSimple from './dAO/baseDAOSimple';
 import BaseDAOStore from './dAO/baseDAOStore';
 import BaseDAOUpdate from './dAO/baseDAOUpdate';
@@ -42,6 +43,7 @@ export {
   BaseDAORestrictedDefault,
   BaseDAOSelectAll,
   BaseDAOSelectById,
+  BaseDAOSelect,
   BaseDAOSimple,
   BaseDAOStore,
   BaseDAOUpdate,

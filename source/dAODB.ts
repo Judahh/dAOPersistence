@@ -20,6 +20,36 @@ export class DAODB implements PersistenceAdapter {
     this.pool = new Pool(this.persistenceInfo);
   }
 
+  private realInput(input) {
+    const realInput = input.item;
+    if (input['id']) realInput['id'] = input['id'];
+    if (input['_id']) realInput['_id'] = input['_id'];
+    return realInput;
+  }
+
+  private async persistencePromise(input, method) {
+    const output = (
+      await this.persistenceInfo.journaly.publish(
+        input.scheme + 'DAO.' + method,
+        this.realInput(input)
+      )
+    )[0];
+
+    const persistencePromise: PersistencePromise = {
+      receivedItem: output,
+      result: output,
+      selectedItem: input.selectedItem,
+      sentItem: input.item,
+    };
+    return persistencePromise;
+  }
+
+  private async makePromise(input, method): Promise<PersistencePromise> {
+    return new Promise(async (resolve) => {
+      resolve(this.persistencePromise(input, method));
+    });
+  }
+
   public async correct(
     input: PersistenceInputUpdate
   ): Promise<PersistencePromise> {
@@ -30,70 +60,44 @@ export class DAODB implements PersistenceAdapter {
     //! compatível com o input para pemitir retro-alimentação.
     //! Atualizar o input para que utilize o melhor dos dois
     //! (input e parametros usados no SimpleAPI).
-    //return (await this.service('selectById', id))[0];
-    return this.persistenceInfo.journaly.publish(
-      input.scheme + 'DAO.correct',
-      input
-    )[0];
+    return this.makePromise(input, 'correct');
   }
 
   public async nonexistent(
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
-    return this.persistenceInfo.journaly.publish(
-      input.scheme + 'DAO.nonexistent',
-      input
-    )[0];
+    return this.makePromise(input, 'nonexistent');
   }
 
   public async existent(
     input: PersistenceInputCreate
   ): Promise<PersistencePromise> {
-    return this.persistenceInfo.journaly.publish(
-      input.scheme + 'DAO.existent',
-      input
-    )[0];
+    return this.makePromise(input, 'existent');
   }
 
   public async create(
     input: PersistenceInputCreate
   ): Promise<PersistencePromise> {
-    console.log('CREATE:', input);
-    // console.log('Journaly:');
-    return new Promise(async (resolve) => {
-      resolve(
-        (
-          await this.persistenceInfo.journaly.publish(
-            input.scheme + 'DAO.store',
-            input
-          )
-        )[0]
-      );
-    });
+    // console.log('CREATE:', input);
+    return this.makePromise(input, 'store');
   }
   public async update(
     input: PersistenceInputUpdate
   ): Promise<PersistencePromise> {
-    return this.persistenceInfo.journaly.publish(
-      input.scheme + 'DAO.update',
-      input
-    )[0];
+    return this.makePromise(input, 'update');
   }
   public async read(input: PersistenceInputRead): Promise<PersistencePromise> {
-    return this.persistenceInfo.journaly.publish(
-      input.scheme + 'DAO.read',
-      input
-    )[0];
+    // console.log('read', input);
+    return input.single
+      ? input.selectedItem
+        ? this.makePromise(input, 'select')
+        : this.makePromise(input, 'selectById')
+      : this.makePromise(input, 'selectAll');
   }
   public async delete(
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
-    console.log('DELETE');
-
-    return this.persistenceInfo.journaly.publish(
-      input.scheme + 'DAO.delete',
-      input
-    )[0];
+    return this.makePromise(input, 'delete');
   }
 
   public getPersistenceInfo(): PersistenceInfo {

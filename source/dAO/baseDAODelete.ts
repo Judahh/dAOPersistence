@@ -19,12 +19,13 @@ export default class BaseDAODelete
             resolve(true);
             return;
           }
+          resolve(false);
           // console.log(result);
 
-          error = new Error();
-          error.name = 'RemoveError';
-          error.message = 'Unable to remove a non existent element.';
-          reject(error);
+          // error = new Error();
+          // error.name = 'RemoveError';
+          // error.message = 'Unable to remove a non existent element.';
+          // reject(error);
         }
       );
     });

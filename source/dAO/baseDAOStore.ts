@@ -32,8 +32,8 @@ export default class BaseDAOStore
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
 
-    console.log('content:', content);
-    console.log('STORE:', query);
+    // console.log('content:', content);
+    // console.log('STORE:', query);
 
     return new Promise((resolve, reject) => {
       this.pool.query(query, values, (error, result) => {
@@ -42,6 +42,7 @@ export default class BaseDAOStore
           return;
         }
         result = this.fixType(result);
+        // console.log('result.rows[0]:', result.rows[0]);
         resolve(result.rows[0]);
       });
     });

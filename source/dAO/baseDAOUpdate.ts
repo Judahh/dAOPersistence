@@ -18,23 +18,39 @@ export default class BaseDAOUpdate
     });
   }
 
-  public async update(id: string, content: DAOSimpleModel): Promise<DAOModel> {
+  public async update(filter, content: DAOSimpleModel): Promise<DAOModel> {
     const values = await this.generateVectorValues(content);
     const select = await this.generateSelect('updated');
     const update = await this.generateUpdate();
-    const query =
-      `WITH updated AS (${update} WHERE id = $1 ` +
+    let query =
+      `WITH updated AS (${update} LIMIT 1 ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
+    if (!filter) {
+      filter = {};
+    } else {
+      query =
+        `WITH updated AS (${update} WHERE ${Object.getOwnPropertyNames(filter)
+          .map((x) => 'element.' + x + ' = ' + filter[x])
+          .join(', ')} ${this.groupBy} LIMIT 1 ` +
+        `RETURNING *` +
+        `) ${select} ${this.groupBy}`;
+    }
+    console.log(query);
+
     return new Promise((resolve, reject) => {
-      this.pool.query(query, [id, ...values], (error, result) => {
-        if (error) {
-          reject(error);
-          return;
+      this.pool.query(
+        query,
+        [...Object.values(filter), ...values],
+        (error, result) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          resolve(result.rows[0]);
         }
-        result = this.fixType(result);
-        resolve(result.rows[0]);
-      });
+      );
     });
   }
 }
