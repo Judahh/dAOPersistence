@@ -31,6 +31,11 @@ export class DAODB implements PersistenceAdapter {
     const output = (
       await this.persistenceInfo.journaly.publish(
         input.scheme + 'DAO.' + method,
+        method.includes('update')
+          ? method.includes('ById')
+            ? input.id
+            : input.selectedItem
+          : this.realInput(input),
         this.realInput(input)
       )
     )[0];
@@ -39,7 +44,7 @@ export class DAODB implements PersistenceAdapter {
       receivedItem: output,
       result: output,
       selectedItem: input.selectedItem,
-      sentItem: input.item,
+      sentItem: input.item, //| input.sentItem,
     };
     return persistencePromise;
   }
@@ -84,7 +89,9 @@ export class DAODB implements PersistenceAdapter {
   public async update(
     input: PersistenceInputUpdate
   ): Promise<PersistencePromise> {
-    return this.makePromise(input, 'update');
+    return input.id
+      ? this.makePromise(input, 'updateById')
+      : this.makePromise(input, 'update');
   }
   public async read(input: PersistenceInputRead): Promise<PersistencePromise> {
     // console.log('read', input);
@@ -97,7 +104,9 @@ export class DAODB implements PersistenceAdapter {
   public async delete(
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
-    return this.makePromise(input, 'delete');
+    return input.id
+      ? this.makePromise(input, 'deleteById')
+      : this.makePromise(input, 'delete');
   }
 
   public getPersistenceInfo(): PersistenceInfo {

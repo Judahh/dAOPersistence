@@ -11,19 +11,30 @@ export default class BaseDAOUpdate
   // @ts-ignore
   protected abstract updateQuery: string;
 
-  protected async generateUpdate(): Promise<string> {
-    const update = `UPDATE ${this.table} SET ${this.updateQuery}`;
+  protected async generateUpdate(
+    length: number,
+    content: DAOSimpleModel
+  ): Promise<string> {
+    let pos = length;
+    const update = `UPDATE ${this.table} SET ${Object.getOwnPropertyNames(
+      content
+    )
+      .map((x) => x + ' = $' + pos++)
+      .join(', ')}${this.updateQuery}`;
     return new Promise((resolve) => {
       resolve(update);
     });
   }
 
   public async update(filter, content: DAOSimpleModel): Promise<DAOModel> {
-    const values = await this.generateVectorValues(content);
+    const values = Object.values(content);
     const select = await this.generateSelect('updated');
-    const update = await this.generateUpdate();
+    const update = await this.generateUpdate(
+      Object.values(filter).length,
+      content
+    );
     let query =
-      `WITH updated AS (${update} LIMIT 1 ` +
+      `WITH updated AS (${update} ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
     if (!filter) {
@@ -31,26 +42,21 @@ export default class BaseDAOUpdate
     } else {
       query =
         `WITH updated AS (${update} WHERE ${Object.getOwnPropertyNames(filter)
-          .map((x) => 'element.' + x + ' = ' + filter[x])
-          .join(', ')} ${this.groupBy} LIMIT 1 ` +
+          .map((x) => x + ' = ' + filter[x])
+          .join(', ')} ${this.groupBy} ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
     }
-    console.log(query);
 
     return new Promise((resolve, reject) => {
-      this.pool.query(
-        query,
-        [...Object.values(filter), ...values],
-        (error, result) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          resolve(result.rows[0]);
+      this.pool.query(query, values, (error, result) => {
+        if (error) {
+          reject(error);
+          return;
         }
-      );
+        result = this.fixType(result);
+        resolve(result.rows[0]);
+      });
     });
   }
 }

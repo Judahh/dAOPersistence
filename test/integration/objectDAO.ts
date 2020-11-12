@@ -21,8 +21,7 @@ export default class ObjectDAO extends BaseDAO {
     content: ObjectDAOSimpleModel
   ): Promise<Array<unknown>> {
     let values;
-    if (content && content.id)
-      values = [content.id, content.test, content.testNumber];
+    if (content) values = [content.id, content.test, content.testNumber];
     else values = [];
     return new Promise((resolve) => resolve(values));
   }

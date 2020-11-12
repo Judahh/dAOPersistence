@@ -2,7 +2,6 @@ import { Handler, Operation, Event, Utils } from 'flexiblepersistence';
 import TestDAO from './testDAO';
 import ObjectDAO from './objectDAO';
 import { eventDatabase, database, journaly } from './databases';
-import { Pool } from 'pg';
 import { DAODB } from '../../source';
 let read;
 let write;
@@ -55,7 +54,7 @@ test('add and read array and find object', async (done) => {
 
     const persistencePromise2 = await handler.readItem('Object', {});
 
-    console.log('TEST03:', persistencePromise2);
+    // console.log('TEST03:', persistencePromise2);
     expect(persistencePromise2.receivedItem).toStrictEqual({
       id: persistencePromise2.receivedItem.id,
       test: 'test',
@@ -64,7 +63,7 @@ test('add and read array and find object', async (done) => {
     expect(persistencePromise2.selectedItem).toStrictEqual({});
     expect(persistencePromise2.sentItem).toStrictEqual(undefined);
 
-    console.log('TEST04');
+    // console.log('TEST04');
     const persistencePromise3 = await handler.addEvent(
       new Event({
         operation: Operation.update,
@@ -73,9 +72,7 @@ test('add and read array and find object', async (done) => {
         content: { test: 'bob' },
       })
     );
-    console.log('TEST04:', persistencePromise3);
-
-    expect(persistencePromise3.result.rowCount).toBe(1);
+    // console.log('TEST04:', persistencePromise3);
     expect(persistencePromise3.receivedItem).toStrictEqual({
       id: persistencePromise2.receivedItem.id,
       test: 'bob',
@@ -88,7 +85,7 @@ test('add and read array and find object', async (done) => {
       test: 'bob',
     });
 
-    console.log('TEST04');
+    // console.log('TEST05');
 
     // console.log(await read.query('UPDATE object SET test = \'bob\', testNumber = \'10\' WHERE (test = \'test\')', [], {}));
 
@@ -96,22 +93,25 @@ test('add and read array and find object', async (done) => {
       new Event({
         operation: Operation.delete,
         name: 'Object',
+        single: false,
         selection: { test: 'bob' },
       })
     );
+    // console.log('TEST05:', persistencePromise4);
 
-    expect(persistencePromise4.receivedItem).toStrictEqual(undefined);
+    expect(persistencePromise4.receivedItem).toStrictEqual(1);
     expect(persistencePromise4.selectedItem).toStrictEqual({ test: 'bob' });
     expect(persistencePromise4.sentItem).toStrictEqual(undefined);
 
+    // console.log('TEST06');
     const persistencePromise5 = await handler.readArray('Object', {});
 
     expect(persistencePromise5.receivedItem.length).toBe(0);
-    expect(persistencePromise5.result.rowCount).toBe(0);
     expect(persistencePromise5.receivedItem).toStrictEqual([]);
     expect(persistencePromise5.selectedItem).toStrictEqual({});
     expect(persistencePromise5.sentItem).toStrictEqual(undefined);
 
+    // console.log('TEST07');
     const persistencePromise6 = await handler.addEvent(
       new Event({
         operation: Operation.delete,
@@ -119,7 +119,7 @@ test('add and read array and find object', async (done) => {
         single: false,
       })
     );
-    expect(persistencePromise6.receivedItem).toStrictEqual([]);
+    expect(persistencePromise6.receivedItem).toStrictEqual(0);
     expect(persistencePromise6.selectedItem).toStrictEqual(undefined);
     expect(persistencePromise6.sentItem).toStrictEqual(undefined);
   } catch (error) {

@@ -10,7 +10,6 @@ export default class Utils {
     await pool.query(script);
     script = await promises.readFile('./database/createTables.sql', 'utf8');
     await pool.query(script);
-    console.log('INIT');
   }
 
   public static async dropTables(pool): Promise<void> {
@@ -33,7 +32,6 @@ export default class Utils {
     await Utils.dropTables(pool);
     // await Utils.deleteTables(pool);
     await Utils.disconnect(pool);
-    console.log('END');
   }
 
   public static async disconnect(pool): Promise<void> {
