@@ -7,7 +7,7 @@ import DAOSelectAllAdapter from '../adapter/dAOSelectAllAdapter';
 export default class BaseDAOSelectAll
   extends BaseDAODefault
   implements DAOSelectAllAdapter {
-  async selectAll(): Promise<Array<DAOModel>> {
+  async selectAll(): Promise<DAOModel[]> {
     const select = await this.generateSelect(this.table);
     return new Promise((resolve, reject) => {
       this.pool.query(`${select} ${this.groupBy}`, (error, result) => {

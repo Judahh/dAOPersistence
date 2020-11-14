@@ -220,7 +220,7 @@ export class PostgresDB implements PersistenceAdapter {
   }
 
   async createArray(scheme: string, items: any[]): Promise<PersistencePromise> {
-    const received = Array<PersistencePromise>();
+    const received = PersistencePromise[]();
     for (const item of items) {
       received.push(await this.createItem(scheme, item));
     }
