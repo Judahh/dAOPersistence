@@ -19,7 +19,7 @@ export default class ObjectDAO extends BaseDAO {
 
   protected generateVectorValues(
     content: ObjectDAOSimpleModel
-  ): Promise<Array<unknown>> {
+  ): Promise<unknown[]> {
     let values;
     if (content) values = [content.id, content.test, content.testNumber];
     else values = [];

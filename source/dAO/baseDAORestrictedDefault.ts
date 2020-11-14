@@ -6,5 +6,5 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
   // @ts-ignore
   protected abstract async generateVectorValues(
     content: DAOSimpleModel
-  ): Promise<Array<unknown>>;
+  ): Promise<unknown[]>;
 }
