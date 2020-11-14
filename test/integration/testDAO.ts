@@ -14,9 +14,7 @@ export default class TestDAO extends BaseDAO {
     // console.log(this);
   }
 
-  protected generateVectorValues(
-    content: DAOSimpleModel
-  ): Promise<Array<unknown>> {
+  protected generateVectorValues(content: DAOSimpleModel): Promise<unknown[]> {
     let values;
     if (content && content.id) values = [content.id];
     else values = [];

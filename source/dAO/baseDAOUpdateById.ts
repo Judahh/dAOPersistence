@@ -18,10 +18,7 @@ export default class BaseDAOUpdateById
     });
   }
 
-  public async updateById(
-    id: string,
-    content: DAOSimpleModel
-  ): Promise<DAOModel> {
+  async updateById(id: string, content: DAOSimpleModel): Promise<DAOModel> {
     const values = await this.generateVectorValues(content);
     const select = await this.generateSelect('updated');
     const update = await this.generateUpdate();

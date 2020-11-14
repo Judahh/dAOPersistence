@@ -125,11 +125,11 @@ export class PostgresDB implements PersistenceAdapter {
     )})`;
   }
 
-  private static resolveKeys(item: any): Array<string> {
+  private static resolveKeys(item: any): string[] {
     return item ? Object.keys(item) : [];
   }
 
-  private static resolveValues(item: any): Array<any> {
+  private static resolveValues(item: any): any[] {
     return item ? Object.values(item) : [];
   }
 
