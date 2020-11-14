@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   PersistenceAdapter,
@@ -34,7 +35,7 @@ export class PostgresDB implements PersistenceAdapter {
     );
   }
 
-  private static getDBSetVariables(item): Array<string> {
+  private static getDBSetVariables(item): string[] {
     const keys = PostgresDB.resolveKeys(item);
     return keys.map((element) => {
       return PostgresDB.getDBSetVariable(element, item[element]);
@@ -245,11 +246,7 @@ export class PostgresDB implements PersistenceAdapter {
     item: any
   ): Promise<PersistencePromise> {
     const query = PostgresDB.queryUpdateItem(scheme, selectedItem, item);
-    return this.query(
-      query,
-      { selectedItem: selectedItem, sentItem: item },
-      true
-    );
+    return this.query(query, { selectedItem, sentItem: item }, true);
   }
 
   public updateArray(
@@ -258,11 +255,7 @@ export class PostgresDB implements PersistenceAdapter {
     item: any
   ): Promise<PersistencePromise> {
     const query = PostgresDB.queryUpdateArray(scheme, selectedItem, item);
-    return this.query(
-      query,
-      { selectedItem: selectedItem, sentItem: item },
-      true
-    );
+    return this.query(query, { selectedItem, sentItem: item }, true);
   }
 
   public readArray(
@@ -270,7 +263,7 @@ export class PostgresDB implements PersistenceAdapter {
     selectedItem: any
   ): Promise<PersistencePromise> {
     const query = PostgresDB.querySelectArray(scheme, selectedItem);
-    return this.query(query, { selectedItem: selectedItem });
+    return this.query(query, { selectedItem });
   }
 
   public readItem(
@@ -278,7 +271,7 @@ export class PostgresDB implements PersistenceAdapter {
     selectedItem: any
   ): Promise<PersistencePromise> {
     const query = PostgresDB.querySelectItem(scheme, selectedItem);
-    return this.query(query, { selectedItem: selectedItem }, true);
+    return this.query(query, { selectedItem }, true);
   }
 
   public readItemById(scheme: string, id: any): Promise<PersistencePromise> {
@@ -292,7 +285,7 @@ export class PostgresDB implements PersistenceAdapter {
   ): Promise<PersistencePromise> {
     const query = PostgresDB.queryDeleteItem(scheme, selectedItem);
     // console.log('DeleteItem :', selectedItem);
-    return this.query(query, { selectedItem: selectedItem }, true);
+    return this.query(query, { selectedItem }, true);
   }
 
   public deleteArray(
@@ -301,7 +294,7 @@ export class PostgresDB implements PersistenceAdapter {
   ): Promise<PersistencePromise> {
     const query = PostgresDB.queryDeleteArray(scheme, selectedItem);
     // console.log('DeleteArray: ', query);
-    return this.query(query, { selectedItem: selectedItem });
+    return this.query(query, { selectedItem });
   }
 
   public getPersistenceInfo(): PersistenceInfo {

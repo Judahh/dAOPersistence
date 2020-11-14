@@ -12,7 +12,7 @@ export class SelectedItemValue {
     this.relation = relation;
   }
 
-  public toString(): string | undefined {
+  toString(): string | undefined {
     return this.value
       ? `${this.relation.toString()} ${"'" + this.value.toString() + "'"}`
       : undefined;

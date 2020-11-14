@@ -11,16 +11,16 @@ test('add and read array and find object', async (done) => {
   const pool = read.getPool();
   await Utils.init(pool);
   new TestDAO({
-    pool: pool,
-    journaly: journaly,
+    pool,
+    journaly,
   });
   new ObjectDAO({
-    pool: pool,
-    journaly: journaly,
+    pool,
+    journaly,
   });
   const handler = new Handler(write, read);
   await handler.getWrite().clear('events');
-  const obj = new Object();
+  const obj = {};
   obj['test'] = 'test';
   try {
     // console.log('TEST00');

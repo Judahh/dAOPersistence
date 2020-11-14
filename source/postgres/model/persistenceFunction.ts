@@ -1,8 +1,8 @@
 export class PersistenceFunction {
   private name: string;
-  private statements: Array<string>;
+  private statements: string[];
 
-  constructor(name: string, statements?: Array<string>) {
+  constructor(name: string, statements?: string[]) {
     this.name = name;
     if (statements) {
       this.statements = statements;
@@ -11,7 +11,7 @@ export class PersistenceFunction {
     }
   }
 
-  public toString(): string {
+  toString(): string {
     return `${this.name}(${this.statements.toString()})`;
   }
 }
