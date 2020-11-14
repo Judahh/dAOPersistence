@@ -1,10 +1,8 @@
 /*
 Script for create auth database's extension
 Auth v1 - Last update 30/01/2020
-*/
-
+ */
 -- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- CREATE EXTENSION
 -- IF NOT EXISTS pgcrypto;
 -- CREATE SEQUENCE epoch_seq INCREMENT BY 1 MAXVALUE 9 CYCLE;
@@ -30,7 +28,6 @@ Auth v1 - Last update 30/01/2020
 --   INTO epoch_seq;
 --   SELECT pg_backend_pid()
 --   INTO process_id;
-
 --   result := result || lpad
 --   (to_hex
 --   (time_component), 8, '0');
@@ -43,4 +40,3 @@ Auth v1 - Last update 30/01/2020
 -- RETURN result;
 -- END;
 -- $$ LANGUAGE PLPGSQL;
-
