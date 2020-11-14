@@ -55,9 +55,7 @@ export class DAODB implements PersistenceAdapter {
     });
   }
 
-  public async correct(
-    input: PersistenceInputUpdate
-  ): Promise<PersistencePromise> {
+  async correct(input: PersistenceInputUpdate): Promise<PersistencePromise> {
     //! Envia o input para o service determinado pelo esquema e lá ele faz as
     //! operações necessárias usando o journaly para acessar outros DAOs ou
     //! DAOs.
@@ -68,32 +66,26 @@ export class DAODB implements PersistenceAdapter {
     return this.makePromise(input, 'correct');
   }
 
-  public async nonexistent(
+  async nonexistent(
     input: PersistenceInputDelete
   ): Promise<PersistencePromise> {
     return this.makePromise(input, 'nonexistent');
   }
 
-  public async existent(
-    input: PersistenceInputCreate
-  ): Promise<PersistencePromise> {
+  async existent(input: PersistenceInputCreate): Promise<PersistencePromise> {
     return this.makePromise(input, 'existent');
   }
 
-  public async create(
-    input: PersistenceInputCreate
-  ): Promise<PersistencePromise> {
+  async create(input: PersistenceInputCreate): Promise<PersistencePromise> {
     // console.log('CREATE:', input);
     return this.makePromise(input, 'store');
   }
-  public async update(
-    input: PersistenceInputUpdate
-  ): Promise<PersistencePromise> {
+  async update(input: PersistenceInputUpdate): Promise<PersistencePromise> {
     return input.id
       ? this.makePromise(input, 'updateById')
       : this.makePromise(input, 'update');
   }
-  public async read(input: PersistenceInputRead): Promise<PersistencePromise> {
+  async read(input: PersistenceInputRead): Promise<PersistencePromise> {
     // console.log('read', input);
     return input.single
       ? input.selectedItem
@@ -101,24 +93,22 @@ export class DAODB implements PersistenceAdapter {
         : this.makePromise(input, 'selectById')
       : this.makePromise(input, 'selectAll');
   }
-  public async delete(
-    input: PersistenceInputDelete
-  ): Promise<PersistencePromise> {
+  async delete(input: PersistenceInputDelete): Promise<PersistencePromise> {
     return input.id
       ? this.makePromise(input, 'deleteById')
       : this.makePromise(input, 'delete');
   }
 
-  public getPersistenceInfo(): PersistenceInfo {
+  getPersistenceInfo(): PersistenceInfo {
     return this.persistenceInfo;
   }
 
-  public getPool(): Pool {
+  getPool(): Pool {
     // TODO: remove
     return this.pool;
   }
 
-  public close(): Promise<unknown> {
+  close(): Promise<unknown> {
     return new Promise<unknown>((resolve) => {
       this.end(resolve);
     });

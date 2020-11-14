@@ -4,7 +4,7 @@ import BaseDAODefault from './baseDAODefault';
 export default class BaseDAODelete
   extends BaseDAODefault
   implements DAODeleteAdapter {
-  public delete(filter, single: boolean): Promise<number> {
+  delete(filter, single: boolean): Promise<number> {
     const limit = single ? 'LIMIT 1' : '';
     let query = `DELETE FROM ${this.table} WHERE id IN (SELECT id FROM ${this.table} ORDER BY ID ${limit})`;
 

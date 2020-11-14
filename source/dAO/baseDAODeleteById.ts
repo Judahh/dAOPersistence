@@ -4,7 +4,7 @@ import BaseDAODefault from './baseDAODefault';
 export default class BaseDAODeleteById
   extends BaseDAODefault
   implements DAODeleteByIdAdapter {
-  public deleteById(id: string): Promise<boolean> {
+  deleteById(id: string): Promise<boolean> {
     // console.log(this.table);
     return new Promise((resolve, reject) => {
       this.pool.query(

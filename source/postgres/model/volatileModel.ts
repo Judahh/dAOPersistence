@@ -6,10 +6,10 @@ import { PersistenceModel } from './persistenceModel';
 export abstract class VolatileModel extends BasicModel {
   private static persistenceModel: PersistenceModel;
 
-  public static setPersistenceModel(persistenceModel: PersistenceModel): void {
+  static setPersistenceModel(persistenceModel: PersistenceModel): void {
     this.persistenceModel = persistenceModel;
   }
-  public static generatePersistence(object: any): any {
+  static generatePersistence(object: any): any {
     const objectDB = new (this.persistenceModel as any)();
     for (let i = 0; i < Object.keys(object).length; i++) {
       const key = Object.keys(object)[i];

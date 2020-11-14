@@ -20,7 +20,7 @@ export default class BaseDAOStore
     });
   }
 
-  public async store(content: DAOSimpleModel): Promise<DAOModel> {
+  async store(content: DAOSimpleModel): Promise<DAOModel> {
     const values = await this.generateVectorValues(content);
     const select = await this.generateSelect('stored');
     const insert = await this.generateInsert();

@@ -213,19 +213,13 @@ export class PostgresDB implements PersistenceAdapter {
     }
   }
 
-  public async createItem(
-    scheme: string,
-    item: any
-  ): Promise<PersistencePromise> {
+  async createItem(scheme: string, item: any): Promise<PersistencePromise> {
     const query = PostgresDB.queryInsertItem(scheme, item);
     // console.log('createItem: ', item, scheme);
     return this.query(query, { sentItem: item }, true);
   }
 
-  public async createArray(
-    scheme: string,
-    items: any[]
-  ): Promise<PersistencePromise> {
+  async createArray(scheme: string, items: any[]): Promise<PersistencePromise> {
     const received = Array<PersistencePromise>();
     for (const item of items) {
       received.push(await this.createItem(scheme, item));
@@ -241,7 +235,7 @@ export class PostgresDB implements PersistenceAdapter {
     });
   }
 
-  public updateItem(
+  updateItem(
     scheme: string,
     selectedItem: any,
     item: any
@@ -250,7 +244,7 @@ export class PostgresDB implements PersistenceAdapter {
     return this.query(query, { selectedItem, sentItem: item }, true);
   }
 
-  public updateArray(
+  updateArray(
     scheme: string,
     selectedItem: any,
     item: any
@@ -259,55 +253,43 @@ export class PostgresDB implements PersistenceAdapter {
     return this.query(query, { selectedItem, sentItem: item }, true);
   }
 
-  public readArray(
-    scheme: string,
-    selectedItem: any
-  ): Promise<PersistencePromise> {
+  readArray(scheme: string, selectedItem: any): Promise<PersistencePromise> {
     const query = PostgresDB.querySelectArray(scheme, selectedItem);
     return this.query(query, { selectedItem });
   }
 
-  public readItem(
-    scheme: string,
-    selectedItem: any
-  ): Promise<PersistencePromise> {
+  readItem(scheme: string, selectedItem: any): Promise<PersistencePromise> {
     const query = PostgresDB.querySelectItem(scheme, selectedItem);
     return this.query(query, { selectedItem }, true);
   }
 
-  public readItemById(scheme: string, id: any): Promise<PersistencePromise> {
+  readItemById(scheme: string, id: any): Promise<PersistencePromise> {
     const query = PostgresDB.querySelectItem(scheme, { _id: id });
     return this.query(query, { selectedItem: { _id: id } }, true);
   }
 
-  public deleteItem(
-    scheme: string,
-    selectedItem: any
-  ): Promise<PersistencePromise> {
+  deleteItem(scheme: string, selectedItem: any): Promise<PersistencePromise> {
     const query = PostgresDB.queryDeleteItem(scheme, selectedItem);
     // console.log('DeleteItem :', selectedItem);
     return this.query(query, { selectedItem }, true);
   }
 
-  public deleteArray(
-    scheme: string,
-    selectedItem: any
-  ): Promise<PersistencePromise> {
+  deleteArray(scheme: string, selectedItem: any): Promise<PersistencePromise> {
     const query = PostgresDB.queryDeleteArray(scheme, selectedItem);
     // console.log('DeleteArray: ', query);
     return this.query(query, { selectedItem });
   }
 
-  public getPersistenceInfo(): PersistenceInfo {
+  getPersistenceInfo(): PersistenceInfo {
     return this.persistenceInfo;
   }
 
-  public getPool(): Pool {
+  getPool(): Pool {
     // TODO: remove
     return this.pool;
   }
 
-  public close(): Promise<unknown> {
+  close(): Promise<unknown> {
     return new Promise<unknown>((resolve) => {
       this.end(resolve);
     });

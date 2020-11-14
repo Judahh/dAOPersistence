@@ -4,7 +4,7 @@ import BaseDAODefault from './baseDAODefault';
 export default class BaseDAOSelect
   extends BaseDAODefault
   implements DAOSelectAdapter {
-  public async select(filter): Promise<Array<DAOModel>> {
+  async select(filter): Promise<Array<DAOModel>> {
     const select = await this.generateSelect(this.table);
     let query = `${select} ${this.groupBy}`;
     if (!filter) {

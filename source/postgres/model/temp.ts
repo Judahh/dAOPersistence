@@ -6,7 +6,7 @@
 class Manager {
   private static types: any;
 
-  public static addConstructor(constructor: any) {
+  static addConstructor(constructor: any) {
     const className = constructor.name;
     if (Manager.types === undefined) {
       Manager.types = {};
@@ -16,7 +16,7 @@ class Manager {
     }
   }
 
-  public static generate(className: string, ...properties: any) {
+  static generate(className: string, ...properties: any) {
     const object = Manager.types[className];
     let properElement;
     if (object !== null && object !== undefined) {
@@ -25,7 +25,7 @@ class Manager {
     return properElement;
   }
 
-  public static generateDB(object: any) {
+  static generateDB(object: any) {
     const objectDB = Manager.generate(object.constructor.name + 'DB');
     Manager.getParents(object, objectDB);
     objectDB._id = object._id;
@@ -96,11 +96,11 @@ abstract class PersistenceModel extends BasicModel {
   protected static map: {};
   private static volatileModel: VolatileModel;
 
-  public static setVolatileModel(volatileModel: VolatileModel) {
+  static setVolatileModel(volatileModel: VolatileModel) {
     this.volatileModel = volatileModel;
   }
 
-  public static generateVolatile(object: PersistenceModel) {
+  static generateVolatile(object: PersistenceModel) {
     const objectDB = new (<any>this.volatileModel)();
     for (let i = 0; i < Object.keys(object).length; i++) {
       const key = Object.keys(object)[i];
@@ -118,11 +118,11 @@ abstract class PersistenceModel extends BasicModel {
 abstract class VolatileModel extends BasicModel {
   private static persistenceModel: PersistenceModel;
 
-  public static setPersistenceModel(persistenceModel: PersistenceModel) {
+  static setPersistenceModel(persistenceModel: PersistenceModel) {
     this.persistenceModel = persistenceModel;
   }
 
-  public static generatePersistence(object: VolatileModel) {
+  static generatePersistence(object: VolatileModel) {
     const objectDB = new (<any>this.persistenceModel)();
     for (let i = 0; i < Object.keys(object).length; i++) {
       const key = Object.keys(object)[i];

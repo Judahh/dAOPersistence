@@ -26,7 +26,7 @@ export default class BaseDAOUpdate
     });
   }
 
-  public async update(filter, content: DAOSimpleModel): Promise<DAOModel> {
+  async update(filter, content: DAOSimpleModel): Promise<DAOModel> {
     const values = Object.values(content);
     const select = await this.generateSelect('updated');
     const update = await this.generateUpdate(
