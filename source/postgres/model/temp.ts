@@ -3,6 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// file deepcode ignore no-any: any needed
 class Manager {
   private static types: any;
 
@@ -123,16 +124,16 @@ abstract class VolatileModel extends BasicModel {
   }
 
   static generatePersistence(object: VolatileModel) {
-    const objectDB = new (<any>this.persistenceModel)();
+    const objectDB = new (this.persistenceModel as any)();
     for (let i = 0; i < Object.keys(object).length; i++) {
       const key = Object.keys(object)[i];
-      const value = (<any>object)[key];
+      const value = (object as any)[key];
       if (objectDB.hasOwnProperty(key)) {
         objectDB[key] = value;
       } else {
-        const map = (<any>this.persistenceModel).map;
+        const map = (this.persistenceModel as any).map;
         const mKey = Object.keys(map[key])[0];
-        objectDB[mKey] = (<any>object)[map[key][mKey]];
+        objectDB[mKey] = (object as any)[map[key][mKey]];
       }
     }
     return objectDB;
@@ -162,10 +163,10 @@ class ExamplePersistenceModel1 extends PersistenceModel {
   }
 }
 
-ExamplePersistenceModel0.setVolatileModel(<any>ExampleVolatileModel0);
-ExamplePersistenceModel1.setVolatileModel(<any>ExampleVolatileModel1);
-ExampleVolatileModel0.setPersistenceModel(<any>ExamplePersistenceModel0);
-ExampleVolatileModel1.setPersistenceModel(<any>ExamplePersistenceModel1);
+ExamplePersistenceModel0.setVolatileModel(ExampleVolatileModel0 as any);
+ExamplePersistenceModel1.setVolatileModel(ExampleVolatileModel1 as any);
+ExampleVolatileModel0.setPersistenceModel(ExamplePersistenceModel0 as any);
+ExampleVolatileModel1.setPersistenceModel(ExamplePersistenceModel1 as any);
 
 const e0 = new ExamplePersistenceModel0(0);
 const e1 = new ExamplePersistenceModel1(0, 0);
