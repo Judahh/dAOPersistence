@@ -20,7 +20,7 @@ export default class BaseDAOStore
     });
   }
 
-  public async store(content: DAOSimpleModel): Promise<DAOModel> {
+  async store(content: DAOSimpleModel): Promise<DAOModel> {
     const values = await this.generateVectorValues(content);
     const select = await this.generateSelect('stored');
     const insert = await this.generateInsert();
@@ -31,13 +31,19 @@ export default class BaseDAOStore
       } stored AS (${insert} ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
+
+    // console.log('content:', content);
+    // console.log('STORE:', query);
+
     return new Promise((resolve, reject) => {
       this.pool.query(query, values, (error, result) => {
         if (error) {
-          return reject(error);
+          reject(error);
+          return;
         }
         result = this.fixType(result);
-        return resolve(result.rows[0]);
+        // console.log('result.rows[0]:', result.rows[0]);
+        resolve(result.rows[0]);
       });
     });
   }

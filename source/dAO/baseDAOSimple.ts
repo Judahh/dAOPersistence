@@ -2,9 +2,10 @@
 import DAOSimpleAdapter from '../adapter/dAOSimpleAdapter';
 import BaseDAOSelectAll from './baseDAOSelectAll';
 import BaseDAOSelectById from './baseDAOSelectById';
+import BaseDAOSelect from './baseDAOSelect';
 import { Mixin } from 'ts-mixer';
 // @ts-ignore
 export default class BaseDAOSimple
   // @ts-ignore
-  extends Mixin(BaseDAOSelectAll, BaseDAOSelectById)
+  extends Mixin(BaseDAOSelectAll, BaseDAOSelectById, BaseDAOSelect)
   implements DAOSimpleAdapter {}

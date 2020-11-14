@@ -36,7 +36,7 @@ export default class BaseDAODefault extends Default {
       resolve(select);
     });
   }
-  protected fixDate(rows: Array<any>, field: string): any {
+  protected fixDate(rows: any[], field: string): any {
     rows = rows.map((row) => {
       row[field] = new Date(row[field]).toISOString();
       return row;
@@ -44,7 +44,7 @@ export default class BaseDAODefault extends Default {
     return rows;
   }
 
-  protected fixBigNumber(rows: Array<any>, field: string): any {
+  protected fixBigNumber(rows: any[], field: string): any {
     rows = rows.map((row) => {
       row[field] = new BigNumber(row[field]).toString();
       return row;
@@ -52,7 +52,7 @@ export default class BaseDAODefault extends Default {
     return rows;
   }
 
-  protected fixUndefined(rows: Array<any>, field: string): any {
+  protected fixUndefined(rows: any[], field: string): any {
     rows = rows.map((row) => {
       row[field] = !row[field] ? undefined : row[field];
       return row;

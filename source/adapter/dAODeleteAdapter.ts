@@ -1,3 +1,3 @@
 export default interface DAODeleteAdapter {
-  delete(id: string): Promise<boolean>;
+  delete(filter, single: boolean): Promise<number>;
 }

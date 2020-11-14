@@ -1,9 +1,10 @@
 import DAOModel from '../model/dAOModel';
 import DAOSelectByIdAdapter from '../adapter/dAOSelectByIdAdapter';
 import BaseDAODefault from './baseDAODefault';
-export default class BaseDAOSelectById extends BaseDAODefault
+export default class BaseDAOSelectById
+  extends BaseDAODefault
   implements DAOSelectByIdAdapter {
-  public async selectById(id: string): Promise<DAOModel> {
+  async selectById(id: string): Promise<DAOModel> {
     const select = await this.generateSelect(this.table);
     return new Promise((resolve, reject) => {
       this.pool.query(
@@ -11,10 +12,11 @@ export default class BaseDAOSelectById extends BaseDAODefault
         [id],
         (error, result) => {
           if (error) {
-            return reject(error);
+            reject(error);
+            return;
           }
           result = this.fixType(result);
-          return resolve(result.rows[0]);
+          resolve(result.rows[0]);
         }
       );
     });

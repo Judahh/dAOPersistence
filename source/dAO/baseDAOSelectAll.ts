@@ -4,17 +4,19 @@
 import DAOModel from '../model/dAOModel';
 import BaseDAODefault from './baseDAODefault';
 import DAOSelectAllAdapter from '../adapter/dAOSelectAllAdapter';
-export default class BaseDAOSelectAll extends BaseDAODefault
+export default class BaseDAOSelectAll
+  extends BaseDAODefault
   implements DAOSelectAllAdapter {
-  public async selectAll(): Promise<Array<DAOModel>> {
+  async selectAll(): Promise<DAOModel[]> {
     const select = await this.generateSelect(this.table);
     return new Promise((resolve, reject) => {
       this.pool.query(`${select} ${this.groupBy}`, (error, result) => {
         if (error) {
-          return reject(error);
+          reject(error);
+          return;
         }
         result = this.fixType(result);
-        return resolve(result.rows);
+        resolve(result.rows);
       });
     });
   }
