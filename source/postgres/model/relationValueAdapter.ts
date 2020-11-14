@@ -20,7 +20,7 @@ export abstract class RelationValueAdapter {
     this.relation = relation;
   }
 
-  public toString(): string {
+  toString(): string {
     return this.map[this.relation];
   }
 }

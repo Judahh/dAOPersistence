@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+//  deepcode ignore no-any: any needed
 import {
   PersistenceAdapter,
   PersistencePromise,
@@ -223,7 +224,7 @@ export class PostgresDB implements PersistenceAdapter {
 
   public async createArray(
     scheme: string,
-    items: Array<any>
+    items: any[]
   ): Promise<PersistencePromise> {
     const received = Array<PersistencePromise>();
     for (const item of items) {

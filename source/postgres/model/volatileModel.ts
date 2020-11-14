@@ -10,7 +10,7 @@ export abstract class VolatileModel extends BasicModel {
     this.persistenceModel = persistenceModel;
   }
   public static generatePersistence(object: any): any {
-    const objectDB = new (<any>this.persistenceModel)();
+    const objectDB = new (this.persistenceModel as any)();
     for (let i = 0; i < Object.keys(object).length; i++) {
       const key = Object.keys(object)[i];
       const value = object[key];

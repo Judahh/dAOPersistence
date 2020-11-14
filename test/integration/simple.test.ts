@@ -22,7 +22,7 @@ test('add and read array and find object', async (done) => {
   const handler = new Handler(write, read);
   await handler.getWrite().clear('events');
 
-  const obj = new Object();
+  const obj = {};
   obj['string'] = 'test';
   try {
     // console.log('0');
