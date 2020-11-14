@@ -101,14 +101,14 @@ abstract class PersistenceModel extends BasicModel {
   }
 
   static generateVolatile(object: PersistenceModel) {
-    const objectDB = new (<any>this.volatileModel)();
+    const objectDB = new (this.volatileModel as any)();
     for (let i = 0; i < Object.keys(object).length; i++) {
       const key = Object.keys(object)[i];
-      const value = (<any>object)[key];
+      const value = (object as any)[key];
       if (objectDB.hasOwnProperty(key)) {
         objectDB[key] = value;
       } else {
-        console.log((<any>object).map);
+        console.log((object as any).map);
       }
     }
     return objectDB;
