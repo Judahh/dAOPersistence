@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// file deepcode ignore no-any: any needed
 import { BasicModel } from './basicModel';
 import { VolatileModel } from './volatileModel';
 

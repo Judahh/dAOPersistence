@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
+// file deepcode ignore no-any: any needed
 import { BasicModel } from './basicModel';
 import { PersistenceModel } from './persistenceModel';
 
