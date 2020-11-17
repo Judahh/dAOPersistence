@@ -27,7 +27,7 @@ export class DAODB implements PersistenceAdapter {
     return realInput;
   }
 
-  private persistencePromise(input, method, resolve) {
+  private persistencePromise(input, method, resolve, reject) {
     this.persistenceInfo.journaly
       .publish(
         input.scheme + 'DAO.' + method,
@@ -47,12 +47,15 @@ export class DAODB implements PersistenceAdapter {
         };
         // console.log(persistencePromise);
         resolve(persistencePromise);
+      })
+      .catch((error) => {
+        reject(error);
       });
   }
 
   private makePromise(input, method): Promise<PersistencePromise> {
-    return new Promise((resolve) => {
-      this.persistencePromise(input, method, resolve);
+    return new Promise((resolve, reject) => {
+      this.persistencePromise(input, method, resolve, reject);
     });
   }
 
