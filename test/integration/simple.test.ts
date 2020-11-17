@@ -13,7 +13,7 @@ import { eventInfo, readInfo } from './databaseInfos';
 let read;
 let write;
 test('add and read array and find object', async (done) => {
-  const journaly = new Journaly();
+  const journaly = Journaly.newJournaly();
   read = new PostgresDB(new PersistenceInfo(readInfo, journaly));
   write = new MongoDB(new PersistenceInfo(eventInfo, journaly));
 
@@ -34,15 +34,17 @@ test('add and read array and find object', async (done) => {
       })
     );
 
+    // console.log('1:', persistencePromise.receivedItem);
+
     expect(persistencePromise.receivedItem).toStrictEqual({
       _id: persistencePromise.receivedItem._id,
       string: 'test',
       number: null,
     });
 
-    // console.log('1:', persistencePromise.receivedItem);
-
     const persistencePromise1 = await handler.readArray('Object', {});
+    // console.log('2:', persistencePromise1.receivedItem);
+    // console.log('2:', persistencePromise1.receivedItem._id);
     expect(persistencePromise1.receivedItem).toStrictEqual([
       {
         _id: persistencePromise1.receivedItem[0]._id,
@@ -54,6 +56,7 @@ test('add and read array and find object', async (done) => {
     expect(persistencePromise1.sentItem).toStrictEqual(undefined);
 
     const persistencePromise2 = await handler.readItem('Object', {});
+    // console.log('3:', persistencePromise2.receivedItem);
 
     expect(persistencePromise2.receivedItem).toStrictEqual({
       _id: persistencePromise2.receivedItem._id,
@@ -71,10 +74,11 @@ test('add and read array and find object', async (done) => {
         content: { string: 'bob' },
       })
     );
+    // console.log('4:', persistencePromise3.receivedItem);
     // console.log(persistencePromise3);
     expect(persistencePromise3.result.rowCount).toBe(1);
     expect(persistencePromise3.receivedItem).toStrictEqual({
-      _id: persistencePromise2.receivedItem._id,
+      _id: persistencePromise3.receivedItem._id,
       string: 'bob',
       number: null,
     });
@@ -193,7 +197,7 @@ test('add and read array and find object', async (done) => {
 //     const persistencePromise1 = await handler.readArray('Object', {});
 //     expect(persistencePromise1.receivedItem).toStrictEqual([
 //       {
-//         _id: persistencePromise1.receivedItem[0]._id,
+//         _id: persistencePromise1.receivedItem._id,
 //         string: 'test',
 //         number: null,
 //       },

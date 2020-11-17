@@ -3,7 +3,7 @@ import { Journaly } from 'journaly';
 
 import { eventInfo, readInfo } from './databaseInfos';
 
-const journaly = new Journaly();
+const journaly = Journaly.newJournaly();
 
 const eventDatabase = new MongoDB(new PersistenceInfo(eventInfo, journaly));
 

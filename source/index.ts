@@ -25,6 +25,7 @@ import BaseDAOUpdate from './dAO/baseDAOUpdate';
 import DatabaseInitializer from './database/databaseInitializer';
 import DAOModel from './model/dAOModel';
 import DAOSimpleModel from './model/dAOSimpleModel';
+import Utils from './utils';
 
 export {
   DAODB,
@@ -54,4 +55,5 @@ export {
   DatabaseInitializer,
   DAOModel,
   DAOSimpleModel,
+  Utils,
 };

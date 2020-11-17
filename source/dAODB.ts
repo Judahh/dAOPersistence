@@ -27,9 +27,9 @@ export class DAODB implements PersistenceAdapter {
     return realInput;
   }
 
-  private async persistencePromise(input, method) {
-    const output = (
-      await this.persistenceInfo.journaly.publish(
+  private persistencePromise(input, method, resolve) {
+    this.persistenceInfo.journaly
+      .publish(
         input.scheme + 'DAO.' + method,
         method.includes('update')
           ? method.includes('ById')
@@ -38,24 +38,25 @@ export class DAODB implements PersistenceAdapter {
           : this.realInput(input),
         this.realInput(input)
       )
-    )[0];
-
-    const persistencePromise: PersistencePromise = {
-      receivedItem: output,
-      result: output,
-      selectedItem: input.selectedItem,
-      sentItem: input.item, //| input.sentItem,
-    };
-    return persistencePromise;
+      .then((output) => {
+        const persistencePromise: PersistencePromise = {
+          receivedItem: output,
+          result: output,
+          selectedItem: input.selectedItem,
+          sentItem: input.item, //| input.sentItem,
+        };
+        // console.log(persistencePromise);
+        resolve(persistencePromise);
+      });
   }
 
-  private async makePromise(input, method): Promise<PersistencePromise> {
-    return new Promise(async (resolve) => {
-      resolve(this.persistencePromise(input, method));
+  private makePromise(input, method): Promise<PersistencePromise> {
+    return new Promise((resolve) => {
+      this.persistencePromise(input, method, resolve);
     });
   }
 
-  async correct(input: PersistenceInputUpdate): Promise<PersistencePromise> {
+  correct(input: PersistenceInputUpdate): Promise<PersistencePromise> {
     //! Envia o input para o service determinado pelo esquema e lá ele faz as
     //! operações necessárias usando o journaly para acessar outros DAOs ou
     //! DAOs.
@@ -66,26 +67,24 @@ export class DAODB implements PersistenceAdapter {
     return this.makePromise(input, 'correct');
   }
 
-  async nonexistent(
-    input: PersistenceInputDelete
-  ): Promise<PersistencePromise> {
+  nonexistent(input: PersistenceInputDelete): Promise<PersistencePromise> {
     return this.makePromise(input, 'nonexistent');
   }
 
-  async existent(input: PersistenceInputCreate): Promise<PersistencePromise> {
+  existent(input: PersistenceInputCreate): Promise<PersistencePromise> {
     return this.makePromise(input, 'existent');
   }
 
-  async create(input: PersistenceInputCreate): Promise<PersistencePromise> {
+  create(input: PersistenceInputCreate): Promise<PersistencePromise> {
     // console.log('CREATE:', input);
     return this.makePromise(input, 'store');
   }
-  async update(input: PersistenceInputUpdate): Promise<PersistencePromise> {
+  update(input: PersistenceInputUpdate): Promise<PersistencePromise> {
     return input.id
       ? this.makePromise(input, 'updateById')
       : this.makePromise(input, 'update');
   }
-  async read(input: PersistenceInputRead): Promise<PersistencePromise> {
+  read(input: PersistenceInputRead): Promise<PersistencePromise> {
     // console.log('read', input);
     return input.single
       ? input.selectedItem
@@ -93,7 +92,7 @@ export class DAODB implements PersistenceAdapter {
         : this.makePromise(input, 'selectById')
       : this.makePromise(input, 'selectAll');
   }
-  async delete(input: PersistenceInputDelete): Promise<PersistencePromise> {
+  delete(input: PersistenceInputDelete): Promise<PersistencePromise> {
     return input.id
       ? this.makePromise(input, 'deleteById')
       : this.makePromise(input, 'delete');
