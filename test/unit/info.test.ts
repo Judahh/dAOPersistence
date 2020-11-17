@@ -2,7 +2,7 @@ import { PersistenceInfo } from 'flexiblepersistence';
 import { Journaly } from 'journaly';
 
 test('add and read array and find object', async (done) => {
-  const journaly = new Journaly();
+  const journaly = Journaly.newJournaly();
   let info = new PersistenceInfo(
     {
       uri: 'postgres://user:password@host:54321/database',

@@ -1,8 +1,8 @@
-import { Handler, Operation, Event, Utils } from 'flexiblepersistence';
+import { Handler, Operation, Event } from 'flexiblepersistence';
 import TestDAO from './testDAO';
 import ObjectDAO from './objectDAO';
 import { eventDatabase, database, journaly } from './databases';
-import { DAODB } from '../../source';
+import { DAODB, Utils } from '../../source';
 let read;
 let write;
 test('add and read array and find object', async (done) => {
