@@ -1,3 +1,4 @@
+// file deepcode ignore no-any: any needed
 import { Handler, Operation, Event } from 'flexiblepersistence';
 import TestDAO from './testDAO';
 import ObjectDAO from './objectDAO';

@@ -1,3 +1,4 @@
+// file deepcode ignore no-any: any needed
 import {
   Handler,
   PersistenceInfo,
