@@ -1,15 +1,21 @@
-import DAODeleteAdapter from '../adapter/dAODeleteAdapter';
-import BaseDAODefault from './baseDAODefault';
+import DAODeleteAdapter from '../../adapter/delete/dAODeleteAdapter';
+import BaseDAODefault from '../baseDAODefault';
 
 export default class BaseDAODelete
   extends BaseDAODefault
   implements DAODeleteAdapter {
-  delete(filter, single: boolean): Promise<number> {
-    const limit = single ? 'LIMIT 1' : '';
+  delete(filter): Promise<boolean> {
+    const limit = 'LIMIT 1';
     let query = `DELETE FROM ${this.table} WHERE id IN (SELECT id FROM ${this.table} ORDER BY ID ${limit})`;
 
-    if (filter) {
-      let pos = 0;
+    if (!filter) {
+      filter = {};
+    }
+
+    // console.log('filter=', filter);
+
+    if (Object.keys(filter).length !== 0) {
+      let pos = 1;
       query = `DELETE FROM ${this.table} WHERE ${Object.getOwnPropertyNames(
         filter
       )
@@ -29,10 +35,10 @@ export default class BaseDAODelete
             return;
           }
           if (result.rowCount) {
-            resolve(result.rowCount);
+            resolve(true);
             return;
           }
-          resolve(0);
+          resolve(true);
           // console.log(result);
 
           // error = new Error();

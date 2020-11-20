@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import DAOModel from '../model/dAOModel';
-import DAOSimpleModel from '../model/dAOSimpleModel';
-import DAOUpdateAdapter from '../adapter/dAOUpdateAdapter';
-import BaseDAORestrictedDefault from './baseDAORestrictedDefault';
+import DAOModel from '../../model/dAOModel';
+import DAOSimpleModel from '../../model/dAOSimpleModel';
+import DAOUpdateArrayAdapter from '../../adapter/update/dAOUpdateArrayAdapter';
+import BaseDAORestrictedDefault from '../baseDAORestrictedDefault';
 
 // @ts-ignore
-export default class BaseDAOUpdate
+export default class BaseDAOUpdateArray
   extends BaseDAORestrictedDefault
-  implements DAOUpdateAdapter {
+  implements DAOUpdateArrayAdapter {
   // @ts-ignore
   protected abstract updateQuery: string;
 
@@ -26,7 +26,7 @@ export default class BaseDAOUpdate
     });
   }
 
-  async update(filter, content: DAOSimpleModel): Promise<DAOModel> {
+  async updateArray(filter, content: DAOSimpleModel): Promise<DAOModel[]> {
     const values = Object.values(content);
     const select = await this.generateSelect('updated');
     const update = await this.generateUpdate(
@@ -39,7 +39,11 @@ export default class BaseDAOUpdate
       `) ${select} ${this.groupBy}`;
     if (!filter) {
       filter = {};
-    } else {
+    }
+
+    // console.log('filter=', filter);
+
+    if (Object.keys(filter).length !== 0) {
       query =
         `WITH updated AS (${update} WHERE ${Object.getOwnPropertyNames(filter)
           .map((x) => x + ' = ' + filter[x])

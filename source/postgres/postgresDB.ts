@@ -289,15 +289,15 @@ export class PostgresDB implements PersistenceAdapter {
     return this.pool;
   }
 
-  close(): Promise<unknown> {
-    return new Promise<unknown>((resolve) => {
+  close(): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
       this.end(resolve);
     });
   }
 
   private end(resolve): void {
     this.pool.end(() => {
-      resolve();
+      resolve(true);
     });
   }
 

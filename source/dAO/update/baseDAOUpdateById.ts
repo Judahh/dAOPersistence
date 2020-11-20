@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import DAOModel from '../model/dAOModel';
-import DAOSimpleModel from '../model/dAOSimpleModel';
-import DAOUpdateByIdAdapter from '../adapter/dAOUpdateByIdAdapter';
-import BaseDAORestrictedDefault from './baseDAORestrictedDefault';
+import DAOModel from '../../model/dAOModel';
+import DAOSimpleModel from '../../model/dAOSimpleModel';
+import DAOUpdateByIdAdapter from '../../adapter/update/dAOUpdateByIdAdapter';
+import BaseDAORestrictedDefault from '../baseDAORestrictedDefault';
 
 // @ts-ignore
 export default class BaseDAOUpdateById

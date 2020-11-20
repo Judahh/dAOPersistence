@@ -1,5 +1,5 @@
-import DAODeleteByIdAdapter from '../adapter/dAODeleteByIdAdapter';
-import BaseDAODefault from './baseDAODefault';
+import DAODeleteByIdAdapter from '../../adapter/delete/dAODeleteByIdAdapter';
+import BaseDAODefault from '../baseDAODefault';
 
 export default class BaseDAODeleteById
   extends BaseDAODefault

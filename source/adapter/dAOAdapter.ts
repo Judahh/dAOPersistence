@@ -1,6 +1,6 @@
 import DAORestrictedAdapter from './dAORestrictedAdapter';
-import DAODeleteAdapter from './dAODeleteAdapter';
+import DAOFullDeleteAdapter from './delete/dAOFullDeleteAdapter';
 
 export default interface DAOAdapter
   extends DAORestrictedAdapter,
-    DAODeleteAdapter {}
+    DAOFullDeleteAdapter {}

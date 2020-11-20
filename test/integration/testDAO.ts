@@ -1,4 +1,4 @@
-import { BaseDAO, DAOSimpleModel } from '../../source/index';
+import { BaseDAO } from '../../source/index';
 /* eslint-disable no-unused-vars */
 export default class TestDAO extends BaseDAO {
   protected table = 'tests';
@@ -12,12 +12,5 @@ export default class TestDAO extends BaseDAO {
   constructor(initDefault) {
     super(initDefault);
     // console.log(this);
-  }
-
-  protected generateVectorValues(content: DAOSimpleModel): Promise<unknown[]> {
-    let values;
-    if (content && content.id) values = [content.id];
-    else values = [];
-    return new Promise((resolve) => resolve(values));
   }
 }

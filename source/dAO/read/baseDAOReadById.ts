@@ -1,10 +1,10 @@
-import DAOModel from '../model/dAOModel';
-import DAOSelectByIdAdapter from '../adapter/dAOSelectByIdAdapter';
-import BaseDAODefault from './baseDAODefault';
-export default class BaseDAOSelectById
+import DAOModel from '../../model/dAOModel';
+import DAOReadByIdAdapter from '../../adapter/read/dAOReadByIdAdapter';
+import BaseDAODefault from '../baseDAODefault';
+export default class BaseDAOReadById
   extends BaseDAODefault
-  implements DAOSelectByIdAdapter {
-  async selectById(id: string): Promise<DAOModel> {
+  implements DAOReadByIdAdapter {
+  async readById(id: string): Promise<DAOModel> {
     const select = await this.generateSelect(this.table);
     return new Promise((resolve, reject) => {
       this.pool.query(
