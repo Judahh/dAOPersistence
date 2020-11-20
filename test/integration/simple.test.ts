@@ -1,3 +1,4 @@
+// file deepcode ignore no-any: any needed
 import {
   Handler,
   PersistenceInfo,
@@ -7,13 +8,13 @@ import {
 } from 'flexiblepersistence';
 import { PostgresDB } from '../../source/postgres/postgresDB';
 import Utils from '../../source/utils';
-import { Journaly } from 'journaly';
+import { Journaly, SubjectObserver } from 'journaly';
 import { eventInfo, readInfo } from './databaseInfos';
 
 let read;
 let write;
 test('add and read array and find object', async (done) => {
-  const journaly = Journaly.newJournaly();
+  const journaly = Journaly.newJournaly() as SubjectObserver<any>;
   read = new PostgresDB(new PersistenceInfo(readInfo, journaly));
   write = new MongoDB(new PersistenceInfo(eventInfo, journaly));
 

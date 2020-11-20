@@ -20,24 +20,52 @@ export class DAODB implements PersistenceAdapter {
     this.pool = new Pool(this.persistenceInfo);
   }
 
+  private aggregateFromReceivedArray(receivedItem, realInput) {
+    return realInput.map((value, index) =>
+      this.aggregateFromReceived(receivedItem[index], value)
+    );
+  }
+
+  private aggregateFromReceived(receivedItem, value) {
+    const id = this.getIdFromReceived(receivedItem);
+    if (id)
+      return {
+        ...value,
+        id: id,
+      };
+    return value;
+  }
+
+  private getIdFromReceived(receivedItem) {
+    return receivedItem?.id?.toString() || receivedItem?._id?.toString();
+  }
+
   private realInput(input) {
-    const realInput = input.item;
-    if (input['id']) realInput['id'] = input['id'];
-    if (input['_id']) realInput['_id'] = input['_id'];
+    let realInput = input.item ? input.item : {};
+    if (Array.isArray(realInput))
+      realInput = this.aggregateFromReceivedArray(
+        input['receivedItem'],
+        realInput
+      );
+    else
+      realInput = this.aggregateFromReceived(input['receivedItem'], realInput);
+
+    // console.log(realInput);
     return realInput;
   }
 
   private persistencePromise(input, method, resolve, reject) {
+    // console.log(method);
+    const input1 = !method.includes('create')
+      ? method.includes('ById')
+        ? input.id
+        : input.selectedItem
+      : this.realInput(input);
+    const input2 = this.realInput(input);
+    // console.log(input1);
+    // console.log(input2);
     this.persistenceInfo.journaly
-      .publish(
-        input.scheme + 'DAO.' + method,
-        method.includes('update')
-          ? method.includes('ById')
-            ? input.id
-            : input.selectedItem
-          : this.realInput(input),
-        this.realInput(input)
-      )
+      .publish(input.scheme + 'DAO.' + method, input1, input2)
       .then((output) => {
         const persistencePromise: PersistencePromise = {
           receivedItem: output,
@@ -67,38 +95,46 @@ export class DAODB implements PersistenceAdapter {
     //! compatível com o input para pemitir retro-alimentação.
     //! Atualizar o input para que utilize o melhor dos dois
     //! (input e parametros usados no SimpleAPI).
-    return this.makePromise(input, 'correct');
+    return this.update(input);
   }
 
   nonexistent(input: PersistenceInputDelete): Promise<PersistencePromise> {
-    return this.makePromise(input, 'nonexistent');
+    return this.delete(input);
   }
 
   existent(input: PersistenceInputCreate): Promise<PersistencePromise> {
-    return this.makePromise(input, 'existent');
+    return this.create(input);
   }
 
   create(input: PersistenceInputCreate): Promise<PersistencePromise> {
     // console.log('CREATE:', input);
-    return this.makePromise(input, 'store');
+    return Array.isArray(input.item)
+      ? this.makePromise(input, 'createArray')
+      : this.makePromise(input, 'create');
   }
   update(input: PersistenceInputUpdate): Promise<PersistencePromise> {
     return input.id
       ? this.makePromise(input, 'updateById')
-      : this.makePromise(input, 'update');
+      : input.single
+      ? this.makePromise(input, 'update')
+      : this.makePromise(input, 'updateArray');
   }
   read(input: PersistenceInputRead): Promise<PersistencePromise> {
     // console.log('read', input);
-    return input.single
-      ? input.selectedItem
-        ? this.makePromise(input, 'select')
-        : this.makePromise(input, 'selectById')
-      : this.makePromise(input, 'selectAll');
+    return input.id
+      ? this.makePromise(input, 'readById')
+      : input.single
+      ? this.makePromise(input, 'read')
+      : this.makePromise(input, 'readArray');
   }
   delete(input: PersistenceInputDelete): Promise<PersistencePromise> {
+    // console.log('FUCKING DELETE');
+
     return input.id
       ? this.makePromise(input, 'deleteById')
-      : this.makePromise(input, 'delete');
+      : input.single
+      ? this.makePromise(input, 'delete')
+      : this.makePromise(input, 'deleteArray');
   }
 
   getPersistenceInfo(): PersistenceInfo {
@@ -110,15 +146,15 @@ export class DAODB implements PersistenceAdapter {
     return this.pool;
   }
 
-  close(): Promise<unknown> {
-    return new Promise<unknown>((resolve) => {
+  close(): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
       this.end(resolve);
     });
   }
 
   private end(resolve): void {
     this.pool.end(() => {
-      resolve();
+      resolve(true);
     });
   }
 }

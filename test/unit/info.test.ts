@@ -1,8 +1,8 @@
 import { PersistenceInfo } from 'flexiblepersistence';
-import { Journaly } from 'journaly';
+import { Journaly, SubjectObserver } from 'journaly';
 
 test('add and read array and find object', async (done) => {
-  const journaly = Journaly.newJournaly();
+  const journaly = Journaly.newJournaly() as SubjectObserver<any>;
   let info = new PersistenceInfo(
     {
       uri: 'postgres://user:password@host:54321/database',

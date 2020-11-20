@@ -1,8 +1,8 @@
-import DAOSimpleAdapter from './dAOSimpleAdapter';
-import DAOStoreAdapter from './dAOStoreAdapter';
-import DAOUpdateAdapter from './dAOUpdateAdapter';
+import DAOFullReadAdapter from './read/dAOFullReadAdapter';
+import DAOFullCreateAdapter from './create/dAOFullCreateAdapter';
+import DAOFullUpdateAdapter from './update/dAOFullUpdateAdapter';
 
 export default interface DAORestrictedAdapter
-  extends DAOSimpleAdapter,
-    DAOStoreAdapter,
-    DAOUpdateAdapter {}
+  extends DAOFullReadAdapter,
+    DAOFullCreateAdapter,
+    DAOFullUpdateAdapter {}
