@@ -12,6 +12,8 @@ export default class BaseDAOCreateArray
   // @ts-ignore
   protected abstract insertValues: string;
   protected beforeInsert = '';
+  // @ts-ignore
+  protected abstract updateQuery: string;
 
   protected async generateInsertArray(
     content: DAOSimpleModel[],

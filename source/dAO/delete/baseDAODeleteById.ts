@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import DAODeleteByIdAdapter from '../../adapter/delete/dAODeleteByIdAdapter';
 import BaseDAODefault from '../baseDAODefault';
 
 export default class BaseDAODeleteById
   extends BaseDAODefault
   implements DAODeleteByIdAdapter {
+  // @ts-ignore
+  protected abstract updateQuery: string;
   deleteById(id: string): Promise<boolean> {
     // console.log(this.table);
     return new Promise((resolve, reject) => {
