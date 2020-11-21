@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import DAODeleteAdapter from '../../adapter/delete/dAODeleteAdapter';
 import BaseDAODefault from '../baseDAODefault';
 
 export default class BaseDAODelete
   extends BaseDAODefault
   implements DAODeleteAdapter {
+  // @ts-ignore
+  protected abstract updateQuery: string;
   delete(filter): Promise<boolean> {
     const limit = 'LIMIT 1';
     let query = `DELETE FROM ${this.table} WHERE id IN (SELECT id FROM ${this.table} ORDER BY ID ${limit})`;
@@ -16,9 +19,7 @@ export default class BaseDAODelete
 
     if (Object.keys(filter).length !== 0) {
       let pos = 1;
-      query = `DELETE FROM ${this.table} WHERE ${Object.getOwnPropertyNames(
-        filter
-      )
+      query = `DELETE FROM ${this.table} WHERE ${Object.keys(filter)
         .map((x) => x + ' = $' + pos++)
         .join(', ')} AND id IN (SELECT id FROM ${
         this.table

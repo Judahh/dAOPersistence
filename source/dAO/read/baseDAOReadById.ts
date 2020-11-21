@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import DAOModel from '../../model/dAOModel';
 import DAOReadByIdAdapter from '../../adapter/read/dAOReadByIdAdapter';
 import BaseDAODefault from '../baseDAODefault';
 export default class BaseDAOReadById
   extends BaseDAODefault
   implements DAOReadByIdAdapter {
+  // @ts-ignore
+  protected abstract updateQuery: string;
   async readById(id: string): Promise<DAOModel> {
     const select = await this.generateSelect(this.table);
     return new Promise((resolve, reject) => {

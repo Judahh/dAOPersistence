@@ -3,6 +3,7 @@ import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
 import { Default } from 'default-initializer';
 import BaseDAODefaultInitializer from './baseDAODefaultInitializer';
+import DAOSimpleModel from '../model/dAOSimpleModel';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -30,6 +31,32 @@ export default class BaseDAODefault extends Default {
   protected values = '*';
 
   protected selectJoin = '';
+
+  // @ts-ignore
+  protected abstract updateQuery: string;
+
+  protected generateValueFromUnknown(element: unknown): unknown | string {
+    if (typeof element === 'string' || element instanceof String)
+      return "'" + element + "'";
+
+    return element;
+  }
+
+  protected async generateUpdate(
+    length: number,
+    content: DAOSimpleModel
+  ): Promise<string> {
+    let pos = length;
+    let set = this.updateQuery;
+    if (content)
+      set = Object.keys(content)
+        .map((x) => x + ' = $' + pos++)
+        .join(', ');
+    const update = `UPDATE ${this.table} SET ${set}`;
+    return new Promise((resolve) => {
+      resolve(update);
+    });
+  }
   protected async generateSelect(alias: string): Promise<string> {
     const select = `SELECT ${this.values} FROM ${alias} AS element ${this.selectJoin}`;
     return new Promise((resolve) => {
