@@ -9,6 +9,7 @@ export default class BaseDAODeleteArray
   protected abstract updateQuery: string;
   deleteArray(filter): Promise<number> {
     let query = `DELETE FROM ${this.table} WHERE id IN (SELECT id FROM ${this.table} ORDER BY ID)`;
+
     if (!filter) {
       filter = {};
     }
@@ -17,9 +18,11 @@ export default class BaseDAODeleteArray
 
     if (Object.keys(filter).length !== 0) {
       let pos = 1;
-      query = `DELETE FROM ${this.table} WHERE ${Object.keys(filter)
-        .map((x) => x + ' = $' + pos++)
-        .join(', ')} AND id IN (SELECT id FROM ${this.table} ORDER BY ID)`;
+      query =
+        `DELETE FROM ${this.table} WHERE id IN (SELECT id FROM ${this.table} ` +
+        `WHERE ${Object.keys(filter)
+          .map((x) => x + ' = $' + pos++)
+          .join(', ')} ORDER BY ID) `;
     }
 
     return new Promise((resolve, reject) => {

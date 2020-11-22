@@ -19,11 +19,11 @@ export default class BaseDAODelete
 
     if (Object.keys(filter).length !== 0) {
       let pos = 1;
-      query = `DELETE FROM ${this.table} WHERE ${Object.keys(filter)
-        .map((x) => x + ' = $' + pos++)
-        .join(', ')} AND id IN (SELECT id FROM ${
-        this.table
-      } ORDER BY ID ${limit})`;
+      query =
+        `DELETE FROM ${this.table} WHERE id IN (SELECT id FROM ${this.table} ` +
+        `WHERE ${Object.keys(filter)
+          .map((x) => x + ' = $' + pos++)
+          .join(', ')} ORDER BY ID ${limit}) `;
     }
 
     return new Promise((resolve, reject) => {

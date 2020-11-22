@@ -32,10 +32,10 @@ export default class BaseDAOUpdate
 
     if (Object.keys(filter).length !== 0) {
       query =
-        `WITH updated AS (${update} WHERE ${Object.keys(filter)
+        `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.table} ` +
+        `WHERE ${Object.keys(filter)
           .map((x) => x + ' = ' + this.generateValueFromUnknown(filter[x]))
-          .join(', ')} ` +
-        `AND id IN  (SELECT id FROM ${this.table} ORDER BY ID ${limit}) ` +
+          .join(', ')} ORDER BY ID ${limit}) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
     }
