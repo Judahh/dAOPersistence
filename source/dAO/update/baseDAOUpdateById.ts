@@ -17,10 +17,8 @@ export default class BaseDAOUpdateById
     const select = await this.generateSelect('updated');
     const update = await this.generateUpdate(1, content);
     const query =
-      `WITH updated AS (${update} WHERE id = ${this.generateValueFromUnknown(
-        id
-      )} ` +
-      `AND id IN  (SELECT id FROM ${this.table} ORDER BY ID ${limit}) ` +
+      `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.table} ` +
+      `WHERE id = ${this.generateValueFromUnknown(id)} ORDER BY ID ${limit}) ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
 
