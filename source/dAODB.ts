@@ -11,12 +11,48 @@ import {
   PersistenceInputDelete,
 } from 'flexiblepersistence';
 import { Pool } from 'pg';
+import BaseDAODefault from './dAO/baseDAODefault';
+import BaseDAODefaultInitializer from './dAO/baseDAODefaultInitializer';
 export class DAODB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
   private pool: Pool;
 
-  constructor(persistenceInfo: PersistenceInfo) {
+  element: {
+    [name: string]: BaseDAODefault;
+  } = {
+    // mongo: mongoDB
+  };
+
+  constructor(
+    persistenceInfo: PersistenceInfo,
+    element?: {
+      [name: string]: BaseDAODefault;
+    }
+  ) {
     this.persistenceInfo = persistenceInfo;
+    this.initPool();
+    if (element) this.setElement(element);
+  }
+
+  protected initElement() {
+    const initDefault: BaseDAODefaultInitializer = {
+      pool: this.pool,
+      journaly: this.persistenceInfo.journaly,
+    };
+    for (const key in this.element) {
+      if (Object.prototype.hasOwnProperty.call(this.element, key)) {
+        const element = this.element[key];
+        element.init(initDefault);
+      }
+    }
+  }
+
+  public setElement(element: { [name: string]: BaseDAODefault }) {
+    this.element = element;
+    this.initElement();
+  }
+
+  protected initPool() {
     this.pool = new Pool(this.persistenceInfo);
   }
 

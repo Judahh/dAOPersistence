@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
-import { Default } from 'default-initializer';
+import { Default } from 'flexiblepersistence';
 import BaseDAODefaultInitializer from './baseDAODefaultInitializer';
 import DAOSimpleModel from '../model/dAOSimpleModel';
+import { Pool } from 'pg';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -12,20 +13,36 @@ export default class BaseDAODefault extends Default {
 
   protected baseClass = 'BaseDAO';
 
-  protected constructor(initDefault: BaseDAODefaultInitializer) {
+  protected constructor(initDefault?: BaseDAODefaultInitializer) {
     super(initDefault);
-    this.pool = initDefault.pool;
   }
-  protected init(initDefault: BaseDAODefaultInitializer): void {
-    super.init(initDefault);
-    this.pool = initDefault.pool;
+  init(initDefault?: BaseDAODefaultInitializer): void {
+    // console.log('init:', initDefault);
 
-    if (!this.table || !this.constructor.name.includes(this.baseClass)) {
+    super.init(initDefault);
+    if (initDefault && initDefault.pool) this.setPool(initDefault.pool);
+
+    // console.log(
+    //   'Table:',
+    //   this.table,
+    //   ' and NOT Base:',
+    //   !this.constructor.name.includes(this.baseClass)
+    // );
+    if (!this.table) {
       this.table = this.constructor.name; //TODO: modify to DB structure
+      // console.log('Table changed:', this.table);
     }
   }
 
-  protected pool;
+  getPool() {
+    return this.pool;
+  }
+
+  setPool(pool) {
+    this.pool = pool;
+  }
+
+  protected pool: Pool;
 
   protected groupBy = '';
   protected values = '*';

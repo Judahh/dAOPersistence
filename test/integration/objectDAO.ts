@@ -11,7 +11,7 @@ export default class ObjectDAO extends BaseDAO {
 
   protected updateQuery = '';
 
-  constructor(initDefault) {
+  constructor(initDefault?) {
     super(initDefault);
     // console.log(this);
   }
