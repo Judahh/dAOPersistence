@@ -19,17 +19,20 @@ test('add and read array and find object', async (done) => {
   const eventDatabase = new MongoDB(new PersistenceInfo(eventInfo, journaly));
   const database = new PersistenceInfo(readInfo, journaly);
   write = eventDatabase;
-  read = new DAODB(database);
+  read = new DAODB(database, {
+    test: new TestDAO(),
+    object: new ObjectDAO(),
+  });
   const pool = read.getPool();
   await Utils.init(pool);
-  new TestDAO({
-    pool,
-    journaly,
-  });
-  new ObjectDAO({
-    pool,
-    journaly,
-  });
+  // new TestDAO({
+  //   pool,
+  //   journaly,
+  // });
+  // new ObjectDAO({
+  //   pool,
+  //   journaly,
+  // });
   const handler = new Handler(write, read);
   await handler.getWrite().clear('events');
   const obj = {};

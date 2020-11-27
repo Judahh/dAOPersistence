@@ -9,6 +9,7 @@ import {
   PersistenceInputUpdate,
   PersistenceInputRead,
   PersistenceInputDelete,
+  Default,
 } from 'flexiblepersistence';
 import { Pool } from 'pg';
 import { RelationValuePostgresDB } from './relationValuePostgresDB';
@@ -16,6 +17,10 @@ import { SelectedItemValue } from './model/selectedItemValue';
 export class PostgresDB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
   private pool: Pool;
+
+  element: {
+    [name: string]: Default;
+  } = {};
 
   private static inspectSelectedItemValue(element: any): SelectedItemValue {
     if (!(element instanceof SelectedItemValue)) {
