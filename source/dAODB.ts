@@ -47,7 +47,7 @@ export class DAODB implements PersistenceAdapter {
     }
   }
 
-  public setElement(element: { [name: string]: BaseDAODefault }) {
+  setElement(element: { [name: string]: BaseDAODefault }) {
     this.element = element;
     this.initElement();
   }
