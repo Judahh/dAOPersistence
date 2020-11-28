@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+// file deepcode ignore no-any: any needed
+// file deepcode ignore object-literal-shorthand: argh
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
 import {
