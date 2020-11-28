@@ -7,13 +7,15 @@ import {
   PersistenceInfo,
   PersistenceInputCreate,
   PersistenceInputUpdate,
-  PersistenceInputRead,
-  PersistenceInputDelete,
-  Default,
 } from 'flexiblepersistence';
 import { Pool } from 'pg';
 import { RelationValuePostgresDB } from './relationValuePostgresDB';
 import { SelectedItemValue } from './model/selectedItemValue';
+import {
+  Default,
+  PersistenceInputDelete,
+  PersistenceInputRead,
+} from 'flexiblepersistence';
 export class PostgresDB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
   private pool: Pool;
@@ -152,7 +154,7 @@ export class PostgresDB implements PersistenceAdapter {
       console.log(error);
       reject(new Error(error));
     } else {
-      const result = new PersistencePromise({
+      const result = new PersistencePromise<any>({
         receivedItem: results
           ? isItem
             ? results.rows[0]
@@ -172,36 +174,40 @@ export class PostgresDB implements PersistenceAdapter {
     this.pool = new Pool(this.persistenceInfo);
   }
 
-  correct(input: PersistenceInputUpdate): Promise<PersistencePromise> {
+  correct(
+    input: PersistenceInputUpdate<any>
+  ): Promise<PersistencePromise<any>> {
     return this.update(input);
   }
 
-  nonexistent(input: PersistenceInputDelete): Promise<PersistencePromise> {
+  nonexistent(input: PersistenceInputDelete): Promise<PersistencePromise<any>> {
     return this.delete(input);
   }
 
-  create(input: PersistenceInputCreate): Promise<PersistencePromise> {
+  create(input: PersistenceInputCreate<any>): Promise<PersistencePromise<any>> {
     if (input.item instanceof Array) {
       return this.createArray(input.scheme, input.item);
     } else {
       return this.createItem(input.scheme, input.item);
     }
   }
-  existent(input: PersistenceInputCreate): Promise<PersistencePromise> {
+  existent(
+    input: PersistenceInputCreate<any>
+  ): Promise<PersistencePromise<any>> {
     if (input.item instanceof Array) {
       return this.createArray(input.scheme, input.item);
     } else {
       return this.createItem(input.scheme, input.item);
     }
   }
-  update(input: PersistenceInputUpdate): Promise<PersistencePromise> {
+  update(input: PersistenceInputUpdate<any>): Promise<PersistencePromise<any>> {
     if (input.single || input.id) {
       return this.updateItem(input.scheme, input.selectedItem, input.item);
     } else {
       return this.updateArray(input.scheme, input.selectedItem, input.item);
     }
   }
-  read(input: PersistenceInputRead): Promise<PersistencePromise> {
+  read(input: PersistenceInputRead): Promise<PersistencePromise<any>> {
     if (input.single || input.id) {
       if (input.id) return this.readItemById(input.scheme, input.id);
       return this.readItem(input.scheme, input.selectedItem);
@@ -209,7 +215,7 @@ export class PostgresDB implements PersistenceAdapter {
       return this.readArray(input.scheme, input.selectedItem);
     }
   }
-  delete(input: PersistenceInputDelete): Promise<PersistencePromise> {
+  delete(input: PersistenceInputDelete): Promise<PersistencePromise<any>> {
     if (input.single || input.id) {
       if (input.id) return this.deleteItem(input.scheme, input.id);
       return this.deleteItem(input.scheme, input.selectedItem);
@@ -218,20 +224,26 @@ export class PostgresDB implements PersistenceAdapter {
     }
   }
 
-  async createItem(scheme: string, item: any): Promise<PersistencePromise> {
+  async createItem(
+    scheme: string,
+    item: any
+  ): Promise<PersistencePromise<any>> {
     const query = PostgresDB.queryInsertItem(scheme, item);
     // console.log('createItem: ', item, scheme);
     return this.query(query, { sentItem: item }, true);
   }
 
-  async createArray(scheme: string, items: any[]): Promise<PersistencePromise> {
-    const received = Array<PersistencePromise>();
+  async createArray(
+    scheme: string,
+    items: any[]
+  ): Promise<PersistencePromise<any>> {
+    const received = Array<PersistencePromise<any>>();
     for (const item of items) {
       received.push(await this.createItem(scheme, item));
     }
-    return new Promise<PersistencePromise>((resolve) => {
+    return new Promise<PersistencePromise<any>>((resolve) => {
       resolve(
-        new PersistencePromise({
+        new PersistencePromise<any>({
           receivedItem: received.map(({ receivedItem }) => receivedItem),
           result: received.map(({ result }) => result),
           sentItem: received.map(({ sentItem }) => sentItem),
@@ -244,7 +256,7 @@ export class PostgresDB implements PersistenceAdapter {
     scheme: string,
     selectedItem: any,
     item: any
-  ): Promise<PersistencePromise> {
+  ): Promise<PersistencePromise<any>> {
     const query = PostgresDB.queryUpdateItem(scheme, selectedItem, item);
     return this.query(query, { selectedItem, sentItem: item }, true);
   }
@@ -253,33 +265,45 @@ export class PostgresDB implements PersistenceAdapter {
     scheme: string,
     selectedItem: any,
     item: any
-  ): Promise<PersistencePromise> {
+  ): Promise<PersistencePromise<any>> {
     const query = PostgresDB.queryUpdateArray(scheme, selectedItem, item);
     return this.query(query, { selectedItem, sentItem: item }, true);
   }
 
-  readArray(scheme: string, selectedItem: any): Promise<PersistencePromise> {
+  readArray(
+    scheme: string,
+    selectedItem: any
+  ): Promise<PersistencePromise<any>> {
     const query = PostgresDB.querySelectArray(scheme, selectedItem);
     return this.query(query, { selectedItem });
   }
 
-  readItem(scheme: string, selectedItem: any): Promise<PersistencePromise> {
+  readItem(
+    scheme: string,
+    selectedItem: any
+  ): Promise<PersistencePromise<any>> {
     const query = PostgresDB.querySelectItem(scheme, selectedItem);
     return this.query(query, { selectedItem }, true);
   }
 
-  readItemById(scheme: string, id: any): Promise<PersistencePromise> {
+  readItemById(scheme: string, id: any): Promise<PersistencePromise<any>> {
     const query = PostgresDB.querySelectItem(scheme, { _id: id });
     return this.query(query, { selectedItem: { _id: id } }, true);
   }
 
-  deleteItem(scheme: string, selectedItem: any): Promise<PersistencePromise> {
+  deleteItem(
+    scheme: string,
+    selectedItem: any
+  ): Promise<PersistencePromise<any>> {
     const query = PostgresDB.queryDeleteItem(scheme, selectedItem);
     // console.log('DeleteItem :', selectedItem);
     return this.query(query, { selectedItem }, true);
   }
 
-  deleteArray(scheme: string, selectedItem: any): Promise<PersistencePromise> {
+  deleteArray(
+    scheme: string,
+    selectedItem: any
+  ): Promise<PersistencePromise<any>> {
     const query = PostgresDB.queryDeleteArray(scheme, selectedItem);
     // console.log('DeleteArray: ', query);
     return this.query(query, { selectedItem });
@@ -310,8 +334,8 @@ export class PostgresDB implements PersistenceAdapter {
     query: string,
     toPromise: { selectedItem?; sentItem? },
     isItem?: boolean
-  ): Promise<PersistencePromise> {
-    return new Promise<PersistencePromise>((resolve, reject) => {
+  ): Promise<PersistencePromise<any>> {
+    return new Promise<PersistencePromise<any>>((resolve, reject) => {
       // console.log(query);
 
       this.pool.query(query, (error, results) => {

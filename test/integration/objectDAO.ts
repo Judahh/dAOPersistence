@@ -1,7 +1,9 @@
 import { BaseDAO } from '../../source/index';
 /* eslint-disable no-unused-vars */
 export default class ObjectDAO extends BaseDAO {
-  protected table = 'Objects';
+  generateName(): void {
+    this.setName('Objects');
+  }
 
   protected values = 'element.ID, element.test, element.testNumber';
 

@@ -1,18 +1,19 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
-import { Default } from 'flexiblepersistence';
+import {
+  BasicEvent,
+  Default,
+  PersistenceInput,
+  PersistencePromise,
+} from 'flexiblepersistence';
 import BaseDAODefaultInitializer from './baseDAODefaultInitializer';
 import DAOSimpleModel from '../model/dAOSimpleModel';
 import { Pool } from 'pg';
+import DAOModel from '../model/dAOModel';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
-  // @ts-ignore
-  protected table: string;
-
-  protected baseClass = 'BaseDAO';
-
   protected constructor(initDefault?: BaseDAODefaultInitializer) {
     super(initDefault);
   }
@@ -21,17 +22,6 @@ export default class BaseDAODefault extends Default {
 
     super.init(initDefault);
     if (initDefault && initDefault.pool) this.setPool(initDefault.pool);
-
-    // console.log(
-    //   'Table:',
-    //   this.table,
-    //   ' and NOT Base:',
-    //   !this.constructor.name.includes(this.baseClass)
-    // );
-    if (!this.table) {
-      this.table = this.constructor.name; //TODO: modify to DB structure
-      // console.log('Table changed:', this.table);
-    }
   }
 
   getPool() {
@@ -69,7 +59,7 @@ export default class BaseDAODefault extends Default {
       set = Object.keys(content)
         .map((x) => x + ' = $' + pos++)
         .join(', ');
-    const update = `UPDATE ${this.table} SET ${set}`;
+    const update = `UPDATE ${this.getName()} SET ${set}`;
     return new Promise((resolve) => {
       resolve(update);
     });
@@ -130,5 +120,87 @@ export default class BaseDAODefault extends Default {
       }
     }
     return result;
+  }
+
+  protected aggregateFromReceivedArray(
+    receivedEvent: BasicEvent[],
+    realInput: any[]
+  ): any[] {
+    return realInput.map((value, index) =>
+      this.aggregateFromReceived(receivedEvent[index], value)
+    );
+  }
+
+  protected aggregateFromReceived(receivedEvent: BasicEvent, value): any {
+    const id = this.getIdFromReceived(receivedEvent);
+    if (id)
+      return {
+        ...value,
+        id: id,
+      };
+    return value;
+  }
+
+  protected getIdFromReceived(receivedEvent: BasicEvent | undefined): string {
+    return (receivedEvent?._id as any).toString();
+  }
+
+  protected realInput(input: PersistenceInput<DAOSimpleModel>): any {
+    let realInput = input.item ? input.item : {};
+    if (input.receivedEvent)
+      if (Array.isArray(realInput) && Array.isArray(input.receivedEvent))
+        realInput = this.aggregateFromReceivedArray(
+          input.receivedEvent,
+          realInput
+        );
+      else if (!Array.isArray(input.receivedEvent))
+        realInput = this.aggregateFromReceived(input.receivedEvent, realInput);
+
+    // console.log(realInput);
+    return realInput;
+  }
+
+  protected generateContents(
+    input: PersistenceInput<DAOSimpleModel>,
+    method: string
+  ): [any, any] {
+    const input1 = !method.includes('create')
+      ? method.includes('ById')
+        ? input.id
+        : input.selectedItem
+      : this.realInput(input);
+    const input2 = this.realInput(input);
+    return [input1, input2];
+  }
+
+  protected persistencePromise(
+    input: PersistenceInput<DAOSimpleModel>,
+    method: string,
+    resolve,
+    reject
+  ): void {
+    this[method](...this.generateContents(input, method))
+      .then((output) => {
+        const persistencePromise: PersistencePromise<DAOSimpleModel> = {
+          receivedItem: output,
+          result: output,
+          selectedItem: input.selectedItem,
+          sentItem: input.item, //| input.sentItem,
+        };
+        // console.log(persistencePromise);
+        resolve(persistencePromise);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  }
+
+  protected makePromise(
+    input: PersistenceInput<DAOSimpleModel>,
+    method: string
+  ): Promise<PersistencePromise<DAOModel>> {
+    return new Promise((resolve, reject) => {
+      this.persistencePromise(input, method, resolve, reject);
+    });
   }
 }

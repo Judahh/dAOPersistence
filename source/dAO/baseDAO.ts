@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import DAOAdapter from '../adapter/dAOAdapter';
 import BaseDAORestricted from './baseDAORestricted';
-import BaseDAOFullDelete from './delete/baseDAOFullDelete';
+import BaseDAODelete from './delete/baseDAODelete';
 import { Mixin } from 'ts-mixer';
+import { SRARAdapter } from 'flexiblepersistence';
+import { DAOSimpleModel, DAOModel } from '..';
 
 // @ts-ignore
 export default abstract class BaseDAO
   // @ts-ignore
-  extends Mixin(BaseDAORestricted, BaseDAOFullDelete)
-  implements DAOAdapter {}
+  extends Mixin(BaseDAORestricted, BaseDAODelete)
+  implements SRARAdapter<DAOSimpleModel, DAOModel> {}
