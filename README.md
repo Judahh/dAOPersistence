@@ -4,7 +4,7 @@
 [![npm version](https://badge.fury.io/js/@flexiblepersistence/dao.svg)](https://badge.fury.io/js/@flexiblepersistence/dao)
 [![npm downloads](https://img.shields.io/npm/dt/@flexiblepersistence/dao.svg)](https://img.shields.io/npm/dt/@flexiblepersistence/dao.svg)
 
-A Service implementation for Flexible Persistence's PersistenceAdapter
+A DAO implementation for Flexible Persistence's PersistenceAdapter
 
 ```js
 // Init Journaly as a observer platform for using as a message broker
