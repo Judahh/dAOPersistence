@@ -4,7 +4,6 @@
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
 import {
-  BasicEvent,
   Default,
   PersistenceInput,
   PersistencePromise,
@@ -124,39 +123,27 @@ export default class BaseDAODefault extends Default {
     return result;
   }
 
-  protected aggregateFromReceivedArray(
-    receivedEvent: BasicEvent[],
-    realInput: any[]
-  ): any[] {
-    return realInput.map((value, index) =>
-      this.aggregateFromReceived(receivedEvent[index], value)
-    );
+  protected aggregateFromReceivedArray(realInput: any[]): any[] {
+    return realInput.map((value) => this.aggregateFromReceived(value));
   }
 
-  protected aggregateFromReceived(receivedEvent: BasicEvent, value): any {
-    const id = this.getIdFromReceived(receivedEvent);
-    if (id)
+  protected aggregateFromReceived(value): any {
+    if (value.id)
       return {
         ...value,
-        id: id,
+        id: value.id.toString(),
       };
     return value;
   }
 
-  protected getIdFromReceived(receivedEvent: BasicEvent | undefined): string {
-    return (receivedEvent?._id as any).toString();
-  }
-
   protected realInput(input: PersistenceInput<DAOSimpleModel>): any {
+    // console.log(input);
+
     let realInput = input.item ? input.item : {};
-    if (input.receivedEvent)
-      if (Array.isArray(realInput) && Array.isArray(input.receivedEvent))
-        realInput = this.aggregateFromReceivedArray(
-          input.receivedEvent,
-          realInput
-        );
-      else if (!Array.isArray(input.receivedEvent))
-        realInput = this.aggregateFromReceived(input.receivedEvent, realInput);
+    if (realInput)
+      if (Array.isArray(realInput))
+        realInput = this.aggregateFromReceivedArray(realInput);
+      else realInput = this.aggregateFromReceived(realInput);
 
     // console.log(realInput);
     return realInput;
