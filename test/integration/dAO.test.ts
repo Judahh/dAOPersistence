@@ -46,8 +46,8 @@ test('add and read array and find object', async (done) => {
     // console.log('TEST00:', persistencePromise);
 
     const obj0 = {
-      id: persistencePromise.receivedItem.id,
-      test: 'test',
+      ...obj,
+      id: obj['id'].toString(),
       testnumber: null,
     };
 
@@ -65,7 +65,11 @@ test('add and read array and find object', async (done) => {
     expect(persistencePromise1.sentItem).toStrictEqual(undefined);
 
     const persistencePromise10 = await handler.addEvent(
-      new Event({ operation: Operation.create, name: 'Object', content: obj })
+      new Event({
+        operation: Operation.create,
+        name: 'Object',
+        content: { ...obj, id: undefined },
+      })
     );
 
     // console.log('TEST02:', persistencePromise10);

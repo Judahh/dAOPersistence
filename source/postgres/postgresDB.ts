@@ -67,10 +67,10 @@ export class PostgresDB implements PersistenceAdapter {
       selectVar = '*';
     }
     return PostgresDB.resolveKeys(selectedItem).length === 0
-      ? `SELECT ${selectVar} FROM ${scheme} ORDER BY _id ASC`
+      ? `SELECT ${selectVar} FROM ${scheme} ORDER BY id ASC`
       : `SELECT ${selectVar} FROM ${scheme} WHERE (${PostgresDB.getDBSetVariables(
           selectedItem
-        ).join(', ')}) ORDER BY _id ASC`;
+        ).join(', ')}) ORDER BY id ASC`;
   }
 
   private static querySelectItem(
@@ -118,18 +118,18 @@ export class PostgresDB implements PersistenceAdapter {
   }
 
   private static queryDeleteItem(scheme: string, selectedItem: any): string {
-    return `DELETE FROM ${scheme} WHERE _id IN (${PostgresDB.querySelectItem(
+    return `DELETE FROM ${scheme} WHERE id IN (${PostgresDB.querySelectItem(
       scheme,
       selectedItem,
-      '_id'
+      'id'
     )})`;
   }
 
   private static queryDeleteArray(scheme: string, selectedItem: any): string {
-    return `DELETE FROM ${scheme} WHERE _id IN (${PostgresDB.querySelectArray(
+    return `DELETE FROM ${scheme} WHERE id IN (${PostgresDB.querySelectArray(
       scheme,
       selectedItem,
-      '_id'
+      'id'
     )})`;
   }
 
@@ -287,8 +287,8 @@ export class PostgresDB implements PersistenceAdapter {
   }
 
   readItemById(scheme: string, id: any): Promise<PersistencePromise<any>> {
-    const query = PostgresDB.querySelectItem(scheme, { _id: id });
-    return this.query(query, { selectedItem: { _id: id } }, true);
+    const query = PostgresDB.querySelectItem(scheme, { id: id });
+    return this.query(query, { selectedItem: { id: id } }, true);
   }
 
   deleteItem(
