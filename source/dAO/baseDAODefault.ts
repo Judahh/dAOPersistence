@@ -4,7 +4,6 @@
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
 import {
-  BasicEvent,
   Default,
   PersistenceInput,
   PersistencePromise,
