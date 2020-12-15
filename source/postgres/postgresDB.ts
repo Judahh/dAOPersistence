@@ -17,6 +17,7 @@ import {
   PersistenceInputDelete,
   PersistenceInputRead,
 } from 'flexiblepersistence';
+import { Utils } from '..';
 export class PostgresDB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
   private pool: Pool;
@@ -151,8 +152,8 @@ export class PostgresDB implements PersistenceAdapter {
     isItem?: boolean
   ): void {
     if (error) {
-      console.log('FUCKING error');
-      console.log(error);
+      // console.log('FUCKING error');
+      // console.log(error);
       reject(new Error(error));
     } else {
       const result = new PersistencePromise<any>({
@@ -173,6 +174,17 @@ export class PostgresDB implements PersistenceAdapter {
   constructor(persistenceInfo: PersistenceInfo) {
     this.persistenceInfo = persistenceInfo;
     this.pool = new Pool(this.persistenceInfo);
+  }
+  clear(): Promise<boolean> {
+    return new Promise<boolean>(async (resolve, reject) => {
+      try {
+        await Utils.dropTables(this.pool);
+        await Utils.init(this.pool);
+        resolve(true);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   correct(

@@ -12,6 +12,7 @@ import {
 import { Pool } from 'pg';
 import BaseDAODefault from './dAO/baseDAODefault';
 import BaseDAODefaultInitializer from './dAO/baseDAODefaultInitializer';
+import Utils from './utils';
 export class DAODB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
   private pool: Pool;
@@ -32,6 +33,17 @@ export class DAODB implements PersistenceAdapter {
     this.persistenceInfo = persistenceInfo;
     this.initPool();
     if (element) this.setElement(element);
+  }
+  clear(): Promise<boolean> {
+    return new Promise<boolean>(async (resolve, reject) => {
+      try {
+        await Utils.dropTables(this.pool);
+        await Utils.init(this.pool);
+        resolve(true);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
   create(input: PersistenceInputCreate<any>): Promise<PersistencePromise<any>> {
     return this.persistenceInfo.journaly.publish(

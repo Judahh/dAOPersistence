@@ -34,7 +34,7 @@ test('add and read array and find object', async (done) => {
   //   journaly,
   // });
   const handler = new Handler(write, read);
-  await handler.getWrite().clear('events');
+  await handler.getWrite().clear();
   const obj = {};
   obj['test'] = 'test';
   try {
@@ -221,7 +221,7 @@ test('add and read array and find object', async (done) => {
     );
     // const persistencePromise7 = await handler.readArray('Object', {});
     // expect(persistencePromise7.result.rowCount).toBe(0);
-    await handler.getWrite().clear('events');
+    await handler.getWrite().clear();
     await write.close();
     await Utils.dropTables(pool);
     expect(error).toBe(null);
@@ -230,7 +230,7 @@ test('add and read array and find object', async (done) => {
   await handler.addEvent(
     new Event({ operation: Operation.delete, name: 'Object' })
   );
-  await handler.getWrite().clear('events');
+  await handler.getWrite().clear();
   await write.close();
   await Utils.dropTables(pool);
   done();
@@ -360,7 +360,7 @@ test('add array and read elements, update and delete object', async (done) => {
     );
     // const persistencePromise7 = await handler.readArray('Object', {});
     // expect(persistencePromise7.result.rowCount).toBe(0);
-    await handler.getWrite().clear('events');
+    await handler.getWrite().clear();
     await write.close();
     await Utils.end(pool);
     expect(error).toBe(null);
@@ -369,7 +369,7 @@ test('add array and read elements, update and delete object', async (done) => {
   await handler.addEvent(
     new Event({ operation: Operation.delete, name: 'Object' })
   );
-  await handler.getWrite().clear('events');
+  await handler.getWrite().clear();
   await write.close();
   await Utils.end(pool);
   done();
