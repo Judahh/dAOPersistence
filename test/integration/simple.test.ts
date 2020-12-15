@@ -21,7 +21,7 @@ test('add and read array and find object', async (done) => {
   await Utils.init(read.getPool());
 
   const handler = new Handler(write, read);
-  await handler.getWrite().clear('events');
+  await handler.getWrite().clear();
 
   const obj = {};
   obj['string'] = 'test';
@@ -138,7 +138,7 @@ test('add and read array and find object', async (done) => {
     );
     const persistencePromise7 = await handler.readArray('Object', {});
     expect(persistencePromise7.result.rowCount).toBe(0);
-    await handler.getWrite().clear('events');
+    await handler.getWrite().clear();
     await Utils.end(read.getPool());
     await write.close();
     expect(error).toBe(null);
@@ -153,7 +153,7 @@ test('add and read array and find object', async (done) => {
   );
   const persistencePromise7 = await handler.readArray('Object', {});
   expect(persistencePromise7.result.rowCount).toBe(0);
-  await handler.getWrite().clear('events');
+  await handler.getWrite().clear();
   await Utils.end(read.getPool());
   await write.close();
   done();
@@ -178,7 +178,7 @@ test('add and read array and find object', async (done) => {
 //     })
 //   );
 //   const handler = new Handler(write, read);
-//   await handler.getWrite().clear('events');
+//   await handler.getWrite().clear();
 //   await Utils.init(read.getPool());
 //   const obj = { string: 'test', test2: { string: 'test' } };
 //   try {
@@ -271,7 +271,7 @@ test('add and read array and find object', async (done) => {
 //     );
 //     const persistencePromise7 = await handler.readArray('Object', {});
 //     expect(persistencePromise7.result.rowCount).toBe(0);
-//     await handler.getWrite().clear('events');
+//     await handler.getWrite().clear();
 //     await Utils.dropTables(read.getPool());
 //     await write.close();
 //     console.error(error);
@@ -281,7 +281,7 @@ test('add and read array and find object', async (done) => {
 //   await handler.addEvent(
 //     new Event({ operation: Operation.delete, name: 'Object' })
 //   );
-//   await handler.getWrite().clear('events');
+//   await handler.getWrite().clear();
 //   await Utils.dropTables(read.getPool());
 //   await write.close();
 //   done();
