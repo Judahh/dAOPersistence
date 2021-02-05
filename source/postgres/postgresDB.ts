@@ -8,6 +8,7 @@ import {
   PersistenceInfo,
   PersistenceInputCreate,
   PersistenceInputUpdate,
+  PersistenceInput,
 } from 'flexiblepersistence';
 import { Pool } from 'pg';
 import { RelationValuePostgresDB } from './relationValuePostgresDB';
@@ -184,6 +185,16 @@ export class PostgresDB implements PersistenceAdapter {
       } catch (error) {
         reject(error);
       }
+    });
+  }
+
+  other(input: PersistenceInput<any>): Promise<PersistencePromise<any>> {
+    return new Promise<PersistencePromise<any>>((resolve) => {
+      resolve(
+        new PersistencePromise({
+          receivedItem: input,
+        })
+      );
     });
   }
 
