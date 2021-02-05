@@ -8,6 +8,7 @@ import {
   PersistenceInputUpdate,
   PersistenceInputRead,
   PersistenceInputDelete,
+  PersistenceInput,
 } from 'flexiblepersistence';
 import { Pool } from 'pg';
 import BaseDAODefault from './dAO/baseDAODefault';
@@ -44,6 +45,12 @@ export class DAODB implements PersistenceAdapter {
         reject(error);
       }
     });
+  }
+  other(input: PersistenceInput<any>): Promise<PersistencePromise<any>> {
+    return this.persistenceInfo.journaly.publish(
+      input.scheme + this.type + '.' + 'other',
+      input
+    );
   }
   create(input: PersistenceInputCreate<any>): Promise<PersistencePromise<any>> {
     return this.persistenceInfo.journaly.publish(
