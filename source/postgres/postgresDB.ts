@@ -14,11 +14,11 @@ import { Pool } from 'pg';
 import { RelationValuePostgresDB } from './relationValuePostgresDB';
 import { SelectedItemValue } from './model/selectedItemValue';
 import {
-  Default,
   PersistenceInputDelete,
   PersistenceInputRead,
 } from 'flexiblepersistence';
 import { Utils } from '..';
+import { Default } from '@flexiblepersistence/default-initializer';
 export class PostgresDB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
   private pool: Pool;

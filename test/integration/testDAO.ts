@@ -1,4 +1,4 @@
-import { BaseDAO } from '../../source/index';
+import { BaseDAO, BaseDAODefaultInitializer } from '../../source/index';
 /* eslint-disable no-unused-vars */
 export default class TestDAO extends BaseDAO {
   generateName(): void {
@@ -11,7 +11,7 @@ export default class TestDAO extends BaseDAO {
 
   protected updateQuery = '';
 
-  constructor(initDefault?) {
+  constructor(initDefault?: BaseDAODefaultInitializer) {
     super(initDefault);
     // console.log(this);
   }

@@ -1,17 +1,15 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // file deepcode ignore no-any: any needed
 // file deepcode ignore object-literal-shorthand: argh
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
-import {
-  Default,
-  PersistenceInput,
-  PersistencePromise,
-} from 'flexiblepersistence';
+import { PersistenceInput, PersistencePromise } from 'flexiblepersistence';
 import BaseDAODefaultInitializer from './baseDAODefaultInitializer';
 import DAOSimpleModel from '../model/dAOSimpleModel';
 import { Pool } from 'pg';
 import DAOModel from '../model/dAOModel';
+import { Default } from '@flexiblepersistence/default-initializer';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
