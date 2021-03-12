@@ -1,4 +1,4 @@
-import { DefaultInitializer } from 'flexiblepersistence';
+import { DefaultInitializer } from '@flexiblepersistence/default-initializer';
 import { Pool } from 'pg';
 
 export default interface BaseDAODefaultInitializer extends DefaultInitializer {

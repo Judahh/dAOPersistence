@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import DAOModel from '../../model/dAOModel';
 import DAOSimpleModel from '../../model/dAOSimpleModel';
