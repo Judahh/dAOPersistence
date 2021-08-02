@@ -17,6 +17,10 @@ import DAOModel from './model/dAOModel';
 import DAOSimpleModel from './model/dAOSimpleModel';
 import Utils from './utils';
 
+import { Postgres } from './postgres/postgres';
+
+import { PoolAdapter } from './database/poolAdapter';
+
 export {
   DAODB,
   BaseDAO,
@@ -32,4 +36,6 @@ export {
   DAOModel,
   DAOSimpleModel,
   Utils,
+  Postgres,
+  PoolAdapter,
 };

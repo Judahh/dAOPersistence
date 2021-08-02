@@ -10,6 +10,7 @@ import {
 import TestDAO from './testDAO';
 import ObjectDAO from './objectDAO';
 
+import { Postgres } from '../../source/postgres/postgres';
 import { DAODB, Utils } from '../../source';
 import { Journaly, SenderReceiver } from 'journaly';
 import { eventInfo, readInfo } from './databaseInfos';
@@ -20,7 +21,8 @@ test('add and read array and find object', async (done) => {
   const eventDatabase = new MongoDB(new PersistenceInfo(eventInfo, journaly));
   const database = new PersistenceInfo(readInfo, journaly);
   write = eventDatabase;
-  read = new DAODB(database, {
+  const postgres = new Postgres(database);
+  read = new DAODB(postgres, {
     test: new TestDAO(),
     object: new ObjectDAO(),
   });
@@ -242,7 +244,8 @@ test('add array and read elements, update and delete object', async (done) => {
   const eventDatabase = new MongoDB(new PersistenceInfo(eventInfo, journaly));
   const database = new PersistenceInfo(readInfo, journaly);
   write = eventDatabase;
-  read = new DAODB(database);
+  const postgres = new Postgres(database);
+  read = new DAODB(postgres);
   const pool = read.getPool();
   await Utils.init(pool);
   new TestDAO({

@@ -1,6 +1,6 @@
 {
   "name": "@flexiblepersistence/dao",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "description": "A DAO implementation for Flexible Persistence's PersistenceAdapter",
   "main": "dist/source/index.js",
   "keywords": [
@@ -52,10 +52,10 @@
     "eslint-plugin-filenames": "latest",
     "eslint-plugin-prettier": "latest",
     "eslint-plugin-import": "latest",
-    "jest": "latest",
+    "jest": "26.6.2",
     "prettier": "latest",
     "reflect-metadata": "latest",
-    "ts-jest": "latest",
+    "ts-jest": "26.5.6",
     "typescript": "latest"
   }
 }
