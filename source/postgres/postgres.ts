@@ -15,8 +15,13 @@ export class Postgres implements PoolAdapter {
   public connect(callback: unknown): Promise<unknown> {
     return this.pool.connect(callback);
   }
-  public query(script: string): Promise<unknown> {
-    return this.pool.query(script);
+  public query(
+    script: string,
+    values?: Array<unknown>,
+    callback?: () => unknown
+  ): Promise<unknown> {
+    //console.log(script, values, callback);
+    return this.pool.query(script, values, callback);
   }
   public end(callback?: () => unknown): Promise<any> {
     return this.pool.end(callback);
