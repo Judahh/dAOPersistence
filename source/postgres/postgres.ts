@@ -1,4 +1,4 @@
-import { PoolAdapter } from './poolAdapter';
+import { PoolAdapter } from '../database/poolAdapter';
 import { Pool } from 'pg';
 import { PersistenceInfo } from 'flexiblepersistence';
 

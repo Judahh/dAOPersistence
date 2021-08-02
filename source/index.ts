@@ -17,7 +17,7 @@ import DAOModel from './model/dAOModel';
 import DAOSimpleModel from './model/dAOSimpleModel';
 import Utils from './utils';
 
-import { Postgres } from './database/postgres';
+import { Postgres } from './postgres/postgres';
 
 import { PoolAdapter } from './database/poolAdapter';
 
