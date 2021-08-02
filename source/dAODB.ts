@@ -10,13 +10,13 @@ import {
   PersistenceInputDelete,
   PersistenceInput,
 } from 'flexiblepersistence';
-import { Pool } from 'pg';
 import BaseDAODefault from './dAO/baseDAODefault';
 import BaseDAODefaultInitializer from './dAO/baseDAODefaultInitializer';
+import { PoolAdapter } from './database/poolAdapter';
 import Utils from './utils';
 export class DAODB implements PersistenceAdapter {
   private persistenceInfo: PersistenceInfo;
-  private pool: Pool;
+  private pool: PoolAdapter;
   private type = 'DAO';
 
   element: {
@@ -26,13 +26,13 @@ export class DAODB implements PersistenceAdapter {
   };
 
   constructor(
-    persistenceInfo: PersistenceInfo,
+    pool: PoolAdapter,
     element?: {
       [name: string]: BaseDAODefault;
     }
   ) {
-    this.persistenceInfo = persistenceInfo;
-    this.initPool();
+    this.pool = pool;
+    this.persistenceInfo = pool.getPersistenceInfo();
     if (element) this.setElement(element);
   }
   clear(): Promise<boolean> {
@@ -89,11 +89,6 @@ export class DAODB implements PersistenceAdapter {
       input
     );
   }
-
-  protected initPool() {
-    this.pool = new Pool(this.persistenceInfo);
-  }
-
   protected initElement() {
     const initDefault: BaseDAODefaultInitializer = {
       pool: this.pool,
@@ -116,7 +111,7 @@ export class DAODB implements PersistenceAdapter {
     return this.persistenceInfo;
   }
 
-  getPool(): Pool {
+  getPool(): PoolAdapter {
     // TODO: remove
     return this.pool;
   }
