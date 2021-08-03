@@ -95,6 +95,9 @@ export default class BaseDAODefault extends Default {
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   protected fixType(result: any): any {
+    result.rows = result.rows ? result.rows : result.recordset;
+    result.recordset = undefined;
+
     if (result.rows[0]) {
       if (result.rows[0].timestamp) {
         result.rows = this.fixDate(result.rows, 'timestamp');
