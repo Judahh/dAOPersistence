@@ -10,7 +10,8 @@ import BaseDAODefault from '../baseDAODefault';
 
 export default class BaseDAODelete
   extends BaseDAODefault
-  implements RemoveAdapter<DAOModel> {
+  implements RemoveAdapter<DAOModel>
+{
   // @ts-ignore
   protected abstract updateQuery: string;
 
@@ -70,7 +71,7 @@ export default class BaseDAODelete
       query =
         `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `WHERE ${Object.keys(filter)
-          .map((x) => x + ' = $' + pos++)
+          .map((x) => '"' + x + '" ' + this.getEquals(filter[x]) + ' $' + pos++)
           .join(', ')} ORDER BY ID ${limit}) `;
     }
 
@@ -112,7 +113,7 @@ export default class BaseDAODelete
       query =
         `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `WHERE ${Object.keys(filter)
-          .map((x) => x + ' = $' + pos++)
+          .map((x) => '"' + x + '" ' + this.getEquals(filter[x]) + ' $' + pos++)
           .join(', ')} ORDER BY ID) `;
     }
 

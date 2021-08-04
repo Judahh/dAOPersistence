@@ -11,15 +11,6 @@ export default class BaseDAORead
   extends BaseDAODefault
   implements ReadAdapter<DAOModel>
 {
-  protected stringEquals?: string;
-  protected regularEquals = '=';
-
-  getEquals(element: unknown): string {
-    return this.stringEquals && typeof element === 'string'
-      ? this.stringEquals
-      : this.regularEquals;
-  }
-
   read(input: PersistenceInputRead): Promise<PersistencePromise<DAOModel>> {
     return input.id
       ? this.makePromise(input, 'readById')
@@ -63,9 +54,9 @@ export default class BaseDAORead
       query = `${select} WHERE ${Object.keys(filter)
         .map(
           (x, index) =>
-            'element.' +
+            'element."' +
             x +
-            ' ' +
+            '" ' +
             this.getEquals(filter[x]) +
             ' $' +
             (index + 1)
@@ -99,9 +90,9 @@ export default class BaseDAORead
       query = `${select} WHERE ${Object.keys(filter)
         .map(
           (x, index) =>
-            'element.' +
+            'element."' +
             x +
-            ' ' +
+            '" ' +
             this.getEquals(filter[x]) +
             ' $' +
             (index + 1)
