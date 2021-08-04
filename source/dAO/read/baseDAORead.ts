@@ -9,7 +9,17 @@ import DAOModel from '../../model/dAOModel';
 import BaseDAODefault from '../baseDAODefault';
 export default class BaseDAORead
   extends BaseDAODefault
-  implements ReadAdapter<DAOModel> {
+  implements ReadAdapter<DAOModel>
+{
+  protected stringEquals?: string;
+  protected regularEquals = '=';
+
+  getEquals(element: unknown): string {
+    return this.stringEquals && typeof element === 'string'
+      ? this.stringEquals
+      : this.regularEquals;
+  }
+
   read(input: PersistenceInputRead): Promise<PersistencePromise<DAOModel>> {
     return input.id
       ? this.makePromise(input, 'readById')
@@ -23,7 +33,9 @@ export default class BaseDAORead
     const select = await this.generateSelect(this.getName());
     return new Promise((resolve, reject) => {
       this.pool.query(
-        `${select} WHERE element.id = $1 ${this.groupBy}`,
+        `${select} WHERE element.id ` +
+          this.getEquals(id) +
+          ` $1 ${this.groupBy}`,
         [id],
         (error, result) => {
           if (error) {
@@ -49,7 +61,15 @@ export default class BaseDAORead
 
     if (Object.keys(filter).length !== 0) {
       query = `${select} WHERE ${Object.keys(filter)
-        .map((x, index) => 'element.' + x + ' = $' + (index + 1))
+        .map(
+          (x, index) =>
+            'element.' +
+            x +
+            ' ' +
+            this.getEquals(filter[x]) +
+            ' $' +
+            (index + 1)
+        )
         .join(', ')} ${this.groupBy} ${limit}`;
     }
 
@@ -77,7 +97,15 @@ export default class BaseDAORead
 
     if (Object.keys(filter).length !== 0) {
       query = `${select} WHERE ${Object.keys(filter)
-        .map((x, index) => 'element.' + x + ' = $' + (index + 1))
+        .map(
+          (x, index) =>
+            'element.' +
+            x +
+            ' ' +
+            this.getEquals(filter[x]) +
+            ' $' +
+            (index + 1)
+        )
         .join(', ')} ${this.groupBy}`;
     }
 

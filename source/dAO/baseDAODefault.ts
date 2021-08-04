@@ -64,7 +64,7 @@ export default class BaseDAODefault extends Default {
     });
   }
   protected async generateSelect(alias: string): Promise<string> {
-    const select = `SELECT ${this.values} FROM ${alias} AS element ${this.selectJoin}`;
+    const select = `SELECT * FROM (SELECT ${this.values} FROM ${alias} AS subElement ${this.selectJoin}) as element`;
     return new Promise((resolve) => {
       resolve(select);
     });

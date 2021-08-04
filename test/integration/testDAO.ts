@@ -13,6 +13,5 @@ export default class TestDAO extends BaseDAO {
 
   constructor(initDefault?: BaseDAODefaultInitializer) {
     super(initDefault);
-    // console.log(this);
   }
 }

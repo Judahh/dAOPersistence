@@ -5,7 +5,7 @@ export default class ObjectDAO extends BaseDAO {
     this.setName('Objects');
   }
 
-  protected values = 'element.ID, element.test, element.testNumber';
+  protected values = 'subElement.ID, subElement.test, subElement.testNumber';
 
   protected insert = 'id, test, testNumber';
 
@@ -15,6 +15,5 @@ export default class ObjectDAO extends BaseDAO {
 
   constructor(initDefault?) {
     super(initDefault);
-    // console.log(this);
   }
 }
