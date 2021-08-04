@@ -12,7 +12,8 @@ import {
 // @ts-ignore
 export default class BaseDAOUpdate
   extends BaseDAORestrictedDefault
-  implements AlterAdapter<DAOSimpleModel, DAOModel> {
+  implements AlterAdapter<DAOSimpleModel, DAOModel>
+{
   // @ts-ignore
   protected abstract updateQuery: string;
   correct(
@@ -88,7 +89,15 @@ export default class BaseDAOUpdate
       query =
         `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `WHERE ${Object.keys(filter)
-          .map((x) => x + ' = ' + this.generateValueFromUnknown(filter[x]))
+          .map(
+            (x) =>
+              '"' +
+              x +
+              '" ' +
+              this.getEquals(filter[x]) +
+              ' ' +
+              this.generateValueFromUnknown(filter[x])
+          )
           .join(', ')} ORDER BY ID ${limit}) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
@@ -131,7 +140,15 @@ export default class BaseDAOUpdate
       query =
         `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `WHERE ${Object.keys(filter)
-          .map((x) => x + ' = ' + this.generateValueFromUnknown(filter[x]))
+          .map(
+            (x) =>
+              '"' +
+              x +
+              '" ' +
+              this.getEquals(filter[x]) +
+              ' ' +
+              this.generateValueFromUnknown(filter[x])
+          )
           .join(', ')} ORDER BY ID) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;

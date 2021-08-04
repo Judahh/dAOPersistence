@@ -41,6 +41,15 @@ export default class BaseDAODefault extends Default {
   // @ts-ignore
   protected abstract updateQuery: string;
 
+  protected stringEquals?: string;
+  protected regularEquals = '=';
+
+  getEquals(element: unknown): string {
+    return this.stringEquals && typeof element === 'string'
+      ? this.stringEquals
+      : this.regularEquals;
+  }
+
   protected generateValueFromUnknown(element: unknown): unknown | string {
     if (typeof element === 'string' || element instanceof String)
       return "'" + element + "'";
@@ -56,7 +65,7 @@ export default class BaseDAODefault extends Default {
     let set = this.updateQuery;
     if (content)
       set = Object.keys(content)
-        .map((x) => x + ' = $' + pos++)
+        .map((x) => '"' + x + '" ' + '=' + ' $' + pos++)
         .join(', ');
     const update = `UPDATE ${this.getName()} SET ${set}`;
     return new Promise((resolve) => {
