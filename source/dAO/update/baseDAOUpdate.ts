@@ -88,17 +88,7 @@ export default class BaseDAOUpdate
     if (Object.keys(filter).length !== 0) {
       query =
         `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `WHERE ${Object.keys(filter)
-          .map(
-            (x) =>
-              '"' +
-              x +
-              '" ' +
-              this.getEquals(filter[x]) +
-              ' ' +
-              this.generateValueFromUnknown(filter[x])
-          )
-          .join(', ')} ORDER BY ID ${limit}) ` +
+        `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
     }
@@ -139,17 +129,7 @@ export default class BaseDAOUpdate
     if (Object.keys(filter).length !== 0) {
       query =
         `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `WHERE ${Object.keys(filter)
-          .map(
-            (x) =>
-              '"' +
-              x +
-              '" ' +
-              this.getEquals(filter[x]) +
-              ' ' +
-              this.generateValueFromUnknown(filter[x])
-          )
-          .join(', ')} ORDER BY ID) ` +
+        `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
     }

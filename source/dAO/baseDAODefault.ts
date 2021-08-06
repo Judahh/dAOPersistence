@@ -78,6 +78,29 @@ export default class BaseDAODefault extends Default {
       resolve(select);
     });
   }
+
+  protected async generateWhere(
+    filter,
+    initialPosition = 1,
+    withElement?: boolean
+  ): Promise<string> {
+    const where = `WHERE ${Object.keys(filter)
+      .map(
+        (x) =>
+          (withElement ? 'element.' : '') +
+          '"' +
+          x +
+          '" ' +
+          this.getEquals(filter[x]) +
+          ' ' +
+          (initialPosition > -1
+            ? '$' + initialPosition++
+            : this.generateValueFromUnknown(filter[x]))
+      )
+      .join(' AND ')}`;
+    return where;
+  }
+
   protected fixDate(rows: any[], field: string): any {
     rows = rows.map((row) => {
       row[field] = new Date(row[field]).toISOString();
