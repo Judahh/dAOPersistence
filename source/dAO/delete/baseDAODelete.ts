@@ -56,7 +56,7 @@ export default class BaseDAODelete
       );
     });
   }
-  deleteSingle(filter): Promise<boolean> {
+  async deleteSingle(filter): Promise<boolean> {
     const limit = 'LIMIT 1';
     let query = `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ORDER BY ID ${limit})`;
 
@@ -67,12 +67,9 @@ export default class BaseDAODelete
     // console.log('filter=', filter);
 
     if (Object.keys(filter).length !== 0) {
-      let pos = 1;
       query =
         `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `WHERE ${Object.keys(filter)
-          .map((x) => '"' + x + '" ' + this.getEquals(filter[x]) + ' $' + pos++)
-          .join(', ')} ORDER BY ID ${limit}) `;
+        `${await this.generateWhere(filter)} ORDER BY ID ${limit}) `;
     }
 
     return new Promise((resolve, reject) => {
@@ -99,7 +96,7 @@ export default class BaseDAODelete
       );
     });
   }
-  deleteArray(filter): Promise<number> {
+  async deleteArray(filter): Promise<number> {
     let query = `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ORDER BY ID)`;
 
     if (!filter) {
@@ -109,12 +106,9 @@ export default class BaseDAODelete
     // console.log('filter=', filter);
 
     if (Object.keys(filter).length !== 0) {
-      let pos = 1;
       query =
         `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `WHERE ${Object.keys(filter)
-          .map((x) => '"' + x + '" ' + this.getEquals(filter[x]) + ' $' + pos++)
-          .join(', ')} ORDER BY ID) `;
+        `${await this.generateWhere(filter)} ORDER BY ID) `;
     }
 
     return new Promise((resolve, reject) => {

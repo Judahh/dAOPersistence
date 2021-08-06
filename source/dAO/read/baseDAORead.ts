@@ -51,17 +51,9 @@ export default class BaseDAORead
     // console.log('filter=', filter);
 
     if (Object.keys(filter).length !== 0) {
-      query = `${select} WHERE ${Object.keys(filter)
-        .map(
-          (x, index) =>
-            'element."' +
-            x +
-            '" ' +
-            this.getEquals(filter[x]) +
-            ' $' +
-            (index + 1)
-        )
-        .join(', ')} ${this.groupBy} ${limit}`;
+      query = `${select} ${await this.generateWhere(filter, 1, true)} ${
+        this.groupBy
+      } ${limit}`;
     }
 
     // console.log(query);
@@ -84,23 +76,11 @@ export default class BaseDAORead
       filter = {};
     }
 
-    // console.log('filter=', filter);
-
     if (Object.keys(filter).length !== 0) {
-      query = `${select} WHERE ${Object.keys(filter)
-        .map(
-          (x, index) =>
-            'element."' +
-            x +
-            '" ' +
-            this.getEquals(filter[x]) +
-            ' $' +
-            (index + 1)
-        )
-        .join(', ')} ${this.groupBy}`;
+      query = `${select} ${await this.generateWhere(filter, 1, true)} ${
+        this.groupBy
+      }`;
     }
-
-    // console.log(query);
     return new Promise((resolve, reject) => {
       this.pool.query(query, Object.values(filter), (error, result) => {
         if (error) {
