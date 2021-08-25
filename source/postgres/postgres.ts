@@ -9,6 +9,9 @@ export class Postgres implements PoolAdapter {
     this.persistenceInfo = persistenceInfo;
     this.pool = new Pool(this.persistenceInfo);
   }
+  simpleInsert = false;
+  simpleUpdate = false;
+  simpleDelete = false;
   public getPersistenceInfo(): PersistenceInfo {
     return this.persistenceInfo;
   }

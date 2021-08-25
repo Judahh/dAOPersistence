@@ -35,8 +35,8 @@ export default class BaseDAOUpdate
     return input.id
       ? this.makePromise(input, 'updateById')
       : input.single
-      ? this.makePromise(input, 'updateSingle')
-      : this.makePromise(input, 'updateArray');
+        ? this.makePromise(input, 'updateSingle')
+        : this.makePromise(input, 'updateArray');
   }
   async updateById(id: string, content: DAOSimpleModel): Promise<DAOModel> {
     const limit = 'LIMIT 1';
@@ -44,9 +44,12 @@ export default class BaseDAOUpdate
     const values = Object.values(content);
     const select = await this.generateSelect('updated');
     const update = await this.generateUpdate(1, content);
-    const query =
-      `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-      `WHERE id = ${this.generateValueFromUnknown(id)} ORDER BY ID ${limit}) ` +
+    const query = this.pool?.simpleUpdate
+      ? `${update}`
+      : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+      `WHERE id = ${this.generateValueFromUnknown(
+        id
+      )} ORDER BY ID ${limit}) ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
 
@@ -74,8 +77,9 @@ export default class BaseDAOUpdate
       Object.values(filter).length,
       content
     );
-    let query =
-      `WITH updated AS (${update} WHERE id IN ` +
+    let query = this.pool?.simpleUpdate
+      ? `${update}`
+      : `WITH updated AS (${update} WHERE id IN ` +
       `(SELECT id FROM ${this.getName()} ORDER BY ID ${limit}) ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
@@ -86,8 +90,9 @@ export default class BaseDAOUpdate
     // console.log('filter=', filter);
 
     if (Object.keys(filter).length !== 0) {
-      query =
-        `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+      query = this.pool?.simpleUpdate
+        ? `${update}`
+        : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
@@ -116,8 +121,9 @@ export default class BaseDAOUpdate
       Object.values(filter).length,
       content
     );
-    let query =
-      `WITH updated AS (${update} ` +
+    let query = this.pool?.simpleUpdate
+      ? `${update}`
+      : `WITH updated AS (${update} ` +
       `RETURNING *` +
       `) ${select} ${this.groupBy}`;
     if (!filter) {
@@ -127,8 +133,9 @@ export default class BaseDAOUpdate
     // console.log('filter=', filter);
 
     if (Object.keys(filter).length !== 0) {
-      query =
-        `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+      query = this.pool?.simpleUpdate
+        ? `${update}`
+        : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
