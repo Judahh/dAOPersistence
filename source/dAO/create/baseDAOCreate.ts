@@ -90,16 +90,20 @@ export default class BaseDAOCreate
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool?.query(query, values, (error, result) => {
-        if (error) {
-          // console.log('error:', error);
-          reject(error);
-          return;
+      this.pool?.query(
+        query,
+        values,
+        (error, result: { rows?: (DAOModel | PromiseLike<DAOModel>)[] }) => {
+          if (error) {
+            // console.log('error:', error);
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          // console.log('result.rows[0]:', result.rows[0]);
+          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
         }
-        result = this.fixType(result);
-        // console.log('result.rows[0]:', result.rows[0]);
-        resolve(result.rows[0]);
-      });
+      );
     });
   }
 
@@ -127,15 +131,19 @@ export default class BaseDAOCreate
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool?.query(query, values, (error, result) => {
-        if (error) {
-          reject(error);
-          return;
+      this.pool?.query(
+        query,
+        values,
+        (error, result: { rows?: (DAOModel | PromiseLike<DAOModel>)[] }) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          // console.log('result.rows[0]:', result.rows[0]);
+          resolve(result.rows as DAOModel[]);
         }
-        result = this.fixType(result);
-        // console.log('result.rows[0]:', result.rows[0]);
-        resolve(result.rows);
-      });
+      );
     });
   }
 }

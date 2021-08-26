@@ -28,13 +28,16 @@ export default class BaseDAORead
         this.getEquals(id) +
         ` $1 ${this.groupBy}`,
         [id],
-        (error, result) => {
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows[0]);
+          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
         }
       );
     });
@@ -57,14 +60,21 @@ export default class BaseDAORead
 
     // console.log(query);
     return new Promise((resolve, reject) => {
-      this.pool?.query(query, Object.values(filter), (error, result) => {
-        if (error) {
-          reject(error);
-          return;
+      this.pool?.query(
+        query,
+        Object.values(filter),
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
         }
-        result = this.fixType(result);
-        resolve(result.rows[0]);
-      });
+      );
     });
   }
   async readArray(filter): Promise<DAOModel[]> {
@@ -80,14 +90,21 @@ export default class BaseDAORead
         }`;
     }
     return new Promise((resolve, reject) => {
-      this.pool?.query(query, Object.values(filter), (error, result) => {
-        if (error) {
-          reject(error);
-          return;
+      this.pool?.query(
+        query,
+        Object.values(filter),
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          resolve(result.rows as DAOModel[]);
         }
-        result = this.fixType(result);
-        resolve(result.rows);
-      });
+      );
     });
   }
 }
