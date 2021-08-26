@@ -2,7 +2,7 @@ import { PersistenceInfo } from 'flexiblepersistence';
 
 /* eslint-disable no-unused-vars */
 export interface PoolAdapter {
-  simpleInsert?: boolean;
+  simpleCreate?: boolean;
   simpleUpdate?: boolean;
   simpleDelete?: boolean;
   connect(

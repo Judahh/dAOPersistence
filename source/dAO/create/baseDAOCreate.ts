@@ -76,7 +76,7 @@ export default class BaseDAOCreate
     const values = await this.generateVectorValues(content);
     const select = await this.generateSelect('created');
     const insert = await this.generateInsert(content, values);
-    const query = this.pool?.simpleInsert
+    const query = this.pool?.simpleCreate
       ? `${insert}`
       : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
       // eslint-disable-next-line no-nested-ternary
@@ -113,7 +113,7 @@ export default class BaseDAOCreate
     const insert = await this.generateInsertArray(content, tempValues);
     const values: unknown[] = [].concat(...tempValues);
 
-    const query = this.pool?.simpleInsert
+    const query = this.pool?.simpleCreate
       ? `${insert}`
       : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
       // eslint-disable-next-line no-nested-ternary
