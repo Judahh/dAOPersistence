@@ -58,14 +58,21 @@ export default class BaseDAOUpdate
     // console.log('STORE:', query);
     // console.log('values:', values);
     return new Promise((resolve, reject) => {
-      this.pool?.query(query, values, (error, result) => {
-        if (error) {
-          reject(error);
-          return;
+      this.pool?.query(
+        query,
+        values,
+        async (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
         }
-        result = this.fixType(result);
-        resolve(result.rows[0]);
-      });
+      );
     });
   }
   async updateSingle(filter, content: DAOSimpleModel): Promise<DAOModel> {
@@ -103,14 +110,21 @@ export default class BaseDAOUpdate
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool?.query(query, values, (error, result) => {
-        if (error) {
-          reject(error);
-          return;
+      this.pool?.query(
+        query,
+        values,
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
         }
-        result = this.fixType(result);
-        resolve(result.rows[0]);
-      });
+      );
     });
   }
 
@@ -147,14 +161,21 @@ export default class BaseDAOUpdate
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool?.query(query, values, (error, result) => {
-        if (error) {
-          reject(error);
-          return;
+      this.pool?.query(
+        query,
+        values,
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          resolve(result.rows as DAOModel[]);
         }
-        result = this.fixType(result);
-        resolve(result.rows[0]);
-      });
+      );
     });
   }
 }

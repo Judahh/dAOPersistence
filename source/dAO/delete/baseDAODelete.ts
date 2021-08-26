@@ -35,7 +35,10 @@ export default class BaseDAODelete
       this.pool?.query(
         `DELETE FROM ${this.getName()} WHERE id = $1`,
         [id],
-        (error, result) => {
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
           if (error) {
             reject(error);
             return;
@@ -76,7 +79,10 @@ export default class BaseDAODelete
       this.pool?.query(
         query,
         filter ? Object.values(filter) : [],
-        (error, result) => {
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
           if (error) {
             reject(error);
             return;
@@ -115,7 +121,10 @@ export default class BaseDAODelete
       this.pool?.query(
         query,
         filter ? Object.values(filter) : [],
-        (error, result) => {
+        (
+          error,
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+        ) => {
           if (error) {
             reject(error);
             return;
