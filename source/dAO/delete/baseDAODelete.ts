@@ -26,13 +26,13 @@ export default class BaseDAODelete
     return input.id
       ? this.makePromise(input, 'deleteById')
       : input.single
-      ? this.makePromise(input, 'deleteSingle')
-      : this.makePromise(input, 'deleteArray');
+        ? this.makePromise(input, 'deleteSingle')
+        : this.makePromise(input, 'deleteArray');
   }
   deleteById(id: string): Promise<boolean> {
     // console.log(this.getName());
     return new Promise((resolve, reject) => {
-      this.pool.query(
+      this.pool?.query(
         `DELETE FROM ${this.getName()} WHERE id = $1`,
         [id],
         (error, result) => {
@@ -73,7 +73,7 @@ export default class BaseDAODelete
     }
 
     return new Promise((resolve, reject) => {
-      this.pool.query(
+      this.pool?.query(
         query,
         filter ? Object.values(filter) : [],
         (error, result) => {
@@ -112,7 +112,7 @@ export default class BaseDAODelete
     }
 
     return new Promise((resolve, reject) => {
-      this.pool.query(
+      this.pool?.query(
         query,
         filter ? Object.values(filter) : [],
         (error, result) => {

@@ -58,7 +58,7 @@ export default class BaseDAOUpdate
     // console.log('STORE:', query);
     // console.log('values:', values);
     return new Promise((resolve, reject) => {
-      this.pool.query(query, values, (error, result) => {
+      this.pool?.query(query, values, (error, result) => {
         if (error) {
           reject(error);
           return;
@@ -103,7 +103,7 @@ export default class BaseDAOUpdate
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool.query(query, values, (error, result) => {
+      this.pool?.query(query, values, (error, result) => {
         if (error) {
           reject(error);
           return;
@@ -147,7 +147,7 @@ export default class BaseDAOUpdate
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool.query(query, values, (error, result) => {
+      this.pool?.query(query, values, (error, result) => {
         if (error) {
           reject(error);
           return;

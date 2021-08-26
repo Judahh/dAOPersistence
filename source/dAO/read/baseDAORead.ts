@@ -15,18 +15,18 @@ export default class BaseDAORead
     return input.id
       ? this.makePromise(input, 'readById')
       : input.single
-      ? this.makePromise(input, 'readSingle')
-      : this.makePromise(input, 'readArray');
+        ? this.makePromise(input, 'readSingle')
+        : this.makePromise(input, 'readArray');
   }
   // @ts-ignore
   protected abstract updateQuery: string;
   async readById(id: string): Promise<DAOModel> {
     const select = await this.generateSelect(this.getName());
     return new Promise((resolve, reject) => {
-      this.pool.query(
+      this.pool?.query(
         `${select} WHERE element.id ` +
-          this.getEquals(id) +
-          ` $1 ${this.groupBy}`,
+        this.getEquals(id) +
+        ` $1 ${this.groupBy}`,
         [id],
         (error, result) => {
           if (error) {
@@ -51,14 +51,13 @@ export default class BaseDAORead
     // console.log('filter=', filter);
 
     if (Object.keys(filter).length !== 0) {
-      query = `${select} ${await this.generateWhere(filter, 1, true)} ${
-        this.groupBy
-      } ${limit}`;
+      query = `${select} ${await this.generateWhere(filter, 1, true)} ${this.groupBy
+        } ${limit}`;
     }
 
     // console.log(query);
     return new Promise((resolve, reject) => {
-      this.pool.query(query, Object.values(filter), (error, result) => {
+      this.pool?.query(query, Object.values(filter), (error, result) => {
         if (error) {
           reject(error);
           return;
@@ -77,12 +76,11 @@ export default class BaseDAORead
     }
 
     if (Object.keys(filter).length !== 0) {
-      query = `${select} ${await this.generateWhere(filter, 1, true)} ${
-        this.groupBy
-      }`;
+      query = `${select} ${await this.generateWhere(filter, 1, true)} ${this.groupBy
+        }`;
     }
     return new Promise((resolve, reject) => {
-      this.pool.query(query, Object.values(filter), (error, result) => {
+      this.pool?.query(query, Object.values(filter), (error, result) => {
         if (error) {
           reject(error);
           return;
