@@ -1,7 +1,7 @@
 import { DefaultInitializer } from '@flexiblepersistence/default-initializer';
-import { Pool } from 'pg';
+import { PoolAdapter } from '../database/poolAdapter';
 
 export default interface BaseDAODefaultInitializer extends DefaultInitializer {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pool: Pool;
+  pool: PoolAdapter;
 }

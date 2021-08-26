@@ -11,7 +11,8 @@ import BaseDAORestrictedDefault from '../baseDAORestrictedDefault';
 // @ts-ignore
 export default class BaseDAOCreate
   extends BaseDAORestrictedDefault
-  implements StoreAdapter<DAOSimpleModel, DAOModel> {
+  implements StoreAdapter<DAOSimpleModel, DAOModel>
+{
   // @ts-ignore
   protected abstract insert: string;
   // @ts-ignore
@@ -75,20 +76,21 @@ export default class BaseDAOCreate
     const values = await this.generateVectorValues(content);
     const select = await this.generateSelect('created');
     const insert = await this.generateInsert(content, values);
-    const query =
-      `WITH ${this.beforeInsert ? this.beforeInsert : ''}${
-        // eslint-disable-next-line no-nested-ternary
-        this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
-      } created AS (${insert} ` +
-      `RETURNING *` +
-      `) ${select} ${this.groupBy}`;
+    const query = this.pool?.simpleInsert
+      ? `${insert}`
+      : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
+      // eslint-disable-next-line no-nested-ternary
+      this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
+      } created AS(${insert} ` +
+      `RETURNING * ` +
+      `) ${select} ${this.groupBy} `;
 
     // console.log('content:', content);
     // console.log('STORE:', query);
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool.query(query, values, (error, result) => {
+      this.pool?.query(query, values, (error, result) => {
         if (error) {
           // console.log('error:', error);
           reject(error);
@@ -111,20 +113,21 @@ export default class BaseDAOCreate
     const insert = await this.generateInsertArray(content, tempValues);
     const values: unknown[] = [].concat(...tempValues);
 
-    const query =
-      `WITH ${this.beforeInsert ? this.beforeInsert : ''}${
-        // eslint-disable-next-line no-nested-ternary
-        this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
-      } created AS (${insert} ` +
-      `RETURNING *` +
-      `) ${select} ${this.groupBy}`;
+    const query = this.pool?.simpleInsert
+      ? `${insert}`
+      : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
+      // eslint-disable-next-line no-nested-ternary
+      this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
+      } created AS(${insert} ` +
+      `RETURNING * ` +
+      `) ${select} ${this.groupBy} `;
 
     // console.log('content:', content);
     // console.log('STORE:', query);
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
-      this.pool.query(query, values, (error, result) => {
+      this.pool?.query(query, values, (error, result) => {
         if (error) {
           reject(error);
           return;

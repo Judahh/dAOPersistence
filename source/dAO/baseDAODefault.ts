@@ -7,9 +7,9 @@ import { settings } from 'ts-mixer';
 import { PersistenceInput, PersistencePromise } from 'flexiblepersistence';
 import BaseDAODefaultInitializer from './baseDAODefaultInitializer';
 import DAOSimpleModel from '../model/dAOSimpleModel';
-import { Pool } from 'pg';
 import DAOModel from '../model/dAOModel';
 import { Default } from '@flexiblepersistence/default-initializer';
+import { PoolAdapter } from '../database/poolAdapter';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -27,11 +27,11 @@ export default class BaseDAODefault extends Default {
     return this.pool;
   }
 
-  setPool(pool) {
+  setPool(pool: PoolAdapter) {
     this.pool = pool;
   }
 
-  protected pool: Pool;
+  protected pool?: PoolAdapter;
 
   protected groupBy = '';
   protected values = '*';
