@@ -126,37 +126,33 @@ export default class BaseDAODefault extends Default {
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-  protected fixType(result: {
-    rows?: (DAOModel | PromiseLike<DAOModel>)[];
-    recordset?: (DAOModel | PromiseLike<DAOModel>)[];
-    rowCount?;
-  }): any {
+  protected fixType(result): any {
     result.rows = result.rows ? result.rows : result.recordset;
     result.recordset = undefined;
-
-    if (result.rows && result.rows[0]) {
-      if (result.rows[0].timestamp) {
-        result.rows = this.fixDate(result.rows, 'timestamp');
+    if (result.rows)
+      if (result?.rows[0]) {
+        if (result.rows[0].timestamp) {
+          result.rows = this.fixDate(result.rows, 'timestamp');
+        }
+        if (result.rows[0].conclusion_date === null) {
+          result.rows = this.fixUndefined(result.rows, 'conclusion_date');
+        }
+        if (result.rows[0].conclusion_date) {
+          result.rows = this.fixDate(result.rows, 'conclusion_date');
+        }
+        if (result.rows[0].quantity) {
+          result.rows = this.fixBigNumber(result.rows, 'quantity');
+        }
+        if (result.rows[0].quantity_payed) {
+          result.rows = this.fixBigNumber(result.rows, 'quantity_payed');
+        }
+        if (result.rows[0].value_quantity) {
+          result.rows = this.fixBigNumber(result.rows, 'value_quantity');
+        }
+        if (result.rows[0].product_quantity) {
+          result.rows = this.fixBigNumber(result.rows, 'product_quantity');
+        }
       }
-      if (result.rows[0].conclusion_date === null) {
-        result.rows = this.fixUndefined(result.rows, 'conclusion_date');
-      }
-      if (result.rows[0].conclusion_date) {
-        result.rows = this.fixDate(result.rows, 'conclusion_date');
-      }
-      if (result.rows[0].quantity) {
-        result.rows = this.fixBigNumber(result.rows, 'quantity');
-      }
-      if (result.rows[0].quantity_payed) {
-        result.rows = this.fixBigNumber(result.rows, 'quantity_payed');
-      }
-      if (result.rows[0].value_quantity) {
-        result.rows = this.fixBigNumber(result.rows, 'value_quantity');
-      }
-      if (result.rows[0].product_quantity) {
-        result.rows = this.fixBigNumber(result.rows, 'product_quantity');
-      }
-    }
     return result;
   }
 
