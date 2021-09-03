@@ -24,11 +24,13 @@ export default class BaseDAOCreate
   existent(
     input: PersistenceInputCreate<DAOSimpleModel>
   ): Promise<PersistencePromise<DAOModel>> {
+    this.options = input.eventOptions;
     return this.create(input);
   }
   create(
     input: PersistenceInputCreate<DAOSimpleModel>
   ): Promise<PersistencePromise<DAOModel>> {
+    this.options = input.eventOptions;
     return Array.isArray(input.item)
       ? this.makePromise(input, 'createArray')
       : this.makePromise(input, 'createSingle');
@@ -79,11 +81,11 @@ export default class BaseDAOCreate
     const query = this.pool?.simpleCreate
       ? `${insert}`
       : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
-      // eslint-disable-next-line no-nested-ternary
-      this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
-      } created AS(${insert} ` +
-      `RETURNING * ` +
-      `) ${select} ${this.groupBy} `;
+          // eslint-disable-next-line no-nested-ternary
+          this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
+        } created AS(${insert} ` +
+        `RETURNING * ` +
+        `) ${select} ${this.groupBy} `;
 
     // console.log('content:', content);
     // console.log('STORE:', query);
@@ -120,11 +122,11 @@ export default class BaseDAOCreate
     const query = this.pool?.simpleCreate
       ? `${insert}`
       : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
-      // eslint-disable-next-line no-nested-ternary
-      this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
-      } created AS(${insert} ` +
-      `RETURNING * ` +
-      `) ${select} ${this.groupBy} `;
+          // eslint-disable-next-line no-nested-ternary
+          this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
+        } created AS(${insert} ` +
+        `RETURNING * ` +
+        `) ${select} ${this.groupBy} `;
 
     // console.log('content:', content);
     // console.log('STORE:', query);

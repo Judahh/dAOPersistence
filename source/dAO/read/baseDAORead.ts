@@ -12,11 +12,12 @@ export default class BaseDAORead
   implements ReadAdapter<DAOModel>
 {
   read(input: PersistenceInputRead): Promise<PersistencePromise<DAOModel>> {
+    this.options = input.eventOptions;
     return input.id
       ? this.makePromise(input, 'readById')
       : input.single
-        ? this.makePromise(input, 'readSingle')
-        : this.makePromise(input, 'readArray');
+      ? this.makePromise(input, 'readSingle')
+      : this.makePromise(input, 'readArray');
   }
   // @ts-ignore
   protected abstract updateQuery: string;
@@ -25,12 +26,12 @@ export default class BaseDAORead
     return new Promise((resolve, reject) => {
       this.pool?.query(
         `${select} WHERE element.id ` +
-        this.getEquals(id) +
-        ` $1 ${this.groupBy}`,
+          this.getEquals(id) +
+          ` $1 ${this.groupBy}`,
         [id],
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
@@ -54,8 +55,9 @@ export default class BaseDAORead
     // console.log('filter=', filter);
 
     if (Object.keys(filter).length !== 0) {
-      query = `${select} ${await this.generateWhere(filter, 1, true)} ${this.groupBy
-        } ${limit}`;
+      query = `${select} ${await this.generateWhere(filter, 1, true)} ${
+        this.groupBy
+      } ${limit}`;
     }
 
     // console.log(query);
@@ -65,7 +67,7 @@ export default class BaseDAORead
         Object.values(filter),
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
@@ -79,14 +81,22 @@ export default class BaseDAORead
   }
   async readArray(filter): Promise<DAOModel[]> {
     const select = await this.generateSelect(this.getName());
-    let query = `${select} ${this.groupBy}`;
+    await this.pool?.getNumberOfPages(select, this.options);
+    let query =
+      `${await this.pool?.generatePaginationPrefix(this.options)} ` +
+      `${select} ${await this.pool?.generatePaginationSuffix(this.options)} ` +
+      `${this.groupBy}`;
 
     if (!filter) {
       filter = {};
     }
 
     if (Object.keys(filter).length !== 0) {
-      query = `${select} ${await this.generateWhere(filter, 1, true)} ${this.groupBy
+      query =
+        `${await this.pool?.generatePaginationPrefix(this.options)} ` +
+        `${select} ${await this.generateWhere(filter, 1, true)} ` +
+        `${await this.pool?.generatePaginationSuffix(this.options)} ${
+          this.groupBy
         }`;
     }
     return new Promise((resolve, reject) => {
@@ -95,7 +105,7 @@ export default class BaseDAORead
         Object.values(filter),
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);

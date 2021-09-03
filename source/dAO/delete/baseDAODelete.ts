@@ -18,16 +18,18 @@ export default class BaseDAODelete
   nonexistent(
     input: PersistenceInputDelete
   ): Promise<PersistencePromise<DAOModel>> {
+    this.options = input.eventOptions;
     return this.delete(input);
   }
   delete(input: PersistenceInputDelete): Promise<PersistencePromise<DAOModel>> {
     // console.log('FUCKING DELETE');
+    this.options = input.eventOptions;
 
     return input.id
       ? this.makePromise(input, 'deleteById')
       : input.single
-        ? this.makePromise(input, 'deleteSingle')
-        : this.makePromise(input, 'deleteArray');
+      ? this.makePromise(input, 'deleteSingle')
+      : this.makePromise(input, 'deleteArray');
   }
   deleteById(id: string): Promise<boolean> {
     // console.log(this.getName());
@@ -37,7 +39,7 @@ export default class BaseDAODelete
         [id],
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
@@ -81,7 +83,7 @@ export default class BaseDAODelete
         filter ? Object.values(filter) : [],
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
@@ -123,7 +125,7 @@ export default class BaseDAODelete
         filter ? Object.values(filter) : [],
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);

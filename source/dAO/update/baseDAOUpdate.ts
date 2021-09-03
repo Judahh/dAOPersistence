@@ -19,6 +19,7 @@ export default class BaseDAOUpdate
   correct(
     input: PersistenceInputUpdate<DAOSimpleModel>
   ): Promise<PersistencePromise<DAOModel>> {
+    this.options = input.eventOptions;
     //! Envia o input para o service determinado pelo esquema e lá ele faz as
     //! operações necessárias usando o journaly para acessar outros DAOs ou
     //! DAOs.
@@ -32,11 +33,12 @@ export default class BaseDAOUpdate
   update(
     input: PersistenceInputUpdate<DAOSimpleModel>
   ): Promise<PersistencePromise<DAOModel>> {
+    this.options = input.eventOptions;
     return input.id
       ? this.makePromise(input, 'updateById')
       : input.single
-        ? this.makePromise(input, 'updateSingle')
-        : this.makePromise(input, 'updateArray');
+      ? this.makePromise(input, 'updateSingle')
+      : this.makePromise(input, 'updateArray');
   }
   async updateById(id: string, content: DAOSimpleModel): Promise<DAOModel> {
     const limit = 'LIMIT 1';
@@ -47,11 +49,11 @@ export default class BaseDAOUpdate
     const query = this.pool?.simpleUpdate
       ? `${update}`
       : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-      `WHERE id = ${this.generateValueFromUnknown(
-        id
-      )} ORDER BY ID ${limit}) ` +
-      `RETURNING *` +
-      `) ${select} ${this.groupBy}`;
+        `WHERE id = ${this.generateValueFromUnknown(
+          id
+        )} ORDER BY ID ${limit}) ` +
+        `RETURNING *` +
+        `) ${select} ${this.groupBy}`;
 
     // console.log('id:', id);
     // console.log('content:', content);
@@ -63,7 +65,7 @@ export default class BaseDAOUpdate
         values,
         async (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
@@ -87,9 +89,9 @@ export default class BaseDAOUpdate
     let query = this.pool?.simpleUpdate
       ? `${update}`
       : `WITH updated AS (${update} WHERE id IN ` +
-      `(SELECT id FROM ${this.getName()} ORDER BY ID ${limit}) ` +
-      `RETURNING *` +
-      `) ${select} ${this.groupBy}`;
+        `(SELECT id FROM ${this.getName()} ORDER BY ID ${limit}) ` +
+        `RETURNING *` +
+        `) ${select} ${this.groupBy}`;
     if (!filter) {
       filter = {};
     }
@@ -100,9 +102,9 @@ export default class BaseDAOUpdate
       query = this.pool?.simpleUpdate
         ? `${update}`
         : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
-        `RETURNING *` +
-        `) ${select} ${this.groupBy}`;
+          `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
+          `RETURNING *` +
+          `) ${select} ${this.groupBy}`;
     }
 
     // console.log('content:', content);
@@ -115,7 +117,7 @@ export default class BaseDAOUpdate
         values,
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
@@ -138,8 +140,8 @@ export default class BaseDAOUpdate
     let query = this.pool?.simpleUpdate
       ? `${update}`
       : `WITH updated AS (${update} ` +
-      `RETURNING *` +
-      `) ${select} ${this.groupBy}`;
+        `RETURNING *` +
+        `) ${select} ${this.groupBy}`;
     if (!filter) {
       filter = {};
     }
@@ -150,9 +152,9 @@ export default class BaseDAOUpdate
       query = this.pool?.simpleUpdate
         ? `${update}`
         : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
-        `RETURNING *` +
-        `) ${select} ${this.groupBy}`;
+          `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
+          `RETURNING *` +
+          `) ${select} ${this.groupBy}`;
     }
 
     // console.log('filter:', filter);
@@ -166,7 +168,7 @@ export default class BaseDAOUpdate
         values,
         (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount?}
+          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
