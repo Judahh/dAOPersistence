@@ -5,6 +5,27 @@ export interface PoolAdapter {
   simpleCreate?: boolean;
   simpleUpdate?: boolean;
   simpleDelete?: boolean;
+
+  getNumberOfPages(
+    script: string,
+    options?: {
+      page?: number;
+      pageSize?: number;
+      numberOfPages?: number;
+    }
+  ): Promise<void>;
+
+  generatePaginationPrefix(options?: {
+    page?: number;
+    pageSize?: number;
+    numberOfPages?: number;
+  }): Promise<unknown>;
+
+  generatePaginationSuffix(options?: {
+    page?: number;
+    pageSize?: number;
+    numberOfPages?: number;
+  }): Promise<unknown>;
   connect(
     callback?: (error?: Error, client?: unknown, release?: unknown) => void
   ): Promise<unknown>;

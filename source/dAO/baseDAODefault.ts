@@ -32,6 +32,11 @@ export default class BaseDAODefault extends Default {
   }
 
   protected pool?: PoolAdapter;
+  protected options?: {
+    page?: number;
+    pageSize?: number;
+    numberOfPages?: number;
+  };
 
   protected groupBy = '';
   protected values = '*';
