@@ -33,8 +33,11 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
   }
 
   protected basicGenerateFields(content: DAOSimpleModel): string[] {
-    const fields = Object.keys(content);
-    // console.log('fields', fields);
+    const fields = this.aliasFields
+      ? Object.keys(content).map((value) => {
+          return this.aliasFields ? this.aliasFields[value] || value : value;
+        })
+      : Object.keys(content);
 
     return fields;
   }
