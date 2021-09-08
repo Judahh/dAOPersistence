@@ -37,7 +37,7 @@ export default class BaseDAODefault extends Default {
     pageSize?: number;
     numberOfPages?: number;
   };
-
+  protected aliasFields = {};
   protected groupBy = '';
   protected values = '*';
 
