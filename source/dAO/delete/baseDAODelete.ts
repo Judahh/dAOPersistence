@@ -64,7 +64,7 @@ export default class BaseDAODelete
   async deleteSingle(filter): Promise<boolean> {
     const limit =
       (this.pool?.deleteLimit ? this.pool?.deleteLimit : this.regularLimit) +
-      '1';
+      ' 1';
     let query = `DELETE ${
       this.pool?.isDeleteLimitBefore ? limit : ''
     } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ORDER BY ID ${

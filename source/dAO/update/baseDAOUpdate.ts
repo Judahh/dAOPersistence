@@ -43,7 +43,7 @@ export default class BaseDAOUpdate
   async updateById(id: string, content: DAOSimpleModel): Promise<DAOModel> {
     const limit =
       (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
-      '1';
+      ' 1';
 
     const values = Object.values(content);
     const select = await this.generateSelect(
@@ -85,7 +85,7 @@ export default class BaseDAOUpdate
   async updateSingle(filter, content: DAOSimpleModel): Promise<DAOModel> {
     const limit =
       (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
-      '1';
+      ' 1';
 
     const values = Object.values(content);
     const select = await this.generateSelect(

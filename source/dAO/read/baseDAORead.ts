@@ -45,7 +45,7 @@ export default class BaseDAORead
   }
   async readSingle(filter): Promise<DAOModel> {
     const limit =
-      (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) + '1';
+      (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) + ' 1';
 
     const select = await this.generateSelect(
       this.getName(),
