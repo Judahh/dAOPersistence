@@ -50,6 +50,7 @@ export default class BaseDAODefault extends Default {
 
   protected stringEquals?: string;
   protected regularEquals = '=';
+  protected regularLimit = 'LIMIT';
 
   getEquals(element: unknown): string {
     return this.stringEquals && typeof element === 'string'
@@ -79,8 +80,13 @@ export default class BaseDAODefault extends Default {
       resolve(update);
     });
   }
-  protected async generateSelect(alias: string): Promise<string> {
-    const select = `SELECT * FROM (SELECT ${this.values} FROM ${alias} AS subElement ${this.selectJoin}) as element`;
+  protected async generateSelect(
+    alias: string,
+    limit?: string
+  ): Promise<string> {
+    const select = `SELECT ${limit ? limit : ''} * FROM (SELECT ${
+      this.values
+    } FROM ${alias} AS subElement ${this.selectJoin}) as element`;
     return new Promise((resolve) => {
       resolve(select);
     });

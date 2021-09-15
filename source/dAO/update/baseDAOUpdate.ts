@@ -41,17 +41,22 @@ export default class BaseDAOUpdate
       : this.makePromise(input, 'updateArray');
   }
   async updateById(id: string, content: DAOSimpleModel): Promise<DAOModel> {
-    const limit = 'LIMIT 1';
+    const limit =
+      (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
+      ' 1';
 
     const values = Object.values(content);
-    const select = await this.generateSelect('updated');
+    const select = await this.generateSelect(
+      'updated',
+      this.pool?.isUpdateLimitBefore ? limit : undefined
+    );
     const update = await this.generateUpdate(1, content);
     const query = this.pool?.simpleUpdate
       ? `${update}`
       : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `WHERE id = ${this.generateValueFromUnknown(
-          id
-        )} ORDER BY ID ${limit}) ` +
+        `WHERE id = ${this.generateValueFromUnknown(id)} ORDER BY ID ${
+          this.pool?.isUpdateLimitBefore ? '' : limit
+        }) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
 
@@ -78,10 +83,15 @@ export default class BaseDAOUpdate
     });
   }
   async updateSingle(filter, content: DAOSimpleModel): Promise<DAOModel> {
-    const limit = 'LIMIT 1';
+    const limit =
+      (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
+      ' 1';
 
     const values = Object.values(content);
-    const select = await this.generateSelect('updated');
+    const select = await this.generateSelect(
+      'updated',
+      this.pool?.isUpdateLimitBefore ? limit : undefined
+    );
     const update = await this.generateUpdate(
       Object.values(filter).length,
       content
@@ -89,7 +99,9 @@ export default class BaseDAOUpdate
     let query = this.pool?.simpleUpdate
       ? `${update}`
       : `WITH updated AS (${update} WHERE id IN ` +
-        `(SELECT id FROM ${this.getName()} ORDER BY ID ${limit}) ` +
+        `(SELECT id FROM ${this.getName()} ORDER BY ID ${
+          this.pool?.isUpdateLimitBefore ? '' : limit
+        }) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
     if (!filter) {
