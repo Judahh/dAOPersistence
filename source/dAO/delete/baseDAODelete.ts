@@ -62,8 +62,14 @@ export default class BaseDAODelete
     });
   }
   async deleteSingle(filter): Promise<boolean> {
-    const limit = 'LIMIT 1';
-    let query = `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ORDER BY ID ${limit})`;
+    const limit =
+      (this.pool?.deleteLimit ? this.pool?.deleteLimit : this.regularLimit) +
+      '1';
+    let query = `DELETE ${
+      this.pool?.isDeleteLimitBefore ? limit : ''
+    } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ORDER BY ID ${
+      this.pool?.isDeleteLimitBefore ? '' : limit
+    })`;
 
     if (!filter) {
       filter = {};
@@ -73,9 +79,21 @@ export default class BaseDAODelete
 
     if (Object.keys(filter).length !== 0) {
       query =
-        `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `${await this.generateWhere(filter)} ORDER BY ID ${limit}) `;
+        `DELETE ${
+          this.pool?.isDeleteLimitBefore ? limit : ''
+        } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+        `${await this.generateWhere(filter)} ORDER BY ID ${
+          this.pool?.isDeleteLimitBefore ? '' : limit
+        }) `;
     }
+
+    query = this.pool?.simpleDelete
+      ? `DELETE ${
+          this.pool?.isDeleteLimitBefore ? limit : ''
+        } FROM ${this.getName()} ${await this.generateWhere(filter)} ${
+          this.pool?.isDeleteLimitBefore ? '' : limit
+        }`
+      : query;
 
     return new Promise((resolve, reject) => {
       this.pool?.query(

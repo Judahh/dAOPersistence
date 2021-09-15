@@ -6,6 +6,16 @@ export interface PoolAdapter {
   simpleUpdate?: boolean;
   simpleDelete?: boolean;
 
+  isCreateLimitBefore?: boolean;
+  isReadLimitBefore?: boolean;
+  isUpdateLimitBefore?: boolean;
+  isDeleteLimitBefore?: boolean;
+
+  createLimit?: string;
+  readLimit?: string;
+  updateLimit?: string;
+  deleteLimit?: string;
+
   getNumberOfPages(
     script: string,
     options?: {

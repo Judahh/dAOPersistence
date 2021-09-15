@@ -44,9 +44,16 @@ export default class BaseDAORead
     });
   }
   async readSingle(filter): Promise<DAOModel> {
-    const limit = 'LIMIT 1';
-    const select = await this.generateSelect(this.getName());
-    let query = `${select} ${this.groupBy} ${limit}`;
+    const limit =
+      (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) + '1';
+
+    const select = await this.generateSelect(
+      this.getName(),
+      this.pool?.isReadLimitBefore ? limit : undefined
+    );
+    let query = `${select} ${this.groupBy} ${
+      this.pool?.isReadLimitBefore ? '' : limit
+    }`;
 
     if (!filter) {
       filter = {};
@@ -57,7 +64,7 @@ export default class BaseDAORead
     if (Object.keys(filter).length !== 0) {
       query = `${select} ${await this.generateWhere(filter, 1, true)} ${
         this.groupBy
-      } ${limit}`;
+      } ${this.pool?.isReadLimitBefore ? '' : limit}`;
     }
 
     // console.log(query);
