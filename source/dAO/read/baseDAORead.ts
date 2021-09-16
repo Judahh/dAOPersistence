@@ -51,6 +51,7 @@ export default class BaseDAORead
       this.getName(),
       this.pool?.isReadLimitBefore ? limit : undefined
     );
+    filter = filter ? filter : {};
 
     const query = `${select} ${await this.generateWhere(filter, 1, true)} ${
       this.groupBy
@@ -78,6 +79,7 @@ export default class BaseDAORead
   async readArray(filter): Promise<DAOModel[]> {
     const select = await this.generateSelect(this.getName());
     await this.pool?.getNumberOfPages(select, this.options);
+    filter = filter ? filter : {};
     const query =
       `${await this.pool?.generatePaginationPrefix(this.options)} ` +
       `${select} ${await this.generateWhere(filter, 1, true)} ` +

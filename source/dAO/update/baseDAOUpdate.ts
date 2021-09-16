@@ -88,6 +88,7 @@ export default class BaseDAOUpdate
       ' 1';
 
     const values = Object.values(content);
+    filter = filter ? filter : {};
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
@@ -129,6 +130,7 @@ export default class BaseDAOUpdate
   async updateArray(filter, content: DAOSimpleModel): Promise<DAOModel[]> {
     const values = Object.values(content);
     const select = await this.generateSelect('updated');
+    filter = filter ? filter : {};
     const update = await this.generateUpdate(
       Object.values(filter).length,
       content

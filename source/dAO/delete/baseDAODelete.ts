@@ -108,6 +108,7 @@ export default class BaseDAODelete
   }
   async deleteArray(filter): Promise<number> {
     // console.log('filter=', filter);
+    filter = filter ? filter : {};
     const query = this.pool?.simpleDelete
       ? `DELETE FROM ${this.getName()} ${await this.generateWhere(filter)} `
       : `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
