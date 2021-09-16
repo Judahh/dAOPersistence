@@ -96,28 +96,12 @@ export default class BaseDAOUpdate
       Object.values(filter).length,
       content
     );
-    let query = this.pool?.simpleUpdate
+    const query = this.pool?.simpleUpdate
       ? `${update}`
-      : `WITH updated AS (${update} WHERE id IN ` +
-        `(SELECT id FROM ${this.getName()} ORDER BY ID ${
-          this.pool?.isUpdateLimitBefore ? '' : limit
-        }) ` +
+      : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+        `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
-    if (!filter) {
-      filter = {};
-    }
-
-    // console.log('filter=', filter);
-
-    if (Object.keys(filter).length !== 0) {
-      query = this.pool?.simpleUpdate
-        ? `${update}`
-        : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-          `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
-          `RETURNING *` +
-          `) ${select} ${this.groupBy}`;
-    }
 
     // console.log('content:', content);
     // console.log('STORE:', query);
@@ -149,25 +133,12 @@ export default class BaseDAOUpdate
       Object.values(filter).length,
       content
     );
-    let query = this.pool?.simpleUpdate
+    const query = this.pool?.simpleUpdate
       ? `${update}`
-      : `WITH updated AS (${update} ` +
+      : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+        `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
-    if (!filter) {
-      filter = {};
-    }
-
-    // console.log('filter=', filter);
-
-    if (Object.keys(filter).length !== 0) {
-      query = this.pool?.simpleUpdate
-        ? `${update}`
-        : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-          `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
-          `RETURNING *` +
-          `) ${select} ${this.groupBy}`;
-    }
 
     // console.log('filter:', filter);
     // console.log('content:', content);
