@@ -88,6 +88,7 @@ export default class BaseDAOUpdate
       ' 1';
 
     const values = Object.values(content);
+    filter = filter ? filter : {};
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
@@ -96,28 +97,12 @@ export default class BaseDAOUpdate
       Object.values(filter).length,
       content
     );
-    let query = this.pool?.simpleUpdate
+    const query = this.pool?.simpleUpdate
       ? `${update}`
-      : `WITH updated AS (${update} WHERE id IN ` +
-        `(SELECT id FROM ${this.getName()} ORDER BY ID ${
-          this.pool?.isUpdateLimitBefore ? '' : limit
-        }) ` +
+      : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+        `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
-    if (!filter) {
-      filter = {};
-    }
-
-    // console.log('filter=', filter);
-
-    if (Object.keys(filter).length !== 0) {
-      query = this.pool?.simpleUpdate
-        ? `${update}`
-        : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-          `${await this.generateWhere(filter, -1)} ORDER BY ID ${limit}) ` +
-          `RETURNING *` +
-          `) ${select} ${this.groupBy}`;
-    }
 
     // console.log('content:', content);
     // console.log('STORE:', query);
@@ -145,29 +130,17 @@ export default class BaseDAOUpdate
   async updateArray(filter, content: DAOSimpleModel): Promise<DAOModel[]> {
     const values = Object.values(content);
     const select = await this.generateSelect('updated');
+    filter = filter ? filter : {};
     const update = await this.generateUpdate(
       Object.values(filter).length,
       content
     );
-    let query = this.pool?.simpleUpdate
+    const query = this.pool?.simpleUpdate
       ? `${update}`
-      : `WITH updated AS (${update} ` +
+      : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+        `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
-    if (!filter) {
-      filter = {};
-    }
-
-    // console.log('filter=', filter);
-
-    if (Object.keys(filter).length !== 0) {
-      query = this.pool?.simpleUpdate
-        ? `${update}`
-        : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-          `${await this.generateWhere(filter, -1)} ORDER BY ID) ` +
-          `RETURNING *` +
-          `) ${select} ${this.groupBy}`;
-    }
 
     // console.log('filter:', filter);
     // console.log('content:', content);

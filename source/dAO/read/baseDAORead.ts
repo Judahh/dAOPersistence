@@ -51,21 +51,11 @@ export default class BaseDAORead
       this.getName(),
       this.pool?.isReadLimitBefore ? limit : undefined
     );
-    let query = `${select} ${this.groupBy} ${
-      this.pool?.isReadLimitBefore ? '' : limit
-    }`;
+    filter = filter ? filter : {};
 
-    if (!filter) {
-      filter = {};
-    }
-
-    // console.log('filter=', filter);
-
-    if (Object.keys(filter).length !== 0) {
-      query = `${select} ${await this.generateWhere(filter, 1, true)} ${
-        this.groupBy
-      } ${this.pool?.isReadLimitBefore ? '' : limit}`;
-    }
+    const query = `${select} ${await this.generateWhere(filter, 1, true)} ${
+      this.groupBy
+    } ${this.pool?.isReadLimitBefore ? '' : limit}`;
 
     // console.log(query);
     return new Promise((resolve, reject) => {
@@ -89,23 +79,14 @@ export default class BaseDAORead
   async readArray(filter): Promise<DAOModel[]> {
     const select = await this.generateSelect(this.getName());
     await this.pool?.getNumberOfPages(select, this.options);
-    let query =
+    filter = filter ? filter : {};
+    const query =
       `${await this.pool?.generatePaginationPrefix(this.options)} ` +
-      `${select} ${await this.pool?.generatePaginationSuffix(this.options)} ` +
-      `${this.groupBy}`;
+      `${select} ${await this.generateWhere(filter, 1, true)} ` +
+      `${await this.pool?.generatePaginationSuffix(this.options)} ${
+        this.groupBy
+      }`;
 
-    if (!filter) {
-      filter = {};
-    }
-
-    if (Object.keys(filter).length !== 0) {
-      query =
-        `${await this.pool?.generatePaginationPrefix(this.options)} ` +
-        `${select} ${await this.generateWhere(filter, 1, true)} ` +
-        `${await this.pool?.generatePaginationSuffix(this.options)} ${
-          this.groupBy
-        }`;
-    }
     return new Promise((resolve, reject) => {
       this.pool?.query(
         query,

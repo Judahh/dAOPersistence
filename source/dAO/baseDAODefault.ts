@@ -97,20 +97,23 @@ export default class BaseDAODefault extends Default {
     initialPosition = 1,
     withElement?: boolean
   ): Promise<string> {
-    const where = `WHERE ${Object.keys(filter)
-      .map(
-        (x) =>
-          (withElement ? 'element.' : '') +
-          '"' +
-          x +
-          '" ' +
-          this.getEquals(filter[x]) +
-          ' ' +
-          (initialPosition > -1
-            ? '$' + initialPosition++
-            : this.generateValueFromUnknown(filter[x]))
-      )
-      .join(' AND ')}`;
+    const where =
+      filter && Object.keys(filter).length > 0
+        ? `WHERE ${Object.keys(filter)
+            .map(
+              (x) =>
+                (withElement ? 'element.' : '') +
+                '"' +
+                x +
+                '" ' +
+                this.getEquals(filter[x]) +
+                ' ' +
+                (initialPosition > -1
+                  ? '$' + initialPosition++
+                  : this.generateValueFromUnknown(filter[x]))
+            )
+            .join(' AND ')}`
+        : '';
     return where;
   }
 

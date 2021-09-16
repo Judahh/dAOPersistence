@@ -65,35 +65,19 @@ export default class BaseDAODelete
     const limit =
       (this.pool?.deleteLimit ? this.pool?.deleteLimit : this.regularLimit) +
       ' 1';
-    let query = `DELETE ${
-      this.pool?.isDeleteLimitBefore ? limit : ''
-    } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ORDER BY ID ${
-      this.pool?.isDeleteLimitBefore ? '' : limit
-    })`;
 
-    if (!filter) {
-      filter = {};
-    }
-
-    // console.log('filter=', filter);
-
-    if (Object.keys(filter).length !== 0) {
-      query =
-        `DELETE ${
-          this.pool?.isDeleteLimitBefore ? limit : ''
-        } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `${await this.generateWhere(filter)} ORDER BY ID ${
-          this.pool?.isDeleteLimitBefore ? '' : limit
-        }) `;
-    }
-
-    query = this.pool?.simpleDelete
+    const query = this.pool?.simpleDelete
       ? `DELETE ${
           this.pool?.isDeleteLimitBefore ? limit : ''
         } FROM ${this.getName()} ${await this.generateWhere(filter)} ${
           this.pool?.isDeleteLimitBefore ? '' : limit
         }`
-      : query;
+      : `DELETE ${
+          this.pool?.isDeleteLimitBefore ? limit : ''
+        } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+        `${await this.generateWhere(filter)} ORDER BY ID ${
+          this.pool?.isDeleteLimitBefore ? '' : limit
+        }) `;
 
     return new Promise((resolve, reject) => {
       this.pool?.query(
@@ -123,19 +107,12 @@ export default class BaseDAODelete
     });
   }
   async deleteArray(filter): Promise<number> {
-    let query = `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ORDER BY ID)`;
-
-    if (!filter) {
-      filter = {};
-    }
-
     // console.log('filter=', filter);
-
-    if (Object.keys(filter).length !== 0) {
-      query =
-        `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+    filter = filter ? filter : {};
+    const query = this.pool?.simpleDelete
+      ? `DELETE FROM ${this.getName()} ${await this.generateWhere(filter)} `
+      : `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `${await this.generateWhere(filter)} ORDER BY ID) `;
-    }
 
     return new Promise((resolve, reject) => {
       this.pool?.query(
