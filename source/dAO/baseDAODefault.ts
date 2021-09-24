@@ -51,6 +51,16 @@ export default class BaseDAODefault extends Default {
   protected stringEquals?: string;
   protected regularEquals = '=';
   protected regularLimit = 'LIMIT';
+  protected nullProperties = ['conclusion_date'];
+
+  protected bigNumberProperties = [
+    'quantity',
+    'quantity_payed',
+    'value_quantity',
+    'product_quantity',
+  ];
+
+  protected dateProperties = ['timestamp', 'conclusion_date'];
 
   getEquals(element: unknown): string {
     return this.stringEquals && typeof element === 'string'
@@ -147,26 +157,20 @@ export default class BaseDAODefault extends Default {
     result.recordset = undefined;
     if (result.rows)
       if (result?.rows[0]) {
-        if (result.rows[0].timestamp) {
-          result.rows = this.fixDate(result.rows, 'timestamp');
+        for (const nullProperty of this.nullProperties) {
+          if (result.rows[0][nullProperty] === null) {
+            result.rows = this.fixUndefined(result.rows, nullProperty);
+          }
         }
-        if (result.rows[0].conclusion_date === null) {
-          result.rows = this.fixUndefined(result.rows, 'conclusion_date');
+        for (const dateProperty of this.dateProperties) {
+          if (result.rows[0][dateProperty]) {
+            result.rows = this.fixDate(result.rows, dateProperty);
+          }
         }
-        if (result.rows[0].conclusion_date) {
-          result.rows = this.fixDate(result.rows, 'conclusion_date');
-        }
-        if (result.rows[0].quantity) {
-          result.rows = this.fixBigNumber(result.rows, 'quantity');
-        }
-        if (result.rows[0].quantity_payed) {
-          result.rows = this.fixBigNumber(result.rows, 'quantity_payed');
-        }
-        if (result.rows[0].value_quantity) {
-          result.rows = this.fixBigNumber(result.rows, 'value_quantity');
-        }
-        if (result.rows[0].product_quantity) {
-          result.rows = this.fixBigNumber(result.rows, 'product_quantity');
+        for (const bigNumberProperty of this.bigNumberProperties) {
+          if (result.rows[0][bigNumberProperty]) {
+            result.rows = this.fixBigNumber(result.rows, bigNumberProperty);
+          }
         }
       }
     return result;
