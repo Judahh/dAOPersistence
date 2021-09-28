@@ -2,18 +2,16 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-  PersistenceInputCreate,
-  PersistencePromise,
-  StoreAdapter,
-} from 'flexiblepersistence';
-import DAOModel from '../../model/dAOModel';
-import DAOSimpleModel from '../../model/dAOSimpleModel';
+import { IInput, IInputCreate, IOutput, IStore } from 'flexiblepersistence';
+import IDAO from '../../model/iDAO';
+import DAOModel from '../../model/iDAO';
+import IDAOSimple from '../../model/iDAOSimple';
+import DAOSimpleModel from '../../model/iDAOSimple';
 import BaseDAORestrictedDefault from '../baseDAORestrictedDefault';
 // @ts-ignore
 export default class BaseDAOCreate
   extends BaseDAORestrictedDefault
-  implements StoreAdapter<DAOSimpleModel, DAOModel>
+  implements IStore<DAOSimpleModel, DAOModel>
 {
   // @ts-ignore
   protected abstract insert: string;
@@ -24,18 +22,18 @@ export default class BaseDAOCreate
   protected abstract updateQuery: string;
 
   existent(
-    input: PersistenceInputCreate<DAOSimpleModel>
-  ): Promise<PersistencePromise<DAOModel>> {
+    input: IInputCreate<DAOSimpleModel>
+  ): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return this.create(input);
   }
   create(
-    input: PersistenceInputCreate<DAOSimpleModel>
-  ): Promise<PersistencePromise<DAOModel>> {
+    input: IInputCreate<DAOSimpleModel>
+  ): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return Array.isArray(input.item)
-      ? this.makePromise(input, 'createArray')
-      : this.makePromise(input, 'createSingle');
+      ? this.makePromise(input as IInput<DAOSimpleModel>, 'createArray')
+      : this.makePromise(input as IInput<DAOSimpleModel>, 'createSingle');
   }
 
   protected async generateInsertPreGenerateFields(

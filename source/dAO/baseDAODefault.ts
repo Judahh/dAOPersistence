@@ -4,12 +4,12 @@
 // file deepcode ignore object-literal-shorthand: argh
 import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
-import { PersistenceInput, PersistencePromise } from 'flexiblepersistence';
-import BaseDAODefaultInitializer from './baseDAODefaultInitializer';
-import DAOSimpleModel from '../model/dAOSimpleModel';
-import DAOModel from '../model/dAOModel';
+import { IInput, IOutput } from 'flexiblepersistence';
+import BaseDAODefaultInitializer from './iBaseDAODefault';
+import DAOSimpleModel from '../model/iDAOSimple';
+import DAOModel from '../model/iDAO';
 import { Default } from '@flexiblepersistence/default-initializer';
-import { PoolAdapter } from '../database/poolAdapter';
+import { IPool } from '../database/iPool';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -27,11 +27,11 @@ export default class BaseDAODefault extends Default {
     return this.pool;
   }
 
-  setPool(pool: PoolAdapter) {
+  setPool(pool: IPool) {
     this.pool = pool;
   }
 
-  protected pool?: PoolAdapter;
+  protected pool?: IPool;
   protected options?: {
     page?: number;
     pageSize?: number;
@@ -189,7 +189,7 @@ export default class BaseDAODefault extends Default {
     return value;
   }
 
-  protected realInput(input: PersistenceInput<DAOSimpleModel>): any {
+  protected realInput(input: IInput<DAOSimpleModel | DAOSimpleModel[]>): any {
     // console.log(input);
 
     let realInput = input.item ? input.item : {};
@@ -203,7 +203,7 @@ export default class BaseDAODefault extends Default {
   }
 
   protected generateContents(
-    input: PersistenceInput<DAOSimpleModel>,
+    input: IInput<DAOSimpleModel | DAOSimpleModel[]>,
     method: string
   ): [any, any] {
     const input1 = !method.includes('create')
@@ -215,22 +215,22 @@ export default class BaseDAODefault extends Default {
     return [input1, input2];
   }
 
-  protected persistencePromise(
-    input: PersistenceInput<DAOSimpleModel>,
+  protected IOutput(
+    input: IInput<DAOSimpleModel | DAOSimpleModel[]>,
     method: string,
     resolve,
     reject
   ): void {
     this[method](...this.generateContents(input, method))
       .then((output) => {
-        const persistencePromise: PersistencePromise<DAOSimpleModel> = {
+        const IOutput: IOutput<DAOSimpleModel | DAOSimpleModel[], DAOModel> = {
           receivedItem: output,
           result: output,
           selectedItem: input.selectedItem,
           sentItem: input.item, //| input.sentItem,
         };
-        // console.log(persistencePromise);
-        resolve(persistencePromise);
+        // console.log(IOutput);
+        resolve(IOutput);
       })
       .catch((error) => {
         reject(error);
@@ -238,11 +238,11 @@ export default class BaseDAODefault extends Default {
   }
 
   protected makePromise(
-    input: PersistenceInput<DAOSimpleModel>,
+    input: IInput<DAOSimpleModel>,
     method: string
-  ): Promise<PersistencePromise<DAOModel>> {
+  ): Promise<IOutput<DAOSimpleModel, DAOModel>> {
     return new Promise((resolve, reject) => {
-      this.persistencePromise(input, method, resolve, reject);
+      this.IOutput(input, method, resolve, reject);
     });
   }
 }

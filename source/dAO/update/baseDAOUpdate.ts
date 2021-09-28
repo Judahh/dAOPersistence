@@ -1,24 +1,20 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import DAOModel from '../../model/dAOModel';
-import DAOSimpleModel from '../../model/dAOSimpleModel';
+import DAOModel from '../../model/iDAO';
+import DAOSimpleModel from '../../model/iDAOSimple';
 import BaseDAORestrictedDefault from '../baseDAORestrictedDefault';
-import {
-  AlterAdapter,
-  PersistenceInputUpdate,
-  PersistencePromise,
-} from 'flexiblepersistence';
+import { IAlter, IInput, IInputUpdate, IOutput } from 'flexiblepersistence';
 
 // @ts-ignore
 export default class BaseDAOUpdate
   extends BaseDAORestrictedDefault
-  implements AlterAdapter<DAOSimpleModel, DAOModel>
+  implements IAlter<DAOSimpleModel, DAOModel>
 {
   // @ts-ignore
   protected abstract updateQuery: string;
   correct(
-    input: PersistenceInputUpdate<DAOSimpleModel>
-  ): Promise<PersistencePromise<DAOModel>> {
+    input: IInputUpdate<DAOSimpleModel>
+  ): Promise<IOutput<DAOSimpleModel, DAOModel>> {
     this.options = input.eventOptions;
     //! Envia o input para o service determinado pelo esquema e lá ele faz as
     //! operações necessárias usando o journaly para acessar outros DAOs ou
@@ -31,14 +27,14 @@ export default class BaseDAOUpdate
   }
 
   update(
-    input: PersistenceInputUpdate<DAOSimpleModel>
-  ): Promise<PersistencePromise<DAOModel>> {
+    input: IInputUpdate<DAOSimpleModel>
+  ): Promise<IOutput<DAOSimpleModel, DAOModel>> {
     this.options = input.eventOptions;
     return input.id
-      ? this.makePromise(input, 'updateById')
+      ? this.makePromise(input as IInput<DAOSimpleModel>, 'updateById')
       : input.single
-      ? this.makePromise(input, 'updateSingle')
-      : this.makePromise(input, 'updateArray');
+      ? this.makePromise(input as IInput<DAOSimpleModel>, 'updateSingle')
+      : this.makePromise(input as IInput<DAOSimpleModel>, 'updateArray');
   }
   async updateById(id: string, content: DAOSimpleModel): Promise<DAOModel> {
     const limit =

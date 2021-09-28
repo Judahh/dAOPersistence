@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import DAOSimpleModel from '../model/dAOSimpleModel';
+import IDAOSimple from '../model/iDAOSimple';
 import BaseDAODefault from './baseDAODefault';
 // @ts-ignore
 export default class BaseDAORestrictedDefault extends BaseDAODefault {
   // @ts-ignore
   protected async generateVectorValues(
-    content: DAOSimpleModel
+    content: IDAOSimple
   ): Promise<unknown[]> {
     let values: unknown[] = [];
     if (content) values = Object.values(content);
@@ -15,7 +15,7 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
   }
 
   protected async generateVectorValuesFromArray(
-    content: DAOSimpleModel[]
+    content: IDAOSimple[]
   ): Promise<unknown[][]> {
     const values: unknown[][] = [];
     const first = content[0];
@@ -32,7 +32,7 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
     return new Promise((resolve) => resolve(values));
   }
 
-  protected basicGenerateFields(content: DAOSimpleModel): string[] {
+  protected basicGenerateFields(content: IDAOSimple): string[] {
     const fields = this.aliasFields
       ? Object.keys(content).map((value) => {
           return this.aliasFields ? this.aliasFields[value] || value : value;
@@ -42,7 +42,7 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
     return fields;
   }
 
-  protected async generateFields(content: DAOSimpleModel): Promise<string[]> {
+  protected async generateFields(content: IDAOSimple): Promise<string[]> {
     return new Promise((resolve) => {
       resolve(this.basicGenerateFields(content));
     });

@@ -5,51 +5,65 @@ import {
   PersistenceInfo,
   Operation,
   Event,
-  MongoDB,
+  MongoPersistence,
+  IOutput,
 } from 'flexiblepersistence';
-import { PostgresDB } from '../../source/postgres/postgresDB';
+import { PostgresPersistence } from '../../source/postgres/postgresPersistence';
 import Utils from '../../source/utils';
 import { Journaly, SenderReceiver } from 'journaly';
 import { eventInfo, readInfo } from './databaseInfos';
+
+import { ObjectId } from 'mongoose';
 
 let read;
 let write;
 test('add and read array and find object', async (done) => {
   const journaly = Journaly.newJournaly() as SenderReceiver<any>;
-  read = new PostgresDB(new PersistenceInfo(readInfo, journaly));
-  write = new MongoDB(new PersistenceInfo(eventInfo, journaly));
+  read = new PostgresPersistence(new PersistenceInfo(readInfo, journaly));
+  write = new MongoPersistence(new PersistenceInfo(eventInfo, journaly));
 
   await Utils.init(read.getPool());
 
   const handler = new Handler(write, read);
-  await handler.getWrite().clear();
+  await handler.getWrite()?.clear();
 
   const obj = {};
   obj['string'] = 'test';
   try {
     // console.log('0');
-    const persistencePromise = await handler.addEvent(
+    const persistencePromise = (await handler.addEvent(
       new Event({
         operation: Operation.create,
         name: 'Object',
         content: obj,
       })
-    );
+    )) as IOutput<
+      { id: ObjectId; test: string },
+      { id: ObjectId; test: string }
+    >;
 
     // console.log('1:', persistencePromise.receivedItem);
 
     expect(persistencePromise.receivedItem).toStrictEqual({
-      id: persistencePromise.receivedItem.id,
+      id: persistencePromise.receivedItem?.id,
       string: 'test',
       number: null,
     });
 
-    const persistencePromise1 = await handler.readArray('Object', {});
+    const persistencePromise1 = (await handler.readArray(
+      'Object',
+      {}
+    )) as IOutput<
+      { id: ObjectId; test: string },
+      { id: ObjectId; test: string }[]
+    >;
     // console.log('2:', persistencePromise1.receivedItem);
-    // console.log('2:', persistencePromise1.receivedItem.id);
-    expect(persistencePromise1.receivedItem).toStrictEqual([
+    // console.log('2:', persistencePromise1.receivedItem?.id);
+    const receivedItem1 = persistencePromise1?.receivedItem;
+    const receivedItem1i0 = receivedItem1 ? receivedItem1[0]?.id : undefined;
+    expect(receivedItem1).toStrictEqual([
       {
-        id: persistencePromise1.receivedItem[0].id,
+        id: receivedItem1i0,
         string: 'test',
         number: null,
       },
@@ -57,30 +71,39 @@ test('add and read array and find object', async (done) => {
     expect(persistencePromise1.selectedItem).toStrictEqual({});
     expect(persistencePromise1.sentItem).toStrictEqual(undefined);
 
-    const persistencePromise2 = await handler.readItem('Object', {});
+    const persistencePromise2 = (await handler.readItem(
+      'Object',
+      {}
+    )) as IOutput<
+      { id: ObjectId; test: string },
+      { id: ObjectId; test: string }
+    >;
     // console.log('3:', persistencePromise2.receivedItem);
 
     expect(persistencePromise2.receivedItem).toStrictEqual({
-      id: persistencePromise2.receivedItem.id,
+      id: persistencePromise2.receivedItem?.id,
       string: 'test',
       number: null,
     });
     expect(persistencePromise2.selectedItem).toStrictEqual({});
     expect(persistencePromise2.sentItem).toStrictEqual(undefined);
 
-    const persistencePromise3 = await handler.addEvent(
+    const persistencePromise3 = (await handler.addEvent(
       new Event({
         operation: Operation.update,
         name: 'Object',
         selection: { string: 'test' },
         content: { string: 'bob' },
       })
-    );
+    )) as IOutput<
+      { id: ObjectId; test: string },
+      { id: ObjectId; test: string }
+    >;
     // console.log('4:', persistencePromise3.receivedItem);
     // console.log(persistencePromise3);
     expect(persistencePromise3.result.rowCount).toBe(1);
     expect(persistencePromise3.receivedItem).toStrictEqual({
-      id: persistencePromise3.receivedItem.id,
+      id: persistencePromise3.receivedItem?.id,
       string: 'bob',
       number: null,
     });
@@ -107,9 +130,15 @@ test('add and read array and find object', async (done) => {
 
     // console.log('fuc1');
 
-    const persistencePromise5 = await handler.readArray('Object', {});
+    const persistencePromise5 = (await handler.readArray(
+      'Object',
+      {}
+    )) as IOutput<
+      { id: ObjectId; test: string },
+      { id: ObjectId; test: string }[]
+    >;
 
-    expect(persistencePromise5.receivedItem.length).toBe(0);
+    expect(persistencePromise5.receivedItem?.length).toBe(0);
     expect(persistencePromise5.result.rowCount).toBe(0);
     expect(persistencePromise5.receivedItem).toStrictEqual([]);
     expect(persistencePromise5.selectedItem).toStrictEqual({});
@@ -139,7 +168,7 @@ test('add and read array and find object', async (done) => {
     );
     const persistencePromise7 = await handler.readArray('Object', {});
     expect(persistencePromise7.result.rowCount).toBe(0);
-    await handler.getWrite().clear();
+    await handler.getWrite()?.clear();
     await Utils.end(read.getPool());
     await write.close();
     expect(error).toBe(null);
@@ -154,7 +183,7 @@ test('add and read array and find object', async (done) => {
   );
   const persistencePromise7 = await handler.readArray('Object', {});
   expect(persistencePromise7.result.rowCount).toBe(0);
-  await handler.getWrite().clear();
+  await handler.getWrite()?.clear();
   await Utils.end(read.getPool());
   await write.close();
   done();
@@ -170,8 +199,8 @@ test('add and read array and find object', async (done) => {
 //     password: process.env.POSTGRES_PASSWORD || 'evox2019',
 //   });
 
-//   read = new PostgresDB(info);
-//   write = new MongoDB(
+//   read = new PostgresPersistence(info);
+//   write = new MongoPersistence(
 //     new PersistenceInfo({---
 //       database: 'write',
 //       host: process.env.MONGO_HOST || 'localhost',
@@ -179,7 +208,7 @@ test('add and read array and find object', async (done) => {
 //     })
 //   );
 //   const handler = new Handler(write, read);
-//   await handler.getWrite().clear();
+//   await handler.getWrite()?.clear();
 //   await Utils.init(read.getPool());
 //   const obj = { string: 'test', test2: { string: 'test' } };
 //   try {
@@ -187,10 +216,10 @@ test('add and read array and find object', async (done) => {
 //       new Event({ operation: Operation.create, name: 'Object2', content: obj })
 //     );
 
-//     // console.log(persistencePromise.receivedItem.test2);
+//     // console.log(persistencePromise.receivedItem?.test2);
 
 //     expect(persistencePromise.receivedItem).toStrictEqual({
-//       id: persistencePromise.receivedItem.id,
+//       id: persistencePromise.receivedItem?.id,
 //       string: 'test',
 //       test2: { string: 'test' },
 //       number: null,
@@ -199,7 +228,7 @@ test('add and read array and find object', async (done) => {
 //     const persistencePromise1 = await handler.readArray('Object', {});
 //     expect(persistencePromise1.receivedItem).toStrictEqual([
 //       {
-//         id: persistencePromise1.receivedItem.id,
+//         id: persistencePromise1.receivedItem?.id,
 //         string: 'test',
 //         number: null,
 //       },
@@ -210,7 +239,7 @@ test('add and read array and find object', async (done) => {
 //     const persistencePromise2 = await handler.readItem('Object', {});
 
 //     expect(persistencePromise2.receivedItem).toStrictEqual({
-//       id: persistencePromise2.receivedItem.id,
+//       id: persistencePromise2.receivedItem?.id,
 //       string: 'test',
 //       number: null,
 //     });
@@ -228,7 +257,7 @@ test('add and read array and find object', async (done) => {
 //     // console.log(persistencePromise3);
 //     expect(persistencePromise3.result.rowCount).toBe(1);
 //     expect(persistencePromise3.receivedItem).toStrictEqual({
-//       id: persistencePromise2.receivedItem.id,
+//       id: persistencePromise2.receivedItem?.id,
 //       string: 'bob',
 //       number: null,
 //     });
@@ -254,7 +283,7 @@ test('add and read array and find object', async (done) => {
 
 //     const persistencePromise5 = await handler.readArray('Object', {});
 
-//     expect(persistencePromise5.receivedItem.length).toBe(0);
+//     expect(persistencePromise5.receivedItem?.length).toBe(0);
 //     expect(persistencePromise5.result.rowCount).toBe(0);
 //     expect(persistencePromise5.receivedItem).toStrictEqual([]);
 //     expect(persistencePromise5.selectedItem).toStrictEqual({});
@@ -272,7 +301,7 @@ test('add and read array and find object', async (done) => {
 //     );
 //     const persistencePromise7 = await handler.readArray('Object', {});
 //     expect(persistencePromise7.result.rowCount).toBe(0);
-//     await handler.getWrite().clear();
+//     await handler.getWrite()?.clear();
 //     await Utils.dropTables(read.getPool());
 //     await write.close();
 //     console.error(error);
@@ -282,7 +311,7 @@ test('add and read array and find object', async (done) => {
 //   await handler.addEvent(
 //     new Event({ operation: Operation.delete, name: 'Object' })
 //   );
-//   await handler.getWrite().clear();
+//   await handler.getWrite()?.clear();
 //   await Utils.dropTables(read.getPool());
 //   await write.close();
 //   done();

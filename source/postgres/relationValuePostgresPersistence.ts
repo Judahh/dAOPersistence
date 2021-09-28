@@ -1,6 +1,6 @@
 import { RelationValueAdapter } from './model/relationValueAdapter';
 
-export class RelationValuePostgresDB extends RelationValueAdapter {
+export class RelationValuePostgresPersistence extends RelationValueAdapter {
   protected map = {
     0: '=',
     1: '!=',

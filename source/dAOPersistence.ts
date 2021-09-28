@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // file deepcode ignore no-any: any needed
 import {
-  PersistenceAdapter,
+  IPersistence,
   PersistenceInfo,
-  PersistencePromise,
-  PersistenceInputCreate,
-  PersistenceInputUpdate,
-  PersistenceInputRead,
-  PersistenceInputDelete,
-  PersistenceInput,
+  IOutput,
+  IInputCreate,
+  IInputUpdate,
+  IInputRead,
+  IInputDelete,
+  IInput,
 } from 'flexiblepersistence';
 import BaseDAODefault from './dAO/baseDAODefault';
-import BaseDAODefaultInitializer from './dAO/baseDAODefaultInitializer';
-import { PoolAdapter } from './database/poolAdapter';
+import BaseDAODefaultInitializer from './dAO/iBaseDAODefault';
+import { IPool } from './database/iPool';
 import Utils from './utils';
-export class DAODB implements PersistenceAdapter {
+export class DAOPersistence implements IPersistence {
   private persistenceInfo: PersistenceInfo;
-  private pool: PoolAdapter;
+  private pool: IPool;
   private type = 'DAO';
 
   element: {
@@ -26,7 +26,7 @@ export class DAODB implements PersistenceAdapter {
   };
 
   constructor(
-    pool: PoolAdapter,
+    pool: IPool,
     element?: {
       [name: string]: BaseDAODefault;
     }
@@ -46,44 +46,40 @@ export class DAODB implements PersistenceAdapter {
       }
     });
   }
-  other(input: PersistenceInput<any>): Promise<PersistencePromise<any>> {
+  other(input: IInput<any>): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'other',
       input
     );
   }
-  create(input: PersistenceInputCreate<any>): Promise<PersistencePromise<any>> {
+  create(input: IInputCreate<any>): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'create',
       input
     );
   }
-  existent(
-    input: PersistenceInputCreate<any>
-  ): Promise<PersistencePromise<any>> {
+  existent(input: IInputCreate<any>): Promise<IOutput<unknown, unknown>> {
     return this.create(input);
   }
-  nonexistent(input: PersistenceInputDelete): Promise<PersistencePromise<any>> {
+  nonexistent(input: IInputDelete): Promise<IOutput<unknown, unknown>> {
     return this.delete(input);
   }
-  delete(input: PersistenceInputDelete): Promise<PersistencePromise<any>> {
+  delete(input: IInputDelete): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'delete',
       input
     );
   }
-  correct(
-    input: PersistenceInputUpdate<any>
-  ): Promise<PersistencePromise<any>> {
+  correct(input: IInputUpdate<any>): Promise<IOutput<unknown, unknown>> {
     return this.update(input);
   }
-  update(input: PersistenceInputUpdate<any>): Promise<PersistencePromise<any>> {
+  update(input: IInputUpdate<any>): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'update',
       input
     );
   }
-  read(input: PersistenceInputRead): Promise<PersistencePromise<any>> {
+  read(input: IInputRead): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'read',
       input
@@ -111,7 +107,7 @@ export class DAODB implements PersistenceAdapter {
     return this.persistenceInfo;
   }
 
-  getPool(): PoolAdapter {
+  getPool(): IPool {
     // TODO: remove
     return this.pool;
   }
