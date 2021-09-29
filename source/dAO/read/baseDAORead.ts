@@ -1,17 +1,14 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-  PersistenceInputRead,
-  PersistencePromise,
-  ReadAdapter,
-} from 'flexiblepersistence';
-import DAOModel from '../../model/dAOModel';
+import { IInputRead, IOutput, IRead } from 'flexiblepersistence';
+import { DAOSimpleModel } from '../..';
+import DAOModel from '../../model/iDAO';
 import BaseDAODefault from '../baseDAODefault';
 export default class BaseDAORead
   extends BaseDAODefault
-  implements ReadAdapter<DAOModel>
+  implements IRead<DAOSimpleModel, DAOModel>
 {
-  read(input: PersistenceInputRead): Promise<PersistencePromise<DAOModel>> {
+  read(input: IInputRead): Promise<IOutput<DAOSimpleModel, DAOModel>> {
     this.options = input.eventOptions;
     return input.id
       ? this.makePromise(input, 'readById')

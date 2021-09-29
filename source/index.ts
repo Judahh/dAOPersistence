@@ -1,8 +1,8 @@
-import { DAODB } from './dAODB';
+import { DAOPersistence } from './dAOPersistence';
 
 import BaseDAO from './dAO/baseDAO';
 import BaseDAODefault from './dAO/baseDAODefault';
-import BaseDAODefaultInitializer from './dAO/baseDAODefaultInitializer';
+import BaseDAODefaultInitializer from './dAO/iBaseDAODefault';
 
 import BaseDAORestricted from './dAO/baseDAORestricted';
 import BaseDAORestrictedDefault from './dAO/baseDAORestrictedDefault';
@@ -12,17 +12,17 @@ import BaseDAORead from './dAO/read/baseDAORead';
 import BaseDAOUpdate from './dAO/update/baseDAOUpdate';
 import BaseDAODelete from './dAO/delete/baseDAODelete';
 
-import DatabaseInitializer from './database/databaseInitializer';
-import DAOModel from './model/dAOModel';
-import DAOSimpleModel from './model/dAOSimpleModel';
+import DatabaseInitializer from './database/iDatabase';
+import DAOModel from './model/iDAO';
+import DAOSimpleModel from './model/iDAOSimple';
 import Utils from './utils';
 
 import { Postgres } from './postgres/postgres';
 
-import { PoolAdapter } from './database/poolAdapter';
+import { IPool } from './database/iPool';
 
 export {
-  DAODB,
+  DAOPersistence,
   BaseDAO,
   BaseDAODefault,
   BaseDAODefaultInitializer,
@@ -37,5 +37,5 @@ export {
   DAOSimpleModel,
   Utils,
   Postgres,
-  PoolAdapter,
+  IPool,
 };
