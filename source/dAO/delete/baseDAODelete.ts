@@ -1,22 +1,22 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { IInputDelete, IOutput, IRemove } from 'flexiblepersistence';
-import { DAOSimpleModel } from '../..';
-import DAOModel from '../../model/iDAO';
+import { IDAOSimple } from '../..';
+import IDAO from '../../model/iDAO';
 import BaseDAODefault from '../baseDAODefault';
 
 export default class BaseDAODelete
   extends BaseDAODefault
-  implements IRemove<DAOSimpleModel, DAOModel>
+  implements IRemove<IDAOSimple, IDAO>
 {
   // @ts-ignore
   protected abstract updateQuery: string;
 
-  nonexistent(input: IInputDelete): Promise<IOutput<DAOSimpleModel, DAOModel>> {
+  nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return this.delete(input);
   }
-  delete(input: IInputDelete): Promise<IOutput<DAOSimpleModel, DAOModel>> {
+  delete(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
     // console.log('FUCKING DELETE');
     this.options = input.eventOptions;
 
@@ -32,10 +32,7 @@ export default class BaseDAODelete
       this.pool?.query(
         `DELETE FROM ${this.getName()} WHERE id = $1`,
         [id],
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;
@@ -78,10 +75,7 @@ export default class BaseDAODelete
       this.pool?.query(
         query,
         filter ? Object.values(filter) : [],
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;
@@ -113,10 +107,7 @@ export default class BaseDAODelete
       this.pool?.query(
         query,
         filter ? Object.values(filter) : [],
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;

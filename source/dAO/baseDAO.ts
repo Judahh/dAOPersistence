@@ -3,10 +3,10 @@ import BaseDAORestricted from './baseDAORestricted';
 import BaseDAODelete from './delete/baseDAODelete';
 import { Mixin } from 'ts-mixer';
 import { ISRAR } from 'flexiblepersistence';
-import { DAOSimpleModel, DAOModel } from '..';
+import { IDAOSimple, IDAO } from '..';
 
 // @ts-ignore
 export default abstract class BaseDAO
   // @ts-ignore
   extends Mixin(BaseDAORestricted, BaseDAODelete)
-  implements ISRAR<DAOSimpleModel, DAOModel> {}
+  implements ISRAR<IDAOSimple, IDAO> {}
