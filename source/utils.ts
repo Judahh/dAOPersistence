@@ -39,4 +39,8 @@ export default class Utils {
   static async disconnect(pool: IPool): Promise<void> {
     await pool.end();
   }
+
+  static empty(string?: string): boolean {
+    return string === '' || string === undefined || string === null;
+  }
 }
