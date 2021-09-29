@@ -1,5 +1,5 @@
-import DAOSimpleModel from '../../source/model/dAOSimpleModel';
-export default interface ObjectDAOSimpleModel extends DAOSimpleModel {
+import IDAOSimple from '../../source/model/iDAOSimple';
+export default interface ObjectDAOSimpleModel extends IDAOSimple {
   test?: string;
   testNumber?: number;
 }

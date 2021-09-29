@@ -1,8 +1,8 @@
-import { PoolAdapter } from '../database/poolAdapter';
+import { IPool } from '../database/iPool';
 import { Pool } from 'pg';
 import { PersistenceInfo } from 'flexiblepersistence';
 
-export class Postgres implements PoolAdapter {
+export class Postgres implements IPool {
   protected pool: Pool;
   simpleCreate = false;
   simpleUpdate = false;

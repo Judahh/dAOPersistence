@@ -1,27 +1,22 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {
-  PersistenceInputDelete,
-  PersistencePromise,
-  RemoveAdapter,
-} from 'flexiblepersistence';
-import DAOModel from '../../model/dAOModel';
+import { IInputDelete, IOutput, IRemove } from 'flexiblepersistence';
+import { DAOSimpleModel } from '../..';
+import DAOModel from '../../model/iDAO';
 import BaseDAODefault from '../baseDAODefault';
 
 export default class BaseDAODelete
   extends BaseDAODefault
-  implements RemoveAdapter<DAOModel>
+  implements IRemove<DAOSimpleModel, DAOModel>
 {
   // @ts-ignore
   protected abstract updateQuery: string;
 
-  nonexistent(
-    input: PersistenceInputDelete
-  ): Promise<PersistencePromise<DAOModel>> {
+  nonexistent(input: IInputDelete): Promise<IOutput<DAOSimpleModel, DAOModel>> {
     this.options = input.eventOptions;
     return this.delete(input);
   }
-  delete(input: PersistenceInputDelete): Promise<PersistencePromise<DAOModel>> {
+  delete(input: IInputDelete): Promise<IOutput<DAOSimpleModel, DAOModel>> {
     // console.log('FUCKING DELETE');
     this.options = input.eventOptions;
 
