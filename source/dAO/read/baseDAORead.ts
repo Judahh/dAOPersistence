@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { IInputRead, IOutput, IRead } from 'flexiblepersistence';
-import { DAOSimpleModel } from '../..';
-import DAOModel from '../../model/iDAO';
+import { IDAOSimple } from '../..';
+import IDAO from '../../model/iDAO';
 import BaseDAODefault from '../baseDAODefault';
 export default class BaseDAORead
   extends BaseDAODefault
-  implements IRead<DAOSimpleModel, DAOModel>
+  implements IRead<IDAOSimple, IDAO>
 {
-  read(input: IInputRead): Promise<IOutput<DAOSimpleModel, DAOModel>> {
+  read(input: IInputRead): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return input.id
       ? this.makePromise(input, 'readById')
@@ -18,7 +18,7 @@ export default class BaseDAORead
   }
   // @ts-ignore
   protected abstract updateQuery: string;
-  async readById(id: string): Promise<DAOModel> {
+  async readById(id: string): Promise<IDAO> {
     const select = await this.generateSelect(this.getName());
     return new Promise((resolve, reject) => {
       this.pool?.query(
@@ -26,21 +26,18 @@ export default class BaseDAORead
           this.getEquals(id) +
           ` $1 ${this.groupBy}`,
         [id],
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
+          resolve(result.rows ? result.rows[0] : ({} as IDAO));
         }
       );
     });
   }
-  async readSingle(filter): Promise<DAOModel> {
+  async readSingle(filter): Promise<IDAO> {
     const limit =
       (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) + ' 1';
 
@@ -59,21 +56,18 @@ export default class BaseDAORead
       this.pool?.query(
         query,
         Object.values(filter),
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
+          resolve(result.rows ? result.rows[0] : ({} as IDAO));
         }
       );
     });
   }
-  async readArray(filter): Promise<DAOModel[]> {
+  async readArray(filter): Promise<IDAO[]> {
     const select = await this.generateSelect(this.getName());
     await this.pool?.getNumberOfPages(select, this.options);
     filter = filter ? filter : {};
@@ -88,16 +82,13 @@ export default class BaseDAORead
       this.pool?.query(
         query,
         Object.values(filter),
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows as DAOModel[]);
+          resolve(result.rows as IDAO[]);
         }
       );
     });
