@@ -4,14 +4,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { IInput, IInputCreate, IOutput, IStore } from 'flexiblepersistence';
 import IDAO from '../../model/iDAO';
-import DAOModel from '../../model/iDAO';
 import IDAOSimple from '../../model/iDAOSimple';
-import DAOSimpleModel from '../../model/iDAOSimple';
 import BaseDAORestrictedDefault from '../baseDAORestrictedDefault';
 // @ts-ignore
 export default class BaseDAOCreate
   extends BaseDAORestrictedDefault
-  implements IStore<DAOSimpleModel, DAOModel>
+  implements IStore<IDAOSimple, IDAO>
 {
   // @ts-ignore
   protected abstract insert: string;
@@ -22,29 +20,27 @@ export default class BaseDAOCreate
   protected abstract updateQuery: string;
 
   existent(
-    input: IInputCreate<DAOSimpleModel>
+    input: IInputCreate<IDAOSimple>
   ): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return this.create(input);
   }
-  create(
-    input: IInputCreate<DAOSimpleModel>
-  ): Promise<IOutput<IDAOSimple, IDAO>> {
+  create(input: IInputCreate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return Array.isArray(input.item)
-      ? this.makePromise(input as IInput<DAOSimpleModel>, 'createArray')
-      : this.makePromise(input as IInput<DAOSimpleModel>, 'createSingle');
+      ? this.makePromise(input as IInput<IDAOSimple>, 'createArray')
+      : this.makePromise(input as IInput<IDAOSimple>, 'createSingle');
   }
 
   protected async generateInsertPreGenerateFields(
-    _content?: DAOSimpleModel,
+    _content?: IDAOSimple,
     _values?,
     _tableName?: string
     // eslint-disable-next-line @typescript-eslint/no-empty-function
   ): Promise<void> {}
 
   protected async generateInsertPostGenerateFields(
-    _content?: DAOSimpleModel,
+    _content?: IDAOSimple,
     _values?,
     _tableName?: string,
     _fields?: string[]
@@ -52,7 +48,7 @@ export default class BaseDAOCreate
   ): Promise<void> {}
 
   protected async generateInsert(
-    content: DAOSimpleModel,
+    content: IDAOSimple,
     values?,
     tableName?: string,
     startValue = 1
@@ -79,14 +75,14 @@ export default class BaseDAOCreate
   }
 
   protected async generateInsertArrayPreGenerateFields(
-    _content?: DAOSimpleModel[],
+    _content?: IDAOSimple[],
     _values?,
     _tableName?: string
     // eslint-disable-next-line @typescript-eslint/no-empty-function
   ): Promise<void> {}
 
   protected async generateInsertArrayPostGenerateFields(
-    _content?: DAOSimpleModel[],
+    _content?: IDAOSimple[],
     _values?,
     _tableName?: string,
     _fields?: string[]
@@ -94,7 +90,7 @@ export default class BaseDAOCreate
   ): Promise<void> {}
 
   protected async generateInsertArray(
-    content: DAOSimpleModel[],
+    content: IDAOSimple[],
     values?,
     tableName?: string,
     startValue = 1
@@ -131,13 +127,13 @@ export default class BaseDAOCreate
   }
 
   async addPredefinedValues(
-    _content: DAOSimpleModel,
+    _content: IDAOSimple,
     baseValues: unknown[]
   ): Promise<unknown[]> {
     return baseValues;
   }
 
-  async createSingle(content: DAOSimpleModel): Promise<DAOModel> {
+  async createSingle(content: IDAOSimple): Promise<IDAO> {
     let values = await this.generateVectorValues(content);
     values = await this.addPredefinedValues(content, values);
     const select = await this.generateSelect('created');
@@ -159,7 +155,7 @@ export default class BaseDAOCreate
       this.pool?.query(
         query,
         values,
-        (error, result: { rows?: (DAOModel | PromiseLike<DAOModel>)[] }) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[] }) => {
           if (error) {
             // console.log('error:', error);
             reject(error);
@@ -167,13 +163,13 @@ export default class BaseDAOCreate
           }
           result = this.fixType(result);
           // console.log('result.rows[0]:', result.rows[0]);
-          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
+          resolve(result.rows ? result.rows[0] : ({} as IDAO));
         }
       );
     });
   }
 
-  async createArray(content: DAOSimpleModel[]): Promise<DAOModel[]> {
+  async createArray(content: IDAOSimple[]): Promise<IDAO[]> {
     // console.log('createArray:', content);
     const tempValues: never[][] = (await this.generateVectorValuesFromArray(
       content
@@ -200,14 +196,14 @@ export default class BaseDAOCreate
       this.pool?.query(
         query,
         values,
-        (error, result: { rows?: (DAOModel | PromiseLike<DAOModel>)[] }) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[] }) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
           // console.log('result.rows[0]:', result.rows[0]);
-          resolve(result.rows as DAOModel[]);
+          resolve(result.rows as IDAO[]);
         }
       );
     });

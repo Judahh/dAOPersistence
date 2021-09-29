@@ -1,20 +1,18 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import DAOModel from '../../model/iDAO';
-import DAOSimpleModel from '../../model/iDAOSimple';
+import IDAO from '../../model/iDAO';
+import IDAOSimple from '../../model/iDAOSimple';
 import BaseDAORestrictedDefault from '../baseDAORestrictedDefault';
 import { IAlter, IInput, IInputUpdate, IOutput } from 'flexiblepersistence';
 
 // @ts-ignore
 export default class BaseDAOUpdate
   extends BaseDAORestrictedDefault
-  implements IAlter<DAOSimpleModel, DAOModel>
+  implements IAlter<IDAOSimple, IDAO>
 {
   // @ts-ignore
   protected abstract updateQuery: string;
-  correct(
-    input: IInputUpdate<DAOSimpleModel>
-  ): Promise<IOutput<DAOSimpleModel, DAOModel>> {
+  correct(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     //! Envia o input para o service determinado pelo esquema e lá ele faz as
     //! operações necessárias usando o journaly para acessar outros DAOs ou
@@ -26,17 +24,15 @@ export default class BaseDAOUpdate
     return this.update(input);
   }
 
-  update(
-    input: IInputUpdate<DAOSimpleModel>
-  ): Promise<IOutput<DAOSimpleModel, DAOModel>> {
+  update(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return input.id
-      ? this.makePromise(input as IInput<DAOSimpleModel>, 'updateById')
+      ? this.makePromise(input as IInput<IDAOSimple>, 'updateById')
       : input.single
-      ? this.makePromise(input as IInput<DAOSimpleModel>, 'updateSingle')
-      : this.makePromise(input as IInput<DAOSimpleModel>, 'updateArray');
+      ? this.makePromise(input as IInput<IDAOSimple>, 'updateSingle')
+      : this.makePromise(input as IInput<IDAOSimple>, 'updateArray');
   }
-  async updateById(id: string, content: DAOSimpleModel): Promise<DAOModel> {
+  async updateById(id: string, content: IDAOSimple): Promise<IDAO> {
     const limit =
       (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
       ' 1';
@@ -66,19 +62,19 @@ export default class BaseDAOUpdate
         values,
         async (
           error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
+          result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }
         ) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
+          resolve(result.rows ? result.rows[0] : ({} as IDAO));
         }
       );
     });
   }
-  async updateSingle(filter, content: DAOSimpleModel): Promise<DAOModel> {
+  async updateSingle(filter, content: IDAOSimple): Promise<IDAO> {
     const limit =
       (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
       ' 1';
@@ -108,22 +104,19 @@ export default class BaseDAOUpdate
       this.pool?.query(
         query,
         values,
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows ? result.rows[0] : ({} as DAOModel));
+          resolve(result.rows ? result.rows[0] : ({} as IDAO));
         }
       );
     });
   }
 
-  async updateArray(filter, content: DAOSimpleModel): Promise<DAOModel[]> {
+  async updateArray(filter, content: IDAOSimple): Promise<IDAO[]> {
     const values = Object.values(content);
     const select = await this.generateSelect('updated');
     filter = filter ? filter : {};
@@ -147,16 +140,13 @@ export default class BaseDAOUpdate
       this.pool?.query(
         query,
         values,
-        (
-          error,
-          result: { rows?: (DAOModel | PromiseLike<DAOModel>)[]; rowCount? }
-        ) => {
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows as DAOModel[]);
+          resolve(result.rows as IDAO[]);
         }
       );
     });

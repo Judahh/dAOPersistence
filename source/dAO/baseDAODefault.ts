@@ -6,10 +6,11 @@ import BigNumber from 'bignumber.js';
 import { settings } from 'ts-mixer';
 import { IInput, IOutput } from 'flexiblepersistence';
 import BaseDAODefaultInitializer from './iBaseDAODefault';
-import DAOSimpleModel from '../model/iDAOSimple';
-import DAOModel from '../model/iDAO';
+import IDAOSimple from '../model/iDAOSimple';
+import IDAO from '../model/iDAO';
 import { Default } from '@flexiblepersistence/default-initializer';
 import { IPool } from '../database/iPool';
+import { Utils } from '..';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -77,7 +78,7 @@ export default class BaseDAODefault extends Default {
 
   protected async generateUpdate(
     length: number,
-    content: DAOSimpleModel
+    content: IDAOSimple
   ): Promise<string> {
     let pos = length;
     let set = this.updateQuery;
@@ -100,6 +101,22 @@ export default class BaseDAODefault extends Default {
     return new Promise((resolve) => {
       resolve(select);
     });
+  }
+  generateValues(filter: any | string): string {
+    const values: string[] = [];
+    const newFilter = typeof filter === 'string' ? { id: filter } : filter;
+    for (const prop in newFilter) {
+      if (Object.prototype.hasOwnProperty.call(newFilter, prop)) {
+        const defaultName = newFilter[prop];
+        const name = `subElement.${
+          this.aliasFields && this.aliasFields[defaultName]
+            ? this.aliasFields[defaultName]
+            : defaultName
+        } AS ${defaultName}`;
+        values.push(name);
+      }
+    }
+    return values.join(', ');
   }
 
   protected async generateWhere(
@@ -189,7 +206,7 @@ export default class BaseDAODefault extends Default {
     return value;
   }
 
-  protected realInput(input: IInput<DAOSimpleModel | DAOSimpleModel[]>): any {
+  protected realInput(input: IInput<IDAOSimple | IDAOSimple[]>): any {
     // console.log(input);
 
     let realInput = input.item ? input.item : {};
@@ -203,7 +220,7 @@ export default class BaseDAODefault extends Default {
   }
 
   protected generateContents(
-    input: IInput<DAOSimpleModel | DAOSimpleModel[]>,
+    input: IInput<IDAOSimple | IDAOSimple[]>,
     method: string
   ): [any, any] {
     const input1 = !method.includes('create')
@@ -212,18 +229,21 @@ export default class BaseDAODefault extends Default {
         : input.selectedItem
       : this.realInput(input);
     const input2 = this.realInput(input);
+    // if (Utils.empty(this.values)) {
+    //   this.values = this.generateValues({ ...input1, ...input2 });
+    // }
     return [input1, input2];
   }
 
   protected IOutput(
-    input: IInput<DAOSimpleModel | DAOSimpleModel[]>,
+    input: IInput<IDAOSimple | IDAOSimple[]>,
     method: string,
     resolve,
     reject
   ): void {
     this[method](...this.generateContents(input, method))
       .then((output) => {
-        const IOutput: IOutput<DAOSimpleModel | DAOSimpleModel[], DAOModel> = {
+        const IOutput: IOutput<IDAOSimple | IDAOSimple[], IDAO> = {
           receivedItem: output,
           result: output,
           selectedItem: input.selectedItem,
@@ -238,9 +258,9 @@ export default class BaseDAODefault extends Default {
   }
 
   protected makePromise(
-    input: IInput<DAOSimpleModel>,
+    input: IInput<IDAOSimple>,
     method: string
-  ): Promise<IOutput<DAOSimpleModel, DAOModel>> {
+  ): Promise<IOutput<IDAOSimple, IDAO>> {
     return new Promise((resolve, reject) => {
       this.IOutput(input, method, resolve, reject);
     });
