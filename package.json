@@ -1,6 +1,6 @@
 {
   "name": "@flexiblepersistence/dao",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A DAO implementation for Flexible Persistence's PersistenceAdapter",
   "main": "dist/source/index.js",
   "keywords": [
