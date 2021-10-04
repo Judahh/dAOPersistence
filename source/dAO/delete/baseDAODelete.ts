@@ -71,10 +71,10 @@ export default class BaseDAODelete
           this.pool?.isDeleteLimitBefore ? '' : limit
         }) `;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        filter ? Object.values(filter) : [],
+        await this.generateValues(filter),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
@@ -103,10 +103,10 @@ export default class BaseDAODelete
       : `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
         `${await this.generateWhere(filter)} ORDER BY ID) `;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        filter ? Object.values(filter) : [],
+        await this.generateValues(filter),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
