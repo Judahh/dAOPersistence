@@ -52,10 +52,10 @@ export default class BaseDAORead
     } ${this.pool?.isReadLimitBefore ? '' : limit}`;
 
     // console.log(query);
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        Object.values(filter),
+        await this.generateValues(filter),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
@@ -78,10 +78,10 @@ export default class BaseDAORead
         this.groupBy
       }`;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        Object.values(filter),
+        await this.generateValues(filter),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);

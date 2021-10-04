@@ -10,7 +10,7 @@ import IDAOSimple from '../model/iDAOSimple';
 import IDAO from '../model/iDAO';
 import { Default } from '@flexiblepersistence/default-initializer';
 import { IPool } from '../database/iPool';
-import { Utils } from '..';
+import Utils from '../utils';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -22,6 +22,9 @@ export default class BaseDAODefault extends Default {
 
     super.init(initDefault);
     if (initDefault && initDefault.pool) this.setPool(initDefault.pool);
+    if (Utils.empty(this.values)) {
+      this.values = this.getValues();
+    }
   }
 
   getPool() {
@@ -82,10 +85,9 @@ export default class BaseDAODefault extends Default {
   ): Promise<string> {
     let pos = length;
     let set = this.updateQuery;
+    const fields = await this.generateFields(content);
     if (content)
-      set = Object.keys(content)
-        .map((x) => '"' + x + '" ' + '=' + ' $' + pos++)
-        .join(', ');
+      set = fields.map((x) => '"' + x + '" ' + '=' + ' $' + pos++).join(', ');
     const update = `UPDATE ${this.getName()} SET ${set}`;
     return new Promise((resolve) => {
       resolve(update);
@@ -102,17 +104,16 @@ export default class BaseDAODefault extends Default {
       resolve(select);
     });
   }
-  generateValues(filter: any | string): string {
+  getValues(): string {
     const values: string[] = [];
-    const newFilter = typeof filter === 'string' ? { id: filter } : filter;
-    for (const prop in newFilter) {
-      if (Object.prototype.hasOwnProperty.call(newFilter, prop)) {
-        const defaultName = newFilter[prop];
+    for (const field in this.aliasFields) {
+      if (Object.prototype.hasOwnProperty.call(this.aliasFields, field)) {
+        const defaultName = this.aliasFields[field];
         const name = `subElement.${
           this.aliasFields && this.aliasFields[defaultName]
             ? this.aliasFields[defaultName]
             : defaultName
-        } AS ${defaultName}`;
+        } AS ${field}`;
         values.push(name);
       }
     }
@@ -124,9 +125,10 @@ export default class BaseDAODefault extends Default {
     initialPosition = 1,
     withElement?: boolean
   ): Promise<string> {
+    const fields = await this.generateFields(filter);
     const where =
-      filter && Object.keys(filter).length > 0
-        ? `WHERE ${Object.keys(filter)
+      filter && fields.length > 0
+        ? `WHERE ${fields
             .map(
               (x) =>
                 (withElement ? 'element.' : '') +
@@ -142,6 +144,34 @@ export default class BaseDAODefault extends Default {
             .join(' AND ')}`
         : '';
     return where;
+  }
+
+  protected basicGenerateFields(content?: IDAOSimple): string[] {
+    const fields = content
+      ? this.aliasFields
+        ? Object.keys(content).map((value) => {
+            return this.aliasFields ? this.aliasFields[value] || value : value;
+          })
+        : Object.keys(content)
+      : [];
+
+    return fields;
+  }
+
+  protected async generateFields(content?: IDAOSimple): Promise<string[]> {
+    return new Promise((resolve) => {
+      resolve(this.basicGenerateFields(content));
+    });
+  }
+
+  protected basicGenerateValues(content?: IDAOSimple): unknown[] {
+    return content ? Object.values(content) : [];
+  }
+
+  protected async generateValues(content?: IDAOSimple): Promise<unknown[]> {
+    return new Promise((resolve) => {
+      resolve(this.basicGenerateValues(content));
+    });
   }
 
   protected fixDate(rows: any[], field: string): any {
@@ -229,9 +259,6 @@ export default class BaseDAODefault extends Default {
         : input.selectedItem
       : this.realInput(input);
     const input2 = this.realInput(input);
-    // if (Utils.empty(this.values)) {
-    //   this.values = this.generateValues({ ...input1, ...input2 });
-    // }
     return [input1, input2];
   }
 

@@ -7,10 +7,8 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
   protected async generateVectorValues(
     content: IDAOSimple
   ): Promise<unknown[]> {
-    let values: unknown[] = [];
-    if (content) values = Object.values(content);
+    const values = await this.generateValues(content);
     // console.log('values', values);
-
     return new Promise((resolve) => resolve(values));
   }
 
@@ -19,32 +17,16 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
   ): Promise<unknown[][]> {
     const values: unknown[][] = [];
     const first = content[0];
-    const keys = Object.keys(first);
+    const fields = await this.generateFields(first);
 
     for (const subContent of content) {
       const value: unknown[] = [];
-      for (const key of keys) {
-        value.push(subContent[key]);
+      for (const field of fields) {
+        value.push(subContent[field]);
       }
       values.push(value);
     }
 
     return new Promise((resolve) => resolve(values));
-  }
-
-  protected basicGenerateFields(content: IDAOSimple): string[] {
-    const fields = this.aliasFields
-      ? Object.keys(content).map((value) => {
-          return this.aliasFields ? this.aliasFields[value] || value : value;
-        })
-      : Object.keys(content);
-
-    return fields;
-  }
-
-  protected async generateFields(content: IDAOSimple): Promise<string[]> {
-    return new Promise((resolve) => {
-      resolve(this.basicGenerateFields(content));
-    });
   }
 }

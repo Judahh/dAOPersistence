@@ -37,7 +37,7 @@ export default class BaseDAOUpdate
       (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
       ' 1';
 
-    const values = Object.values(content);
+    const values = await this.generateValues(content);
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
@@ -79,16 +79,14 @@ export default class BaseDAOUpdate
       (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
       ' 1';
 
-    const values = Object.values(content);
+    const values = await this.generateValues(content);
     filter = filter ? filter : {};
+    const filterValues = await this.generateValues(filter);
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
     );
-    const update = await this.generateUpdate(
-      Object.values(filter).length,
-      content
-    );
+    const update = await this.generateUpdate(filterValues.length, content);
     const query = this.pool?.simpleUpdate
       ? `${update}`
       : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
@@ -117,13 +115,11 @@ export default class BaseDAOUpdate
   }
 
   async updateArray(filter, content: IDAOSimple): Promise<IDAO[]> {
-    const values = Object.values(content);
+    const values = await this.generateValues(content);
+    const filterValues = await this.generateValues(filter);
     const select = await this.generateSelect('updated');
     filter = filter ? filter : {};
-    const update = await this.generateUpdate(
-      Object.values(filter).length,
-      content
-    );
+    const update = await this.generateUpdate(filterValues.length, content);
     const query = this.pool?.simpleUpdate
       ? `${update}`
       : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
