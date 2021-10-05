@@ -90,7 +90,8 @@ export default class BaseDAODefault extends Default {
     content: IDAOSimple,
     useTable?: boolean,
     useAlias?: boolean,
-    useCompound?: boolean
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<string> {
     let pos = length;
     let set = this.updateQuery;
@@ -98,7 +99,8 @@ export default class BaseDAODefault extends Default {
       content,
       useTable,
       useAlias,
-      useCompound
+      useCompound,
+      useSubElement
     );
     if (content)
       set = fields.map((x) => '"' + x + '" ' + '=' + ' $' + pos++).join(', ');
@@ -171,7 +173,8 @@ export default class BaseDAODefault extends Default {
       filter,
       useTable,
       useAlias,
-      useCompound
+      useCompound,
+      withElement
     );
     const where =
       filter && fields.length > 0
@@ -193,8 +196,21 @@ export default class BaseDAODefault extends Default {
     return where;
   }
 
-  protected async getIdField(): Promise<string> {
-    const idField = (await this.generateFields({ id: '' }))[0];
+  protected async getIdField(
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
+  ): Promise<string> {
+    const idField = (
+      await this.generateFields(
+        { id: '' },
+        useTable,
+        useAlias,
+        useCompound,
+        useSubElement
+      )
+    )[0];
     return idField;
   }
 

@@ -30,7 +30,14 @@ export default class BaseDAODelete
     // console.log(this.getName());
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
-        `DELETE FROM ${this.getName()} ${await this.generateWhere({ id: id })}`,
+        `DELETE FROM ${this.getName()} ${await this.generateWhere(
+          { id: id },
+          1,
+          false,
+          true,
+          true,
+          true
+        )}`,
         [id],
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
@@ -57,29 +64,29 @@ export default class BaseDAODelete
     const limit =
       (this.pool?.deleteLimit ? this.pool?.deleteLimit : this.regularLimit) +
       ' 1';
-
+    const idName = await this.getIdField(false, true, false, false);
     const query = this.pool?.simpleDelete
       ? `DELETE ${
           this.pool?.isDeleteLimitBefore ? limit : ''
         } FROM ${this.getName()} ${await this.generateWhere(
           filter,
-          undefined,
-          undefined,
+          1,
           false,
+          true,
           true,
           true
         )} ${this.pool?.isDeleteLimitBefore ? '' : limit}`
       : `DELETE ${
           this.pool?.isDeleteLimitBefore ? limit : ''
-        } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+        } FROM ${this.getName()} WHERE ${idName} IN (SELECT ${idName} FROM ${this.getName()} ` +
         `${await this.generateWhere(
           filter,
-          undefined,
-          undefined,
+          1,
           false,
           true,
+          true,
           true
-        )} ORDER BY ID ${this.pool?.isDeleteLimitBefore ? '' : limit}) `;
+        )} ORDER BY ${idName} ${this.pool?.isDeleteLimitBefore ? '' : limit}) `;
 
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
@@ -108,24 +115,25 @@ export default class BaseDAODelete
   async deleteArray(filter): Promise<number> {
     // console.log('filter=', filter);
     filter = filter ? filter : {};
+    const idName = await this.getIdField(false, true, false, false);
     const query = this.pool?.simpleDelete
       ? `DELETE FROM ${this.getName()} ${await this.generateWhere(
           filter,
-          undefined,
-          undefined,
+          1,
           false,
+          true,
           true,
           true
         )} `
-      : `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
+      : `DELETE FROM ${this.getName()} WHERE ${idName} IN (SELECT ${idName} FROM ${this.getName()} ` +
         `${await this.generateWhere(
           filter,
-          undefined,
-          undefined,
+          1,
           false,
           true,
+          true,
           true
-        )} ORDER BY ID) `;
+        )} ORDER BY ${idName}) `;
 
     return new Promise(async (resolve, reject) => {
       this.pool?.query(

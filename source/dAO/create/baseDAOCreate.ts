@@ -51,12 +51,22 @@ export default class BaseDAOCreate
     content: IDAOSimple,
     values?,
     tableName?: string,
-    startValue = 1
+    startValue = 1,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<string> {
     if (!values) values = await this.generateVectorValues(content);
 
     await this.generateInsertPreGenerateFields(content, values, tableName);
-    const fields = await this.generateFields(content);
+    const fields = await this.generateFields(
+      content,
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
     await this.generateInsertPostGenerateFields(
       content,
       values,
@@ -93,12 +103,22 @@ export default class BaseDAOCreate
     content: IDAOSimple[],
     values?,
     tableName?: string,
-    startValue = 1
+    startValue = 1,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<string> {
     if (!values) values = await this.generateVectorValuesFromArray(content);
 
     await this.generateInsertArrayPreGenerateFields(content, values, tableName);
-    const fields = await this.generateFields(content[0]);
+    const fields = await this.generateFields(
+      content[0],
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
     await this.generateInsertArrayPostGenerateFields(
       content,
       values,
@@ -137,11 +157,19 @@ export default class BaseDAOCreate
     let values = await this.generateVectorValues(content);
     values = await this.addPredefinedValues(content, values);
     const select = await this.generateSelect('created');
-    const insert = await this.generateInsert(content, values);
+    const insert = await this.generateInsert(
+      content,
+      values,
+      undefined,
+      1,
+      false,
+      true,
+      false,
+      false
+    );
     const query = this.pool?.simpleCreate
       ? `${insert}`
       : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
-          // eslint-disable-next-line no-nested-ternary
           this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
         } created AS(${insert} ` +
         `RETURNING * ` +
@@ -176,7 +204,16 @@ export default class BaseDAOCreate
     )) as never[][];
 
     const select = await this.generateSelect('created');
-    const insert = await this.generateInsertArray(content, tempValues);
+    const insert = await this.generateInsertArray(
+      content,
+      tempValues,
+      undefined,
+      1,
+      false,
+      true,
+      false,
+      false
+    );
     const values: unknown[] = [].concat(...tempValues);
 
     const query = this.pool?.simpleCreate

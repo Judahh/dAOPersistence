@@ -13,11 +13,21 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
   }
 
   protected async generateVectorValuesFromArray(
-    content: IDAOSimple[]
+    content: IDAOSimple[],
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<unknown[][]> {
     const values: unknown[][] = [];
     const first = content[0];
-    const fields = await this.generateFields(first);
+    const fields = await this.generateFields(
+      first,
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
 
     for (const subContent of content) {
       const value: unknown[] = [];
