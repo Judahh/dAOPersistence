@@ -37,18 +37,35 @@ export default class BaseDAOUpdate
       (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
       ' 1';
 
-    const values = await this.generateValues(content);
+    const values = await this.generateValues(content, false);
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
     );
     const update = await this.generateUpdate(1, content);
     const query = this.pool?.simpleUpdate
-      ? `${update}`
+      ? `${update} ` +
+        `${await this.generateWhere(
+          {
+            id: this.generateValueFromUnknown(id),
+          },
+          undefined,
+          undefined,
+          false,
+          true,
+          true
+        )}`
       : `WITH updated AS (${update} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `WHERE id = ${this.generateValueFromUnknown(id)} ORDER BY ID ${
-          this.pool?.isUpdateLimitBefore ? '' : limit
-        }) ` +
+        `${await this.generateWhere(
+          {
+            id: this.generateValueFromUnknown(id),
+          },
+          undefined,
+          undefined,
+          false,
+          true,
+          true
+        )} ORDER BY ID ${this.pool?.isUpdateLimitBefore ? '' : limit}) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
 

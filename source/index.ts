@@ -15,7 +15,7 @@ import BaseDAODelete from './dAO/delete/baseDAODelete';
 import IDatabase from './database/iDatabase';
 import IDAO from './model/iDAO';
 import IDAOSimple from './model/iDAOSimple';
-import Utils from './utils';
+import { Utils } from './utils';
 
 import { Postgres } from './postgres/postgres';
 

@@ -7,7 +7,7 @@ export default class BaseDAORestrictedDefault extends BaseDAODefault {
   protected async generateVectorValues(
     content: IDAOSimple
   ): Promise<unknown[]> {
-    const values = await this.generateValues(content);
+    const values = await this.generateValues(content, false);
     // console.log('values', values);
     return new Promise((resolve) => resolve(values));
   }

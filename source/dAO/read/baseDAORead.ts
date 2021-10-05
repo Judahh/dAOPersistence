@@ -55,7 +55,7 @@ export default class BaseDAORead
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        await this.generateValues(filter),
+        await this.generateValues(filter, true),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
@@ -81,7 +81,7 @@ export default class BaseDAORead
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        await this.generateValues(filter),
+        await this.generateValues(filter, true),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);

@@ -10,7 +10,7 @@ import IDAOSimple from '../model/iDAOSimple';
 import IDAO from '../model/iDAO';
 import { Default } from '@flexiblepersistence/default-initializer';
 import { IPool } from '../database/iPool';
-import Utils from '../utils';
+import { Utils } from '../utils';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -23,7 +23,7 @@ export default class BaseDAODefault extends Default {
     super.init(initDefault);
     if (initDefault && initDefault.pool) this.setPool(initDefault.pool);
     if (Utils.empty(this.values)) {
-      this.values = this.getValues();
+      this.values = this.getValues(true, true, true);
     }
   }
 
@@ -43,6 +43,12 @@ export default class BaseDAODefault extends Default {
   };
   protected aliasFields?: {
     [key: string]: string;
+  };
+  protected aliasFieldsTable?: {
+    [key: string]: string;
+  };
+  protected aliasFieldsCompound?: {
+    [key: string]: boolean;
   };
   protected groupBy = '';
   protected values = '*';
@@ -81,11 +87,19 @@ export default class BaseDAODefault extends Default {
 
   protected async generateUpdate(
     length: number,
-    content: IDAOSimple
+    content: IDAOSimple,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean
   ): Promise<string> {
     let pos = length;
     let set = this.updateQuery;
-    const fields = await this.generateFields(content);
+    const fields = await this.generateFields(
+      content,
+      useTable,
+      useAlias,
+      useCompound
+    );
     if (content)
       set = fields.map((x) => '"' + x + '" ' + '=' + ' $' + pos++).join(', ');
     const update = `UPDATE ${this.getName()} SET ${set}`;
@@ -104,16 +118,41 @@ export default class BaseDAODefault extends Default {
       resolve(select);
     });
   }
-  getValues(): string {
+
+  getFieldTable(
+    field: string,
+    useTable?: boolean,
+    useSubElement?: boolean
+  ): string {
+    const aliasFieldsTable = this.aliasFieldsTable;
+    const aliasFieldTable = useTable
+      ? aliasFieldsTable && aliasFieldsTable[field]
+        ? aliasFieldsTable[field] + '.'
+        : useSubElement
+        ? 'subElement.'
+        : ''
+      : '';
+    return aliasFieldTable;
+  }
+
+  getValues(
+    useTable?: boolean,
+    useAlias?: boolean,
+    useSubElement?: boolean
+  ): string {
     const values: string[] = [];
-    for (const field in this.aliasFields) {
-      if (Object.prototype.hasOwnProperty.call(this.aliasFields, field)) {
-        const defaultName = this.aliasFields[field];
-        const name = `subElement.${
-          this.aliasFields && this.aliasFields[defaultName]
-            ? this.aliasFields[defaultName]
-            : defaultName
-        } AS ${field}`;
+    const aliasFields = this.aliasFields;
+    for (const field in aliasFields) {
+      if (Object.prototype.hasOwnProperty.call(aliasFields, field)) {
+        const defaultName = aliasFields[field];
+        const hasFields = useAlias && aliasFields && aliasFields[defaultName];
+        const realName = hasFields ? aliasFields[defaultName] : defaultName;
+        const aliasFieldTable = this.getFieldTable(
+          realName,
+          useTable,
+          useSubElement
+        );
+        const name = `${aliasFieldTable}${realName} AS ${field}`;
         values.push(name);
       }
     }
@@ -123,9 +162,17 @@ export default class BaseDAODefault extends Default {
   protected async generateWhere(
     filter,
     initialPosition = 1,
-    withElement?: boolean
+    withElement?: boolean,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean
   ): Promise<string> {
-    const fields = await this.generateFields(filter);
+    const fields = await this.generateFields(
+      filter,
+      useTable,
+      useAlias,
+      useCompound
+    );
     const where =
       filter && fields.length > 0
         ? `WHERE ${fields
@@ -146,31 +193,80 @@ export default class BaseDAODefault extends Default {
     return where;
   }
 
-  protected basicGenerateFields(content?: IDAOSimple): string[] {
-    const fields = content
-      ? this.aliasFields
-        ? Object.keys(content).map((value) => {
-            return this.aliasFields ? this.aliasFields[value] || value : value;
-          })
-        : Object.keys(content)
-      : [];
+  protected async getIdField(): Promise<string> {
+    const idField = (await this.generateFields({ id: '' }))[0];
+    return idField;
+  }
 
+  protected basicGenerateFields(
+    content?: IDAOSimple,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
+  ): string[] {
+    const newContent = this.filteredContent(content, useCompound);
+    const fields = newContent
+      ? useTable || (useAlias && this.aliasFields)
+        ? Object.keys(newContent).map((key) => {
+            const aliasFieldTable = this.getFieldTable(
+              key,
+              useTable,
+              useSubElement
+            );
+            const newKey =
+              (useAlias && this.aliasFields
+                ? this.aliasFields[key] || key
+                : key) + aliasFieldTable;
+            return newKey;
+          })
+        : Object.keys(newContent)
+      : [];
     return fields;
   }
 
-  protected async generateFields(content?: IDAOSimple): Promise<string[]> {
+  protected async generateFields(
+    content?: IDAOSimple,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
+  ): Promise<string[]> {
     return new Promise((resolve) => {
-      resolve(this.basicGenerateFields(content));
+      resolve(
+        this.basicGenerateFields(
+          content,
+          useTable,
+          useAlias,
+          useCompound,
+          useSubElement
+        )
+      );
     });
   }
 
-  protected basicGenerateValues(content?: IDAOSimple): unknown[] {
-    return content ? Object.values(content) : [];
+  protected filteredContent(content?: IDAOSimple, useCompound?: boolean) {
+    return useCompound
+      ? content
+      : Object.filter(content, (key) =>
+          this.aliasFieldsCompound ? !this.aliasFieldsCompound[key] : true
+        );
   }
 
-  protected async generateValues(content?: IDAOSimple): Promise<unknown[]> {
+  protected basicGenerateValues(
+    content?: IDAOSimple,
+    useCompound?: boolean
+  ): unknown[] {
+    const newContent = this.filteredContent(content, useCompound);
+    return newContent ? Object.values(newContent) : [];
+  }
+
+  protected async generateValues(
+    content?: IDAOSimple,
+    useCompound?: boolean
+  ): Promise<unknown[]> {
     return new Promise((resolve) => {
-      resolve(this.basicGenerateValues(content));
+      resolve(this.basicGenerateValues(content, useCompound));
     });
   }
 

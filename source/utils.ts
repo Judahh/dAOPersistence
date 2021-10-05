@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { promises } from 'fs';
 import { IPool } from './database/iPool';
 
-export default class Utils {
+class Utils {
   static async init(pool: IPool): Promise<void> {
     await Utils.dropTables(pool);
     let script = await promises.readFile(
@@ -44,3 +45,28 @@ export default class Utils {
     return string === '' || string === undefined || string === null;
   }
 }
+
+declare global {
+  interface Object {
+    // eslint-disable-next-line no-unused-vars
+    filter(object, predicate);
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
+declare interface Object {
+  // eslint-disable-next-line no-unused-vars
+  filter(object, predicate);
+}
+Object.prototype.filter = (object?, predicate?) => {
+  const result = {};
+  if (object)
+    for (const key in object) {
+      if (predicate && predicate(key, object[key])) {
+        result[key] = object[key];
+      }
+    }
+  return result;
+};
+
+export { Utils, Object };
