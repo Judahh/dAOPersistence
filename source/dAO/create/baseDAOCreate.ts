@@ -57,7 +57,7 @@ export default class BaseDAOCreate
     useCompound?: boolean,
     useSubElement?: boolean
   ): Promise<string> {
-    if (!values) values = await this.generateVectorValues(content);
+    if (!values) values = await this.generateValues(content);
 
     await this.generateInsertPreGenerateFields(content, values, tableName);
     const fields = await this.generateFields(
@@ -154,9 +154,10 @@ export default class BaseDAOCreate
   }
 
   async createSingle(content: IDAOSimple): Promise<IDAO> {
-    let values = await this.generateVectorValues(content);
+    let values = await this.generateValues(content);
     values = await this.addPredefinedValues(content, values);
     const select = await this.generateSelect('created');
+    // console.log('createSingle', content);
     const insert = await this.generateInsert(
       content,
       values,

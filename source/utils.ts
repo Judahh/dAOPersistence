@@ -62,7 +62,11 @@ Object.prototype.filter = (object?, predicate?) => {
   const result = {};
   if (object)
     for (const key in object) {
-      if (predicate && predicate(key, object[key])) {
+      if (
+        Object.prototype.hasOwnProperty.call(object, key) &&
+        predicate &&
+        predicate(key, object[key])
+      ) {
         result[key] = object[key];
       }
     }

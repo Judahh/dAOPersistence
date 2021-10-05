@@ -20,10 +20,12 @@ export default class BaseDAORead
   protected abstract updateQuery: string;
   async readById(id: string): Promise<IDAO> {
     const select = await this.generateSelect(this.getName());
-    const idName = await this.getIdField(false, true, false, false);
+    const idName = await this.getIdField(false, true, false, 'element.');
+    console.log('ID NAME:', idName);
+
     return new Promise((resolve, reject) => {
       this.pool?.query(
-        `${select} WHERE element.${idName} ` +
+        `${select} WHERE ${idName} ` +
           this.getEquals(id) +
           ` $1 ${this.groupBy}`,
         [id],

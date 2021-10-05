@@ -124,14 +124,16 @@ export default class BaseDAODefault extends Default {
   getFieldTable(
     field: string,
     useTable?: boolean,
-    useSubElement?: boolean
+    useSubElement?: string | boolean
   ): string {
     const aliasFieldsTable = this.aliasFieldsTable;
     const aliasFieldTable = useTable
       ? aliasFieldsTable && aliasFieldsTable[field]
         ? aliasFieldsTable[field] + '.'
         : useSubElement
-        ? 'subElement.'
+        ? typeof useSubElement === 'string'
+          ? useSubElement
+          : 'subElement.'
         : ''
       : '';
     return aliasFieldTable;
@@ -174,17 +176,16 @@ export default class BaseDAODefault extends Default {
       useTable,
       useAlias,
       useCompound,
-      withElement
+      withElement ? 'element.' : false
     );
+    // console.log('generateWhere:', fields);
     const where =
       filter && fields.length > 0
         ? `WHERE ${fields
             .map(
               (x) =>
-                (withElement ? 'element.' : '') +
-                '"' +
                 x +
-                '" ' +
+                ' ' +
                 this.getEquals(filter[x]) +
                 ' ' +
                 (initialPosition > -1
@@ -200,7 +201,7 @@ export default class BaseDAODefault extends Default {
     useTable?: boolean,
     useAlias?: boolean,
     useCompound?: boolean,
-    useSubElement?: boolean
+    useSubElement?: boolean | string
   ): Promise<string> {
     const idField = (
       await this.generateFields(
@@ -219,7 +220,7 @@ export default class BaseDAODefault extends Default {
     useTable?: boolean,
     useAlias?: boolean,
     useCompound?: boolean,
-    useSubElement?: boolean
+    useSubElement?: string | boolean
   ): string[] {
     const newContent = this.filteredContent(content, useCompound);
     const fields = newContent
@@ -231,9 +232,10 @@ export default class BaseDAODefault extends Default {
               useSubElement
             );
             const newKey =
+              aliasFieldTable +
               (useAlias && this.aliasFields
                 ? this.aliasFields[key] || key
-                : key) + aliasFieldTable;
+                : key);
             return newKey;
           })
         : Object.keys(newContent)
@@ -246,7 +248,7 @@ export default class BaseDAODefault extends Default {
     useTable?: boolean,
     useAlias?: boolean,
     useCompound?: boolean,
-    useSubElement?: boolean
+    useSubElement?: string | boolean
   ): Promise<string[]> {
     return new Promise((resolve) => {
       resolve(
