@@ -44,13 +44,16 @@ export default class BaseDAOUpdate
       this.pool?.isUpdateLimitBefore ? limit : undefined
     );
     const update = await this.generateUpdate(1, content, false, true);
+    const length = Object.keys(content).length + 1;
+    // console.log('len:', length);
+
     const query = this.pool?.simpleUpdate
       ? `${update} ` +
         `${await this.generateWhere(
           {
             id: this.generateValueFromUnknown(id),
           },
-          1,
+          length,
           false,
           true,
           true,
@@ -61,7 +64,7 @@ export default class BaseDAOUpdate
           {
             id: this.generateValueFromUnknown(id),
           },
-          1,
+          length,
           false,
           true,
           true,
@@ -74,21 +77,26 @@ export default class BaseDAOUpdate
 
     // console.log('id:', id);
     // console.log('content:', content);
-    // console.log('STORE:', query);
+    // console.log('UPDATE BY ID QUERY:', query);
     // console.log('values:', values);
     return new Promise((resolve, reject) => {
+      // console.log('updateById Promise');
       this.pool?.query(
         query,
-        values,
+        [...values, id],
         async (
           error,
           result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }
         ) => {
+          // console.log('updateById Promise result');
           if (error) {
+            // console.error('error:', error);
             reject(error);
             return;
           }
           result = this.fixType(result);
+          // console.error('result:', result);
+          // console.error('result.rows:', result.rows);
           resolve(result.rows ? result.rows[0] : ({} as IDAO));
         }
       );
@@ -128,7 +136,7 @@ export default class BaseDAOUpdate
         `) ${select} ${this.groupBy}`;
 
     // console.log('content:', content);
-    // console.log('STORE:', query);
+    // console.log('UPDATE SINGLE QUERY:', query);
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {
@@ -175,7 +183,7 @@ export default class BaseDAOUpdate
 
     // console.log('filter:', filter);
     // console.log('content:', content);
-    // console.log('STORE:', query);
+    // console.log('UPDATE QUERY:', query);
     // console.log('values:', values);
 
     return new Promise((resolve, reject) => {

@@ -370,6 +370,10 @@ test('add array and read elements, update and delete object', async (done) => {
       })
     );
     const obj3 = { ...obj1, test: obj02.test };
+    // console.log('TEST03:', persistencePromise3);
+    // console.log('TEST03:', persistencePromise3?.receivedItem);
+    // console.log('TEST03:', obj3);
+
     expect(persistencePromise3?.receivedItem).toStrictEqual(obj3);
     expect(persistencePromise3?.selectedItem).toStrictEqual(obj01);
     expect(persistencePromise3?.sentItem).toStrictEqual({ test: obj02.test });
