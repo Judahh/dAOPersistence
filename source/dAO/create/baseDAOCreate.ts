@@ -192,7 +192,11 @@ export default class BaseDAOCreate
           }
           result = this.fixType(result);
           // console.log('result.rows[0]:', result.rows[0]);
-          resolve(result.rows ? result.rows[0] : ({} as IDAO));
+          let finalResult = result.rows ? result.rows[0] : ({} as IDAO);
+          finalResult = this.pool?.simpleUpdate
+            ? (content as IDAO)
+            : finalResult;
+          resolve(finalResult);
         }
       );
     });
@@ -240,8 +244,13 @@ export default class BaseDAOCreate
             return;
           }
           result = this.fixType(result);
-          // console.log('result.rows[0]:', result.rows[0]);
-          resolve(result.rows as IDAO[]);
+          let finalResult = result.rows as IDAO[];
+          finalResult = this.pool?.simpleUpdate
+            ? Array.isArray(content as unknown)
+              ? (content as IDAO[])
+              : ([content] as unknown as IDAO[])
+            : finalResult;
+          resolve(finalResult);
         }
       );
     });

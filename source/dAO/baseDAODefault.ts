@@ -61,16 +61,11 @@ export default class BaseDAODefault extends Default {
   protected stringEquals?: string;
   protected regularEquals = '=';
   protected regularLimit = 'LIMIT';
-  protected nullProperties = ['conclusion_date'];
+  protected nullProperties?: string[];
 
-  protected bigNumberProperties = [
-    'quantity',
-    'quantity_payed',
-    'value_quantity',
-    'product_quantity',
-  ];
+  protected bigNumberProperties?: string[];
 
-  protected dateProperties = ['timestamp', 'conclusion_date'];
+  protected dateProperties?: string[];
 
   getEquals(element: unknown): string {
     return this.stringEquals && typeof element === 'string'
@@ -111,11 +106,19 @@ export default class BaseDAODefault extends Default {
   }
   protected async generateSelect(
     alias: string,
-    limit?: string
+    limit?: string,
+    useAll?: boolean,
+    selection?: string
   ): Promise<string> {
-    const select = `SELECT ${limit ? limit : ''} * FROM (SELECT ${
-      this.values
-    } FROM ${alias} AS subElement ${this.selectJoin}) as element`;
+    const select =
+      `SELECT ${limit ? limit : ''} ` +
+      (selection ? selection : '*') +
+      ` FROM ` +
+      (useAll
+        ? `${alias} `
+        : `(SELECT ${this.values} FROM ${alias} ` +
+          `AS subElement ${this.selectJoin}) `) +
+      `as element`;
     return new Promise((resolve) => {
       resolve(select);
     });
@@ -318,23 +321,37 @@ export default class BaseDAODefault extends Default {
     result.recordset = undefined;
     if (result.rows)
       if (result?.rows[0]) {
-        for (const nullProperty of this.nullProperties) {
-          if (result.rows[0][nullProperty] === null) {
-            result.rows = this.fixUndefined(result.rows, nullProperty);
-          }
+        if (result.rows[0].ID) {
+          result.rows = this.fixId(result.rows);
         }
-        for (const dateProperty of this.dateProperties) {
-          if (result.rows[0][dateProperty]) {
-            result.rows = this.fixDate(result.rows, dateProperty);
+        if (this.nullProperties)
+          for (const nullProperty of this.nullProperties) {
+            if (result.rows[0][nullProperty] === null) {
+              result.rows = this.fixUndefined(result.rows, nullProperty);
+            }
           }
-        }
-        for (const bigNumberProperty of this.bigNumberProperties) {
-          if (result.rows[0][bigNumberProperty]) {
-            result.rows = this.fixBigNumber(result.rows, bigNumberProperty);
+        if (this.dateProperties)
+          for (const dateProperty of this.dateProperties) {
+            if (result.rows[0][dateProperty]) {
+              result.rows = this.fixDate(result.rows, dateProperty);
+            }
           }
-        }
+        if (this.bigNumberProperties)
+          for (const bigNumberProperty of this.bigNumberProperties) {
+            if (result.rows[0][bigNumberProperty]) {
+              result.rows = this.fixBigNumber(result.rows, bigNumberProperty);
+            }
+          }
       }
     return result;
+  }
+  fixId(rows: any): any {
+    rows = rows.map((row) => {
+      row.id = row.ID ? row.ID : row.id;
+      delete row.ID;
+      return row;
+    });
+    return rows;
   }
 
   protected aggregateFromReceivedArray(realInput: any[]): any[] {

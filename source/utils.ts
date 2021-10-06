@@ -4,14 +4,15 @@ import { promises } from 'fs';
 import { IPool } from './database/iPool';
 
 class Utils {
-  static async init(pool: IPool): Promise<void> {
+  static async init(pool: IPool, isMSSQL?: boolean): Promise<void> {
     await Utils.dropTables(pool);
     let script = await promises.readFile(
       './database/createExtension.sql',
       'utf8'
     );
     await pool.query(script);
-    script = await promises.readFile('./database/createTables.sql', 'utf8');
+    const file = './database/createTables.' + (isMSSQL ? 'ms' : '') + 'sql';
+    script = await promises.readFile(file, 'utf8');
     await pool.query(script);
   }
 

@@ -33,7 +33,7 @@ test('add and read array and find object', async (done) => {
     object: new ObjectDAO(),
   });
   const pool = read.getPool();
-  await Utils.init(pool);
+  await Utils.init(pool, true);
   // new TestDAO({
   //   pool,
   //   journaly,
@@ -57,7 +57,6 @@ test('add and read array and find object', async (done) => {
     const obj0 = {
       ...obj,
       id: obj['id'].toString(),
-      testnumber: null,
     };
 
     expect(persistencePromise?.receivedItem).toStrictEqual(obj0);
@@ -69,7 +68,9 @@ test('add and read array and find object', async (done) => {
       new Event({ operation: Operation.read, name: 'Object', single: false })
     );
     // console.log('TEST02', persistencePromise1);
-    expect(persistencePromise1?.receivedItem).toStrictEqual([obj0]);
+    expect(persistencePromise1?.receivedItem).toStrictEqual([
+      { ...obj0, testNumber: null },
+    ]);
     expect(persistencePromise1?.selectedItem).toStrictEqual(undefined);
     expect(persistencePromise1?.sentItem).toStrictEqual(undefined);
 
@@ -88,14 +89,18 @@ test('add and read array and find object', async (done) => {
     const obj1 = {
       id: persistencePromise10?.receivedItem?.id,
       test: 'test',
-      testnumber: null,
     };
 
     expect(persistencePromise10?.receivedItem).toStrictEqual(obj1);
 
+    const receivedObjects = [
+      { ...obj0, testNumber: null },
+      { ...obj1, testNumber: null },
+    ];
+
     const all2 = {
-      receivedItem: [obj0, obj1],
-      result: [obj0, obj1],
+      receivedItem: receivedObjects,
+      result: receivedObjects,
       selectedItem: {},
       sentItem: undefined,
     };
@@ -125,7 +130,7 @@ test('add and read array and find object', async (done) => {
       { id: ObjectId; test: string }[]
     >;
     // console.log('TEST04', persistencePromise11);
-    expect(persistencePromise11?.receivedItem).toStrictEqual([obj0, obj1]);
+    expect(persistencePromise11?.receivedItem).toStrictEqual(receivedObjects);
     expect(persistencePromise11?.selectedItem).toStrictEqual({ test: 'test' });
     expect(persistencePromise11?.sentItem).toStrictEqual(undefined);
 
@@ -143,12 +148,12 @@ test('add and read array and find object', async (done) => {
     expect(persistencePromise2?.receivedItem).toStrictEqual({
       id: persistencePromise2?.receivedItem?.id,
       test: 'test',
-      testnumber: null,
+      testNumber: null,
     });
     expect(persistencePromise2?.selectedItem).toStrictEqual({});
     expect(persistencePromise2?.sentItem).toStrictEqual(undefined);
 
-    // console.log('TEST033');
+    // console.log('TEST033:', { id: persistencePromise2?.receivedItem?.id });
 
     const persistencePromise20 = await handler.addEvent(
       new Event({
@@ -181,7 +186,7 @@ test('add and read array and find object', async (done) => {
       {
         id: receivedItem22i0,
         test: 'test',
-        testnumber: null,
+        testNumber: null,
       },
     ]);
     expect(persistencePromise22?.selectedItem).toStrictEqual({});
@@ -198,9 +203,7 @@ test('add and read array and find object', async (done) => {
     );
     // console.log('TEST04:', persistencePromise3);
     expect(persistencePromise3?.receivedItem).toStrictEqual({
-      id: receivedItem22i0,
       test: 'bob',
-      testnumber: null,
     });
     expect(persistencePromise3?.selectedItem).toStrictEqual({
       test: 'test',
@@ -288,7 +291,7 @@ test('add array and read elements, update and delete object', async (done) => {
   const mSSQL = new MSSQL(database);
   read = new DAOPersistence(mSSQL);
   const pool = read.getPool();
-  await Utils.init(pool);
+  await Utils.init(pool, true);
   new TestDAO({
     pool,
     journaly,
@@ -317,6 +320,7 @@ test('add array and read elements, update and delete object', async (done) => {
     >;
 
     // console.log('TEST00:', persistencePromise);
+    // console.log('TEST00 Rec:', persistencePromise?.receivedItem);
     const receivedItem = persistencePromise?.receivedItem;
     const receivedItemI0 = receivedItem ? receivedItem[0]?.id : undefined;
     const receivedItemI1 = receivedItem ? receivedItem[1]?.id : undefined;
@@ -324,12 +328,10 @@ test('add array and read elements, update and delete object', async (done) => {
     const obj0 = {
       ...obj00,
       id: receivedItemI0,
-      testnumber: null,
     };
     const obj1 = {
       ...obj01,
       id: receivedItemI1,
-      testnumber: null,
     };
 
     expect(persistencePromise?.receivedItem).toStrictEqual([obj0, obj1]);
@@ -355,7 +357,10 @@ test('add array and read elements, update and delete object', async (done) => {
         selection: obj01,
       })
     );
-    expect(persistencePromise2?.receivedItem).toStrictEqual(obj1);
+    expect(persistencePromise2?.receivedItem).toStrictEqual({
+      ...obj1,
+      testNumber: null,
+    });
     expect(persistencePromise2?.selectedItem).toStrictEqual(obj01);
     expect(persistencePromise2?.sentItem).toStrictEqual(undefined);
 
@@ -401,7 +406,10 @@ test('add array and read elements, update and delete object', async (done) => {
       })
     );
 
-    expect(persistencePromise5?.receivedItem).toStrictEqual(obj1);
+    expect(persistencePromise5?.receivedItem).toStrictEqual({
+      ...obj1,
+      testNumber: null,
+    });
     expect(persistencePromise5?.selectedItem).toStrictEqual({ id: obj1.id });
     expect(persistencePromise5?.sentItem).toStrictEqual(undefined);
   } catch (error) {

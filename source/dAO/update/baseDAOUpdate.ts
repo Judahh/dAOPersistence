@@ -97,7 +97,11 @@ export default class BaseDAOUpdate
           result = this.fixType(result);
           // console.error('result:', result);
           // console.error('result.rows:', result.rows);
-          resolve(result.rows ? result.rows[0] : ({} as IDAO));
+          let finalResult = result.rows ? result.rows[0] : ({} as IDAO);
+          finalResult = this.pool?.simpleUpdate
+            ? ({ id, ...content } as IDAO)
+            : finalResult;
+          resolve(finalResult);
         }
       );
     });
@@ -149,7 +153,11 @@ export default class BaseDAOUpdate
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows ? result.rows[0] : ({} as IDAO));
+          let finalResult = result.rows ? result.rows[0] : ({} as IDAO);
+          finalResult = this.pool?.simpleUpdate
+            ? ({ ...filter, ...content } as IDAO)
+            : finalResult;
+          resolve(finalResult);
         }
       );
     });
@@ -196,7 +204,13 @@ export default class BaseDAOUpdate
             return;
           }
           result = this.fixType(result);
-          resolve(result.rows as IDAO[]);
+          let finalResult = result.rows as IDAO[];
+          finalResult = this.pool?.simpleUpdate
+            ? Array.isArray(content as unknown)
+              ? (content as IDAO[]).map((item) => ({ ...filter, ...item }))
+              : [{ ...filter, ...content }]
+            : finalResult;
+          resolve(finalResult);
         }
       );
     });
