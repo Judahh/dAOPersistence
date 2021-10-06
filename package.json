@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "mongodb": "latest",
+    "@flexiblepersistence/mssql": "latest",
     "@flexiblepersistence/default-initializer": "latest",
     "flexiblepersistence": "latest",
     "@types/jest": "26.0.24",

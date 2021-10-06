@@ -5,11 +5,26 @@ const eventInfo = {
 };
 
 const readInfo = {
-  database: 'postgres',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: process.env.POSTGRES_PORT || 5432,
-  username: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD,
+  database: 'read_DB',
+  host: process.env.MSSQL_HOST || 'localhost',
+  port: process.env.MSSQL_PORT || 5432,
+  username: process.env.MSSQL_USER || 'postgres',
+  password: process.env.MSSQL_PASSWORD,
 };
 
-export { eventInfo, readInfo };
+const readInfo2 = {
+  database: 'read_DB',
+  uri: process.env.MSSQL_URI,
+  connectionType: process.env.MSSQL_CONNECTION_TYPE,
+  options: process.env.MSSQL_OPTIONS || {
+    encrypt: false,
+    trustServerCertificate: false,
+  },
+  host: process.env.MSSQL_HOST || 'localhost',
+  port: process.env.MSSQL_PORT || 1433,
+  username: process.env.MSSQL_USER || 'SA',
+  password: process.env.MSSQL_PASSWORD || 'yourStrong(!)Password',
+  ssl: false,
+};
+
+export { eventInfo, readInfo, readInfo2 };
