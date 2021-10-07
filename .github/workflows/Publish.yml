@@ -150,6 +150,32 @@ jobs:
           MSSQL_HOST: mssql
           MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
           MSSQL_USER: "sa"
+
+  publish:
+    needs: [build, postgres, mssql]
+    runs-on: ubuntu-latest
+
+    # runs all of the steps inside the specified container rather than on the VM host.
+    # Because of this the network configuration changes from host based network to a container network.
+    container:
+      image: node:latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@main
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Install
+        uses: borales/actions-yarn@master
+        with:
+          cmd: install # will run `yarn install` command
       - name: Publish
         if: contains(matrix.node-version, '14.x')
         run: |
