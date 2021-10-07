@@ -11,6 +11,7 @@ import IDAO from '../model/iDAO';
 import { Default } from '@flexiblepersistence/default-initializer';
 import { IPool } from '../database/iPool';
 import { Utils } from '../utils';
+import { ObjectUtils } from '../objectUtils';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -284,7 +285,7 @@ export default class BaseDAODefault extends Default {
   protected filteredContent(content?: IDAOSimple, useCompound?: boolean) {
     return useCompound
       ? content
-      : Object.filter(content, (key) =>
+      : ObjectUtils.filter(content, (key) =>
           this.aliasFieldsCompound ? !this.aliasFieldsCompound[key] : true
         );
   }

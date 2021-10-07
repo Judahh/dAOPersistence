@@ -8,6 +8,7 @@ import {
   PersistenceInfo,
   IOutput,
 } from 'flexiblepersistence';
+
 import TestDAO from './testDAO';
 import ObjectDAO from './objectDAO';
 

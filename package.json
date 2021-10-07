@@ -18,7 +18,7 @@
     "prepublish": "",
     "build": "rm -rf dist/ && tsc",
     "test": "jest --passWithNoTests --ci --verbose --forceExit --detectOpenHandles",
-    "integration": "jest -i -c integration.config.json --passWithNoTests  --ci --verbose --forceExit --detectOpenHandles",
+    "integration": "jest -i -c integration.config.ts --passWithNoTests  --ci --verbose --forceExit --detectOpenHandles",
     "prestart": "",
     "tsc": "tsc",
     "tsc:w": "tsc -w"
@@ -57,6 +57,7 @@
     "prettier": "latest",
     "reflect-metadata": "latest",
     "ts-jest": "26.5.6",
+    "ts-node": "latest",
     "typescript": "latest"
   }
 }

@@ -4,32 +4,32 @@ import { promises } from 'fs';
 import { IPool } from './database/iPool';
 
 class Utils {
+  static async query(pool: IPool, file: string): Promise<void> {
+    const script = await promises.readFile(file, 'utf8');
+    // console.log('Query:', script);
+    await pool.query(script);
+  }
+
+  static async create(pool: IPool): Promise<void> {
+    // console.log('create:', pool);
+    await Utils.query(pool, './database/createDB.sql');
+  }
+
   static async init(pool: IPool, isMSSQL?: boolean): Promise<void> {
     await Utils.dropTables(pool);
-    let script = await promises.readFile(
-      './database/createExtension.sql',
-      'utf8'
+    await Utils.query(pool, './database/createExtension.sql');
+    await Utils.query(
+      pool,
+      './database/createTables.' + (isMSSQL ? 'ms' : '') + 'sql'
     );
-    await pool.query(script);
-    const file = './database/createTables.' + (isMSSQL ? 'ms' : '') + 'sql';
-    script = await promises.readFile(file, 'utf8');
-    await pool.query(script);
   }
 
   static async dropTables(pool: IPool): Promise<void> {
-    const dropTables = await promises.readFile(
-      './database/dropTables.sql',
-      'utf8'
-    );
-    await pool.query(dropTables);
+    await Utils.query(pool, './database/dropTables.sql');
   }
 
   static async deleteTables(pool: IPool): Promise<void> {
-    const dropTables = await promises.readFile(
-      './database/deleteTables.sql',
-      'utf8'
-    );
-    await pool.query(dropTables);
+    await Utils.query(pool, './database/deleteTables.sql');
   }
 
   static async end(pool: IPool): Promise<void> {
@@ -47,31 +47,4 @@ class Utils {
   }
 }
 
-declare global {
-  interface Object {
-    // eslint-disable-next-line no-unused-vars
-    filter(object, predicate);
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-declare interface Object {
-  // eslint-disable-next-line no-unused-vars
-  filter(object, predicate);
-}
-Object.prototype.filter = (object?, predicate?) => {
-  const result = {};
-  if (object)
-    for (const key in object) {
-      if (
-        Object.prototype.hasOwnProperty.call(object, key) &&
-        predicate &&
-        predicate(key, object[key])
-      ) {
-        result[key] = object[key];
-      }
-    }
-  return result;
-};
-
-export { Utils, Object };
+export { Utils };
