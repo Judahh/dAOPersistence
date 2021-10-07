@@ -8,8 +8,8 @@ import {
   PersistenceInfo,
   IOutput,
 } from 'flexiblepersistence';
-import TestDAO from './testWithAliasDAO';
-import ObjectDAO from './objectWithAliasDAO';
+import TestWithAliasDAO from './testWithAliasDAO';
+import ObjectWithAliasDAO from './objectWithAliasDAO';
 
 import { Postgres } from '../../source/postgres/postgres';
 import { DAOPersistence, Utils } from '../../source';
@@ -29,16 +29,16 @@ test('add and read array and find object', async (done) => {
   write = eventDatabase;
   const postgres = new Postgres(database);
   read = new DAOPersistence(postgres, {
-    test: new TestDAO(),
-    object: new ObjectDAO(),
+    test: new TestWithAliasDAO(),
+    object: new ObjectWithAliasDAO(),
   });
   const pool = read.getPool();
   await Utils.init(pool);
-  // new TestDAO({
+  // new TestWithAliasDAO({
   //   pool,
   //   journaly,
   // });
-  // new ObjectDAO({
+  // new ObjectWithAliasDAO({
   //   pool,
   //   journaly,
   // });
@@ -49,7 +49,11 @@ test('add and read array and find object', async (done) => {
   try {
     // console.log('TEST00');
     const persistencePromise = await handler.addEvent(
-      new Event({ operation: Operation.create, name: 'Object', content: obj })
+      new Event({
+        operation: Operation.create,
+        name: 'ObjectWithAlias',
+        content: obj,
+      })
     );
 
     // console.log('TEST00:', persistencePromise);
@@ -57,16 +61,20 @@ test('add and read array and find object', async (done) => {
     const obj0 = {
       ...obj,
       id: obj['id'].toString(),
-      testnumber: null,
+      testNumber: undefined,
     };
 
     expect(persistencePromise?.receivedItem).toStrictEqual(obj0);
 
     // console.log('TEST02');
 
-    // const persistencePromise1 = await handler.readArray('Object', {});
+    // const persistencePromise1 = await handler.readArray('ObjectWithAlias', {});
     const persistencePromise1 = await handler.addEvent(
-      new Event({ operation: Operation.read, name: 'Object', single: false })
+      new Event({
+        operation: Operation.read,
+        name: 'ObjectWithAlias',
+        single: false,
+      })
     );
     // console.log('TEST02', persistencePromise1);
     expect(persistencePromise1?.receivedItem).toStrictEqual([obj0]);
@@ -76,7 +84,7 @@ test('add and read array and find object', async (done) => {
     const persistencePromise10 = (await handler.addEvent(
       new Event({
         operation: Operation.create,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         content: { ...obj, id: undefined },
       })
     )) as IOutput<
@@ -88,7 +96,7 @@ test('add and read array and find object', async (done) => {
     const obj1 = {
       id: persistencePromise10?.receivedItem?.id,
       test: 'test',
-      testnumber: null,
+      testNumber: undefined,
     };
 
     expect(persistencePromise10?.receivedItem).toStrictEqual(obj1);
@@ -101,7 +109,7 @@ test('add and read array and find object', async (done) => {
     };
 
     const persistencePromise101 = (await handler.readArray(
-      'Object',
+      'ObjectWithAlias',
       {}
     )) as IOutput<
       { id: ObjectId; test: string },
@@ -116,7 +124,7 @@ test('add and read array and find object', async (done) => {
     const persistencePromise11 = (await handler.addEvent(
       new Event({
         operation: Operation.read,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: false,
         selection: { test: 'test' },
       })
@@ -132,7 +140,7 @@ test('add and read array and find object', async (done) => {
     // console.log('TEST04');
 
     const persistencePromise2 = (await handler.readItem(
-      'Object',
+      'ObjectWithAlias',
       {}
     )) as IOutput<
       { id: ObjectId; test: string },
@@ -143,7 +151,7 @@ test('add and read array and find object', async (done) => {
     expect(persistencePromise2?.receivedItem).toStrictEqual({
       id: persistencePromise2?.receivedItem?.id,
       test: 'test',
-      testnumber: null,
+      testNumber: undefined,
     });
     expect(persistencePromise2?.selectedItem).toStrictEqual({});
     expect(persistencePromise2?.sentItem).toStrictEqual(undefined);
@@ -153,7 +161,7 @@ test('add and read array and find object', async (done) => {
     const persistencePromise20 = await handler.addEvent(
       new Event({
         operation: Operation.delete,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         selection: { id: persistencePromise2?.receivedItem?.id },
       })
     );
@@ -165,8 +173,10 @@ test('add and read array and find object', async (done) => {
       sentItem: undefined,
     });
 
+    // console.log('readArray');
+
     const persistencePromise22 = (await handler.readArray(
-      'Object',
+      'ObjectWithAlias',
       {}
     )) as IOutput<
       { id: ObjectId; test: string },
@@ -181,7 +191,7 @@ test('add and read array and find object', async (done) => {
       {
         id: receivedItem22i0,
         test: 'test',
-        testnumber: null,
+        testNumber: undefined,
       },
     ]);
     expect(persistencePromise22?.selectedItem).toStrictEqual({});
@@ -191,7 +201,7 @@ test('add and read array and find object', async (done) => {
     const persistencePromise3 = await handler.addEvent(
       new Event({
         operation: Operation.update,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         selection: { test: 'test' },
         content: { test: 'bob' },
       })
@@ -200,7 +210,7 @@ test('add and read array and find object', async (done) => {
     expect(persistencePromise3?.receivedItem).toStrictEqual({
       id: receivedItem22i0,
       test: 'bob',
-      testnumber: null,
+      testNumber: undefined,
     });
     expect(persistencePromise3?.selectedItem).toStrictEqual({
       test: 'test',
@@ -216,7 +226,7 @@ test('add and read array and find object', async (done) => {
     const persistencePromise4 = await handler.addEvent(
       new Event({
         operation: Operation.delete,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: false,
         selection: { test: 'bob' },
       })
@@ -229,7 +239,7 @@ test('add and read array and find object', async (done) => {
 
     // console.log('TEST06');
     const persistencePromise5 = (await handler.readArray(
-      'Object',
+      'ObjectWithAlias',
       {}
     )) as IOutput<
       { id: ObjectId; test: string },
@@ -245,7 +255,7 @@ test('add and read array and find object', async (done) => {
     const persistencePromise6 = await handler.addEvent(
       new Event({
         operation: Operation.delete,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: false,
       })
     );
@@ -257,11 +267,11 @@ test('add and read array and find object', async (done) => {
     await handler.addEvent(
       new Event({
         operation: Operation.delete,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: false,
       })
     );
-    // const persistencePromise7 = await handler.readArray('Object', {});
+    // const persistencePromise7 = await handler.readArray('ObjectWithAlias', {});
     // expect(persistencePromise7?.result.rowCount).toBe(0);
     await handler.getWrite()?.clear();
     await write.close();
@@ -270,7 +280,7 @@ test('add and read array and find object', async (done) => {
     done();
   }
   await handler.addEvent(
-    new Event({ operation: Operation.delete, name: 'Object' })
+    new Event({ operation: Operation.delete, name: 'ObjectWithAlias' })
   );
   await handler.getWrite()?.clear();
   await write.close();
@@ -289,11 +299,11 @@ test('add array and read elements, update and delete object', async (done) => {
   read = new DAOPersistence(postgres);
   const pool = read.getPool();
   await Utils.init(pool);
-  new TestDAO({
+  new TestWithAliasDAO({
     pool,
     journaly,
   });
-  new ObjectDAO({
+  new ObjectWithAliasDAO({
     pool,
     journaly,
   });
@@ -307,7 +317,7 @@ test('add array and read elements, update and delete object', async (done) => {
     const persistencePromise = (await handler.addEvent(
       new Event({
         operation: Operation.create,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: false,
         content: [obj00, obj01],
       })
@@ -324,12 +334,12 @@ test('add array and read elements, update and delete object', async (done) => {
     const obj0 = {
       ...obj00,
       id: receivedItemI0,
-      testnumber: null,
+      testNumber: undefined,
     };
     const obj1 = {
       ...obj01,
       id: receivedItemI1,
-      testnumber: null,
+      testNumber: undefined,
     };
 
     expect(persistencePromise?.receivedItem).toStrictEqual([obj0, obj1]);
@@ -338,7 +348,7 @@ test('add array and read elements, update and delete object', async (done) => {
     const persistencePromise1 = await handler.addEvent(
       new Event({
         operation: Operation.delete,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: true,
         selection: obj00,
       })
@@ -350,7 +360,7 @@ test('add array and read elements, update and delete object', async (done) => {
     const persistencePromise2 = await handler.addEvent(
       new Event({
         operation: Operation.read,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: true,
         selection: obj01,
       })
@@ -359,11 +369,11 @@ test('add array and read elements, update and delete object', async (done) => {
     expect(persistencePromise2?.selectedItem).toStrictEqual(obj01);
     expect(persistencePromise2?.sentItem).toStrictEqual(undefined);
 
-    const obj02 = { ...obj01, test: 'Object' };
+    const obj02 = { ...obj01, test: 'ObjectWithAlias' };
     const persistencePromise3 = await handler.addEvent(
       new Event({
         operation: Operation.update,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: false,
         selection: obj01,
         content: { test: obj02.test },
@@ -381,7 +391,7 @@ test('add array and read elements, update and delete object', async (done) => {
     const persistencePromise4 = await handler.addEvent(
       new Event({
         operation: Operation.update,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: true,
         selection: { id: obj3.id },
         content: obj01,
@@ -395,7 +405,7 @@ test('add array and read elements, update and delete object', async (done) => {
     const persistencePromise5 = await handler.addEvent(
       new Event({
         operation: Operation.read,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: true,
         selection: { id: obj1.id },
       })
@@ -409,11 +419,11 @@ test('add array and read elements, update and delete object', async (done) => {
     await handler.addEvent(
       new Event({
         operation: Operation.delete,
-        name: 'Object',
+        name: 'ObjectWithAlias',
         single: false,
       })
     );
-    // const persistencePromise7 = await handler.readArray('Object', {});
+    // const persistencePromise7 = await handler.readArray('ObjectWithAlias', {});
     // expect(persistencePromise7?.result.rowCount).toBe(0);
     await handler.getWrite()?.clear();
     await write.close();
@@ -422,7 +432,7 @@ test('add array and read elements, update and delete object', async (done) => {
     done();
   }
   await handler.addEvent(
-    new Event({ operation: Operation.delete, name: 'Object' })
+    new Event({ operation: Operation.delete, name: 'ObjectWithAlias' })
   );
   await handler.getWrite()?.clear();
   await write.close();

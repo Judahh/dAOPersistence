@@ -23,18 +23,22 @@ export default class BaseDAODelete
       ? this.makePromise(input, 'deleteSingle')
       : this.makePromise(input, 'deleteArray');
   }
-  deleteById(id: string): Promise<boolean> {
+  async deleteById(id: string): Promise<boolean> {
     // console.log(this.getName());
+    const query = `DELETE FROM ${this.getName()} ${await this.generateWhere(
+      { id: id },
+      1,
+      false,
+      true,
+      true,
+      true
+    )}`;
+    // console.log('DELETE ID QUERY:', query);
+    // console.log('DELETE ID VALUES:', [id]);
+
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
-        `DELETE FROM ${this.getName()} ${await this.generateWhere(
-          { id: id },
-          1,
-          false,
-          true,
-          true,
-          true
-        )}`,
+        query,
         [id],
         (
           error,
@@ -155,10 +159,14 @@ export default class BaseDAODelete
         )} ` +
         `${await this.generateWhere(filter, 1, false, true, true, true)}) `;
 
+    const values = await this.generateValues(filter, true);
+    // console.log('DELETE Array QUERY:', query);
+    // console.log('DELETE Array Values:', values);
+
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        await this.generateValues(filter, true),
+        values,
         (
           error,
           result: {

@@ -137,6 +137,7 @@ export default class BaseDAOUpdate
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
 
+    // console.log('filter:', filter);
     // console.log('content:', content);
     // console.log('UPDATE SINGLE QUERY:', query);
     // console.log('values:', values);

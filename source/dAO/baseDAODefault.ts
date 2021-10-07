@@ -74,6 +74,10 @@ export default class BaseDAODefault extends Default {
   }
 
   protected generateValueFromUnknown(element: unknown): unknown | string {
+    if (element === undefined || element === null) {
+      return 'NULL';
+    }
+
     if (typeof element === 'string' || element instanceof String)
       return "'" + element + "'";
 
@@ -181,20 +185,31 @@ export default class BaseDAODefault extends Default {
       useCompound,
       withElement ? 'element.' : false
     );
-    // console.log('generateWhere:', fields);
+    // console.log('filter:', filter);
+    // const aliasFields = this.aliasFields;
+    // console.log('aliasFields:', aliasFields);
+    const aliasFields = filter ? Object.keys(filter) : [];
+    // console.log('aliasFieldsArray:', aliasFieldsArray);
     const where =
       filter && fields.length > 0
         ? `WHERE ${fields
-            .map(
-              (x) =>
+            .map((x, index: number) => {
+              const y = aliasFields[index];
+              // console.log('y:', y);
+              const value = filter[x] || filter[y];
+              // console.log('x:', x);
+              // console.log('value:', value);
+
+              return (
                 x +
                 ' ' +
-                this.getEquals(filter[x]) +
+                this.getEquals(value) +
                 ' ' +
                 (initialPosition > -1
                   ? '$' + initialPosition++
-                  : this.generateValueFromUnknown(filter[x]))
-            )
+                  : this.generateValueFromUnknown(value))
+              );
+            })
             .join(' AND ')}`
         : '';
     return where;
@@ -324,6 +339,7 @@ export default class BaseDAODefault extends Default {
         if (result.rows[0].ID) {
           result.rows = this.fixId(result.rows);
         }
+        if (this.aliasFields) result.rows = this.fixAlias(result.rows);
         if (this.nullProperties)
           for (const nullProperty of this.nullProperties) {
             if (result.rows[0][nullProperty] === null) {
@@ -351,6 +367,28 @@ export default class BaseDAODefault extends Default {
       delete row.ID;
       return row;
     });
+    return rows;
+  }
+
+  fixAlias(rows: any): any {
+    for (const key in this.aliasFields) {
+      if (Object.prototype.hasOwnProperty.call(this.aliasFields, key)) {
+        const alias = this.aliasFields[key];
+        if (alias)
+          rows = rows.map((row) => {
+            const rAlias =
+              row[alias] ||
+              row[alias.toLowerCase()] ||
+              row[alias.toUpperCase()];
+            row[key] = rAlias ? rAlias : row[key];
+            delete row[alias];
+            delete row[alias.toLowerCase()];
+            delete row[alias.toUpperCase()];
+            return row;
+          });
+      }
+    }
+
     return rows;
   }
 
