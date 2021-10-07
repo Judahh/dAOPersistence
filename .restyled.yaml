@@ -2,3 +2,4 @@ exclude:
   - "*.json"
   - "*.svg"
   - "*.yml"
+  - "createDB.sql"
