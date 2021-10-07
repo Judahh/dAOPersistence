@@ -6,11 +6,16 @@ import { PersistenceInfo } from 'flexiblepersistence';
 import { Journaly, SenderReceiver } from 'journaly';
 
 export default async (): Promise<Config.InitialOptions> => {
-  console.log('Init Tests...');
-  const journaly = Journaly.newJournaly() as SenderReceiver<unknown>;
-  const database = new PersistenceInfo(readInfo1, journaly);
-  // console.log('database:', readInfo1);
-  await Utils.create(new MSSQL(database));
+  console.log('Init Tests...', jest);
+  try {
+    const journaly = Journaly.newJournaly() as SenderReceiver<unknown>;
+    const database = new PersistenceInfo(readInfo1, journaly);
+    // console.log('database:', readInfo1);
+    await Utils.create(new MSSQL(database));
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
   console.log('Init done!');
   return {
     verbose: true,

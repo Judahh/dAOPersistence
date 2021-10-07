@@ -7,7 +7,7 @@ on:
       - "*/*" # matches every branch containing a single '/'
 
 jobs:
-  build:
+  postgres:
     runs-on: ubuntu-latest
 
     # runs all of the steps inside the specified container rather than on the VM host.
@@ -27,6 +27,60 @@ jobs:
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@main
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Install
+        uses: borales/actions-yarn@master
+        with:
+          cmd: install # will run `yarn install` command
+      - name: Build
+        uses: borales/actions-yarn@master
+        with:
+          cmd: build # will run `yarn build` command
+      - name: Test
+        uses: borales/actions-yarn@master
+        with:
+          cmd: test # will run `yarn test` command
+      - name: Test Integration
+        uses: borales/actions-yarn@master
+        with:
+          cmd: integration postgres # will run `yarn test` command
+        env:
+          # use postgres for the host here because we have specified a container for the job.
+          # If we were running the job on the VM this would be localhost
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          POSTGRES_USER: "postgres"
+          MONGO_HOST: mongo
+          MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
+          MSSQL_HOST: mssql
+          MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
+          MSSQL_USER: "sa"
+
+  mssql:
+    runs-on: ubuntu-latest
+
+    # runs all of the steps inside the specified container rather than on the VM host.
+    # Because of this the network configuration changes from host based network to a container network.
+    container:
+      image: node:latest
+
+    services:
       mongo:
         image: mongo:latest
         ports:
@@ -68,7 +122,7 @@ jobs:
       - name: Test Integration
         uses: borales/actions-yarn@master
         with:
-          cmd: integration # will run `yarn test` command
+          cmd: integration mssql # will run `yarn test` command
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
