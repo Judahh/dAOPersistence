@@ -74,6 +74,9 @@ jobs:
           POSTGRES_USER: "postgres"
           MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
+          MSSQL_HOST: mssql
+          MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
+          MSSQL_USER: "sa"
       - name: Publish
         if: contains(matrix.node-version, '14.x')
         run: |
