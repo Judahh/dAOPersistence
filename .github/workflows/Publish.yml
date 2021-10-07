@@ -12,23 +12,7 @@ jobs:
     # runs all of the steps inside the specified container rather than on the VM host.
     # Because of this the network configuration changes from host based network to a container network.
     container:
-      image: node:10.16-jessie
-
-    services:
-      postgres:
-        image: postgres:10.8
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        # needed because the postgres container does not provide a healthcheck
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-
+      image: node:latest
     strategy:
       matrix:
         node-version: [14.x]
@@ -53,10 +37,52 @@ jobs:
         uses: borales/actions-yarn@master
         with:
           cmd: test # will run `yarn test` command
+
+  postgres:
+    runs-on: ubuntu-latest
+
+    # runs all of the steps inside the specified container rather than on the VM host.
+    # Because of this the network configuration changes from host based network to a container network.
+    container:
+      image: node:latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_USER: postgres
+          POSTGRES_DB: read_DB
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@main
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Install
+        uses: borales/actions-yarn@master
+        with:
+          cmd: install # will run `yarn install` command
       - name: Test Integration
         uses: borales/actions-yarn@master
         with:
-          cmd: integration # will run `yarn test` command
+          cmd: integration postgres # will run `yarn test` command
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
@@ -64,7 +90,66 @@ jobs:
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           POSTGRES_USER: "postgres"
           MONGO_HOST: mongo
+          MONGO_PORT: ${{ job.services.mongo.ports[27017] }}"
+      - name: Publish
+        if: contains(matrix.node-version, '14.x')
+        run: |
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+          CI: true
+
+  mssql:
+    runs-on: ubuntu-latest
+
+    # runs all of the steps inside the specified container rather than on the VM host.
+    # Because of this the network configuration changes from host based network to a container network.
+    container:
+      image: node:latest
+
+    services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+      mssql:
+        image: "mcr.microsoft.com/mssql/server:latest"
+        ports:
+          - 1433:1433
+        env:
+          ACCEPT_EULA: "Y"
+          SA_PASSWORD: yourStrong(!)Password
+          MSSQL_PID: Developer
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@main
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: Install
+        uses: borales/actions-yarn@master
+        with:
+          cmd: install # will run `yarn install` command
+      - name: Test Integration
+        uses: borales/actions-yarn@master
+        with:
+          cmd: integration mssql # will run `yarn test` command
+        env:
+          # use postgres for the host here because we have specified a container for the job.
+          # If we were running the job on the VM this would be localhost
+          MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
+          MSSQL_HOST: mssql
+          MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
+          MSSQL_USER: "sa"
       - name: Publish
         if: contains(matrix.node-version, '14.x')
         run: |

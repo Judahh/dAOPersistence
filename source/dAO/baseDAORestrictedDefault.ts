@@ -3,21 +3,22 @@ import IDAOSimple from '../model/iDAOSimple';
 import BaseDAODefault from './baseDAODefault';
 // @ts-ignore
 export default class BaseDAORestrictedDefault extends BaseDAODefault {
-  // @ts-ignore
-  protected async generateVectorValues(
-    content: IDAOSimple
-  ): Promise<unknown[]> {
-    const values = await this.generateValues(content);
-    // console.log('values', values);
-    return new Promise((resolve) => resolve(values));
-  }
-
   protected async generateVectorValuesFromArray(
-    content: IDAOSimple[]
+    content: IDAOSimple[],
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<unknown[][]> {
     const values: unknown[][] = [];
     const first = content[0];
-    const fields = await this.generateFields(first);
+    const fields = await this.generateFields(
+      first,
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
 
     for (const subContent of content) {
       const value: unknown[] = [];

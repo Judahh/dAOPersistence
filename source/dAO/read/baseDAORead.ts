@@ -16,13 +16,13 @@ export default class BaseDAORead
       ? this.makePromise(input, 'readSingle')
       : this.makePromise(input, 'readArray');
   }
-  // @ts-ignore
-  protected abstract updateQuery: string;
   async readById(id: string): Promise<IDAO> {
     const select = await this.generateSelect(this.getName());
+    const idName = await this.getIdField(false, true, false, 'element.');
+    // console.log('ID NAME:', idName);
     return new Promise((resolve, reject) => {
       this.pool?.query(
-        `${select} WHERE element.id ` +
+        `${select} WHERE ${idName} ` +
           this.getEquals(id) +
           ` $1 ${this.groupBy}`,
         [id],
@@ -47,15 +47,20 @@ export default class BaseDAORead
     );
     filter = filter ? filter : {};
 
-    const query = `${select} ${await this.generateWhere(filter, 1, true)} ${
-      this.groupBy
-    } ${this.pool?.isReadLimitBefore ? '' : limit}`;
+    const query = `${select} ${await this.generateWhere(
+      filter,
+      1,
+      true,
+      true,
+      true,
+      true
+    )} ${this.groupBy} ${this.pool?.isReadLimitBefore ? '' : limit}`;
 
     // console.log(query);
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        await this.generateValues(filter),
+        await this.generateValues(filter, true),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);
@@ -73,7 +78,14 @@ export default class BaseDAORead
     filter = filter ? filter : {};
     const query =
       `${await this.pool?.generatePaginationPrefix(this.options)} ` +
-      `${select} ${await this.generateWhere(filter, 1, true)} ` +
+      `${select} ${await this.generateWhere(
+        filter,
+        1,
+        true,
+        true,
+        true,
+        true
+      )} ` +
       `${await this.pool?.generatePaginationSuffix(this.options)} ${
         this.groupBy
       }`;
@@ -81,7 +93,7 @@ export default class BaseDAORead
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        await this.generateValues(filter),
+        await this.generateValues(filter, true),
         (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
           if (error) {
             reject(error);

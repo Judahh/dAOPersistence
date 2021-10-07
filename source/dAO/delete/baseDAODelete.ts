@@ -9,9 +9,6 @@ export default class BaseDAODelete
   extends BaseDAODefault
   implements IRemove<IDAOSimple, IDAO>
 {
-  // @ts-ignore
-  protected abstract updateQuery: string;
-
   nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return this.delete(input);
@@ -26,22 +23,40 @@ export default class BaseDAODelete
       ? this.makePromise(input, 'deleteSingle')
       : this.makePromise(input, 'deleteArray');
   }
-  deleteById(id: string): Promise<boolean> {
+  async deleteById(id: string): Promise<boolean> {
     // console.log(this.getName());
-    return new Promise((resolve, reject) => {
+    const query = `DELETE FROM ${this.getName()} ${await this.generateWhere(
+      { id: id },
+      1,
+      false,
+      true,
+      true,
+      true
+    )}`;
+    // console.log('DELETE ID QUERY:', query);
+    // console.log('DELETE ID VALUES:', [id]);
+
+    return new Promise(async (resolve, reject) => {
       this.pool?.query(
-        `DELETE FROM ${this.getName()} WHERE id = $1`,
+        query,
         [id],
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
+        (
+          error,
+          result: {
+            rows?: (IDAO | PromiseLike<IDAO>)[];
+            rowCount?;
+            rowsAffected?;
+          }
+        ) => {
           if (error) {
             reject(error);
             return;
           }
-          if (result.rowCount) {
+          if (result.rowCount || result.rowsAffected) {
             resolve(true);
             return;
           }
-          console.log(result);
+          // console.log(result);
           resolve(false);
           // console.log(result);
 
@@ -54,38 +69,66 @@ export default class BaseDAODelete
     });
   }
   async deleteSingle(filter): Promise<boolean> {
-    const limit =
-      (this.pool?.deleteLimit ? this.pool?.deleteLimit : this.regularLimit) +
-      ' 1';
-
+    const limit = this.pool?.simpleDelete
+      ? this.pool?.deleteLimit
+        ? this.pool?.deleteLimit
+        : this.regularLimit
+      : (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) +
+        ' 1';
+    const idName = await this.getIdField(false, true, false, false);
     const query = this.pool?.simpleDelete
       ? `DELETE ${
           this.pool?.isDeleteLimitBefore ? limit : ''
-        } FROM ${this.getName()} ${await this.generateWhere(filter)} ${
-          this.pool?.isDeleteLimitBefore ? '' : limit
-        }`
-      : `DELETE ${
-          this.pool?.isDeleteLimitBefore ? limit : ''
-        } FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `${await this.generateWhere(filter)} ORDER BY ID ${
-          this.pool?.isDeleteLimitBefore ? '' : limit
+        } FROM ${this.getName()} ${await this.generateWhere(
+          filter,
+          1,
+          false,
+          true,
+          true,
+          true
+        )} ${this.pool?.isDeleteLimitBefore ? '' : limit}`
+      : `DELETE FROM ${this.getName()} WHERE ${idName} IN ` +
+        `(${await this.generateSelect(
+          this.getName(),
+          this.pool?.isReadLimitBefore ? limit : undefined,
+          true,
+          idName
+        )} ` +
+        `${await this.generateWhere(filter, 1, false, true, true, true)} ${
+          this.pool?.isReadLimitBefore ? '' : limit
         }) `;
+
+    // console.log('DELETE QUERY:', query);
+    // console.log(
+    //   'DELETE limit:',
+    //   limit,
+    //   this.pool?.simpleDelete,
+    //   this.pool?.deleteLimit,
+    //   this.pool?.readLimit
+    // );
 
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        await this.generateValues(filter),
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
+        await this.generateValues(filter, true),
+        (
+          error,
+          result: {
+            rows?: (IDAO | PromiseLike<IDAO>)[];
+            rowCount?;
+            rowsAffected?;
+          }
+        ) => {
           if (error) {
             reject(error);
             return;
           }
-          if (result.rowCount) {
+          // console.log('DELETE SINGLE: ', result);
+          if (result.rowCount || result.rowsAffected) {
             resolve(true);
             return;
           }
           resolve(true);
-          // console.log(result);
 
           // error = new Error();
           // error.name = 'RemoveError';
@@ -98,22 +141,48 @@ export default class BaseDAODelete
   async deleteArray(filter): Promise<number> {
     // console.log('filter=', filter);
     filter = filter ? filter : {};
+    const idName = await this.getIdField(false, true, false, false);
     const query = this.pool?.simpleDelete
-      ? `DELETE FROM ${this.getName()} ${await this.generateWhere(filter)} `
-      : `DELETE FROM ${this.getName()} WHERE id IN (SELECT id FROM ${this.getName()} ` +
-        `${await this.generateWhere(filter)} ORDER BY ID) `;
+      ? `DELETE FROM ${this.getName()} ${await this.generateWhere(
+          filter,
+          1,
+          false,
+          true,
+          true,
+          true
+        )} `
+      : `DELETE FROM ${this.getName()} WHERE ${idName} IN (${await this.generateSelect(
+          this.getName(),
+          undefined,
+          true,
+          idName
+        )} ` +
+        `${await this.generateWhere(filter, 1, false, true, true, true)}) `;
+
+    const values = await this.generateValues(filter, true);
+    // console.log('DELETE Array QUERY:', query);
+    // console.log('DELETE Array Values:', values);
 
     return new Promise(async (resolve, reject) => {
       this.pool?.query(
         query,
-        await this.generateValues(filter),
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
+        values,
+        (
+          error,
+          result: {
+            rows?: (IDAO | PromiseLike<IDAO>)[];
+            rowCount?;
+            rowsAffected?: number[];
+          }
+        ) => {
           if (error) {
             reject(error);
             return;
           }
-          if (result.rowCount) {
-            resolve(result.rowCount);
+          if (result.rowCount || result.rowsAffected) {
+            resolve(
+              result.rowCount || result.rowsAffected?.reduce((a, b) => a + b)
+            );
             return;
           }
           resolve(0);

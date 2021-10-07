@@ -1,6 +1,6 @@
 {
   "name": "@flexiblepersistence/dao",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A DAO implementation for Flexible Persistence's PersistenceAdapter",
   "main": "dist/source/index.js",
   "keywords": [
@@ -18,7 +18,7 @@
     "prepublish": "",
     "build": "rm -rf dist/ && tsc",
     "test": "jest --passWithNoTests --ci --verbose --forceExit --detectOpenHandles",
-    "integration": "jest -i -c integration.config.json --passWithNoTests  --ci --verbose --forceExit --detectOpenHandles",
+    "integration": "jest -i -c integration.config.ts --passWithNoTests  --ci --verbose --forceExit --detectOpenHandles",
     "prestart": "",
     "tsc": "tsc",
     "tsc:w": "tsc -w"
@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "mongodb": "latest",
+    "@flexiblepersistence/mssql": "latest",
     "@flexiblepersistence/default-initializer": "latest",
     "flexiblepersistence": "latest",
     "@types/jest": "26.0.24",
@@ -56,6 +57,7 @@
     "prettier": "latest",
     "reflect-metadata": "latest",
     "ts-jest": "26.5.6",
+    "ts-node": "latest",
     "typescript": "latest"
   }
 }

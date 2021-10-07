@@ -84,7 +84,7 @@ export class Postgres implements IPool {
     values?: Array<unknown>,
     callback?: () => unknown
   ): Promise<unknown> {
-    //console.log(script, values, callback);
+    // console.log('SCRIPT:', script, values, callback);
     return this.pool.query(script, values, callback);
   }
   public end(callback?: () => unknown): Promise<any> {

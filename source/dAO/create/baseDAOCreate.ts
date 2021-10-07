@@ -12,12 +12,10 @@ export default class BaseDAOCreate
   implements IStore<IDAOSimple, IDAO>
 {
   // @ts-ignore
-  protected abstract insert: string;
+  protected insert?: string;
   // @ts-ignore
-  protected abstract insertValues: string;
+  protected insertValues?: string;
   protected beforeInsert = '';
-  // @ts-ignore
-  protected abstract updateQuery: string;
 
   existent(
     input: IInputCreate<IDAOSimple>
@@ -51,12 +49,22 @@ export default class BaseDAOCreate
     content: IDAOSimple,
     values?,
     tableName?: string,
-    startValue = 1
+    startValue = 1,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<string> {
-    if (!values) values = await this.generateVectorValues(content);
+    if (!values) values = await this.generateValues(content);
 
     await this.generateInsertPreGenerateFields(content, values, tableName);
-    const fields = await this.generateFields(content);
+    const fields = await this.generateFields(
+      content,
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
     await this.generateInsertPostGenerateFields(
       content,
       values,
@@ -64,11 +72,17 @@ export default class BaseDAOCreate
       fields
     );
 
-    const insert = `INSERT INTO ${
-      tableName ? tableName : this.getName()
-    } (${fields.join(', ')}) VALUES (${values
-      .map((_value, index) => '$' + (index + startValue))
-      .join(', ')})`;
+    const insertFields = fields?.join(', ') || this.insert;
+    let insertValues =
+      values && values.length > 0
+        ? values.map((_value, index) => '$' + (index + startValue)).join(', ')
+        : undefined;
+    insertValues = insertValues || this.insertValues || '';
+    tableName = tableName || this.getName();
+
+    const insert =
+      `INSERT INTO ${tableName} (${insertFields}) ` +
+      `VALUES (${insertValues})`;
     return new Promise((resolve) => {
       resolve(insert);
     });
@@ -93,12 +107,22 @@ export default class BaseDAOCreate
     content: IDAOSimple[],
     values?,
     tableName?: string,
-    startValue = 1
+    startValue = 1,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<string> {
     if (!values) values = await this.generateVectorValuesFromArray(content);
 
     await this.generateInsertArrayPreGenerateFields(content, values, tableName);
-    const fields = await this.generateFields(content[0]);
+    const fields = await this.generateFields(
+      content[0],
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
     await this.generateInsertArrayPostGenerateFields(
       content,
       values,
@@ -134,14 +158,23 @@ export default class BaseDAOCreate
   }
 
   async createSingle(content: IDAOSimple): Promise<IDAO> {
-    let values = await this.generateVectorValues(content);
+    let values = await this.generateValues(content);
     values = await this.addPredefinedValues(content, values);
     const select = await this.generateSelect('created');
-    const insert = await this.generateInsert(content, values);
+    // console.log('createSingle', content);
+    const insert = await this.generateInsert(
+      content,
+      values,
+      undefined,
+      1,
+      false,
+      true,
+      false,
+      false
+    );
     const query = this.pool?.simpleCreate
       ? `${insert}`
       : `WITH ${this.beforeInsert ? this.beforeInsert : ''} ${
-          // eslint-disable-next-line no-nested-ternary
           this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
         } created AS(${insert} ` +
         `RETURNING * ` +
@@ -163,7 +196,11 @@ export default class BaseDAOCreate
           }
           result = this.fixType(result);
           // console.log('result.rows[0]:', result.rows[0]);
-          resolve(result.rows ? result.rows[0] : ({} as IDAO));
+          let finalResult = result.rows ? result.rows[0] : ({} as IDAO);
+          finalResult = this.pool?.simpleUpdate
+            ? (content as IDAO)
+            : finalResult;
+          resolve(finalResult);
         }
       );
     });
@@ -176,7 +213,16 @@ export default class BaseDAOCreate
     )) as never[][];
 
     const select = await this.generateSelect('created');
-    const insert = await this.generateInsertArray(content, tempValues);
+    const insert = await this.generateInsertArray(
+      content,
+      tempValues,
+      undefined,
+      1,
+      false,
+      true,
+      false,
+      false
+    );
     const values: unknown[] = [].concat(...tempValues);
 
     const query = this.pool?.simpleCreate
@@ -202,8 +248,13 @@ export default class BaseDAOCreate
             return;
           }
           result = this.fixType(result);
-          // console.log('result.rows[0]:', result.rows[0]);
-          resolve(result.rows as IDAO[]);
+          let finalResult = result.rows as IDAO[];
+          finalResult = this.pool?.simpleUpdate
+            ? Array.isArray(content as unknown)
+              ? (content as IDAO[])
+              : ([content] as unknown as IDAO[])
+            : finalResult;
+          resolve(finalResult);
         }
       );
     });

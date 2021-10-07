@@ -1,4 +1,8 @@
-version: '3'
+version: '3.8'
+
+networks:
+ net:
+  driver: bridge
 
 services:
   mongo:
@@ -6,9 +10,19 @@ services:
     ports:
       - 27017:27017
   postgres:
-    image: postgres:10.8
+    image: postgres:latest
     environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_DB: read_DB
     ports:
       - 5432:5432
+
+  mssql:
+    image: "mcr.microsoft.com/mssql/server:latest"
+    ports:
+    - 1433:1433
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: yourStrong(!)Password
+      MSSQL_PID: Developer

@@ -2,3 +2,5 @@ exclude:
   - "*.json"
   - "*.svg"
   - "*.yml"
+  - "*.sql"
+  - "*.mssql"

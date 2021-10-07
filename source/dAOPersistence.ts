@@ -13,7 +13,7 @@ import {
 import BaseDAODefault from './dAO/baseDAODefault';
 import BaseDAODefaultInitializer from './dAO/iBaseDAODefault';
 import { IPool } from './database/iPool';
-import Utils from './utils';
+import { Utils } from './utils';
 export class DAOPersistence implements IPersistence {
   private persistenceInfo: PersistenceInfo;
   private pool: IPool;

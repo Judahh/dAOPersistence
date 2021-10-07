@@ -10,7 +10,8 @@ import IDAOSimple from '../model/iDAOSimple';
 import IDAO from '../model/iDAO';
 import { Default } from '@flexiblepersistence/default-initializer';
 import { IPool } from '../database/iPool';
-import Utils from '../utils';
+import { Utils } from '../utils';
+import { ObjectUtils } from '../objectUtils';
 settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default class BaseDAODefault extends Default {
@@ -23,7 +24,7 @@ export default class BaseDAODefault extends Default {
     super.init(initDefault);
     if (initDefault && initDefault.pool) this.setPool(initDefault.pool);
     if (Utils.empty(this.values)) {
-      this.values = this.getValues();
+      this.values = this.getValues(true, true, true);
     }
   }
 
@@ -42,7 +43,13 @@ export default class BaseDAODefault extends Default {
     numberOfPages?: number;
   };
   protected aliasFields?: {
+    [key: string]: string | undefined;
+  };
+  protected aliasFieldsTable?: {
     [key: string]: string;
+  };
+  protected aliasFieldsCompound?: {
+    [key: string]: boolean;
   };
   protected groupBy = '';
   protected values = '*';
@@ -50,21 +57,16 @@ export default class BaseDAODefault extends Default {
   protected selectJoin = '';
 
   // @ts-ignore
-  protected abstract updateQuery: string;
+  protected updateQuery: string;
 
   protected stringEquals?: string;
   protected regularEquals = '=';
   protected regularLimit = 'LIMIT';
-  protected nullProperties = ['conclusion_date'];
+  protected nullProperties?: string[];
 
-  protected bigNumberProperties = [
-    'quantity',
-    'quantity_payed',
-    'value_quantity',
-    'product_quantity',
-  ];
+  protected bigNumberProperties?: string[];
 
-  protected dateProperties = ['timestamp', 'conclusion_date'];
+  protected dateProperties?: string[];
 
   getEquals(element: unknown): string {
     return this.stringEquals && typeof element === 'string'
@@ -73,6 +75,10 @@ export default class BaseDAODefault extends Default {
   }
 
   protected generateValueFromUnknown(element: unknown): unknown | string {
+    if (element === undefined || element === null) {
+      return 'NULL';
+    }
+
     if (typeof element === 'string' || element instanceof String)
       return "'" + element + "'";
 
@@ -81,11 +87,21 @@ export default class BaseDAODefault extends Default {
 
   protected async generateUpdate(
     length: number,
-    content: IDAOSimple
+    content: IDAOSimple,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
   ): Promise<string> {
     let pos = length;
     let set = this.updateQuery;
-    const fields = await this.generateFields(content);
+    const fields = await this.generateFields(
+      content,
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
     if (content)
       set = fields.map((x) => '"' + x + '" ' + '=' + ' $' + pos++).join(', ');
     const update = `UPDATE ${this.getName()} SET ${set}`;
@@ -95,25 +111,60 @@ export default class BaseDAODefault extends Default {
   }
   protected async generateSelect(
     alias: string,
-    limit?: string
+    limit?: string,
+    useAll?: boolean,
+    selection?: string
   ): Promise<string> {
-    const select = `SELECT ${limit ? limit : ''} * FROM (SELECT ${
-      this.values
-    } FROM ${alias} AS subElement ${this.selectJoin}) as element`;
+    const select =
+      `SELECT ${limit ? limit : ''} ` +
+      (selection ? selection : '*') +
+      ` FROM ` +
+      (useAll
+        ? `${alias} `
+        : `(SELECT ${this.values} FROM ${alias} ` +
+          `AS subElement ${this.selectJoin}) `) +
+      `as element`;
     return new Promise((resolve) => {
       resolve(select);
     });
   }
-  getValues(): string {
+
+  getFieldTable(
+    field: string,
+    useTable?: boolean,
+    useSubElement?: string | boolean
+  ): string {
+    const aliasFieldsTable = this.aliasFieldsTable;
+    const aliasFieldTable = useTable
+      ? aliasFieldsTable && aliasFieldsTable[field]
+        ? aliasFieldsTable[field] + '.'
+        : useSubElement
+        ? typeof useSubElement === 'string'
+          ? useSubElement
+          : 'subElement.'
+        : ''
+      : '';
+    return aliasFieldTable;
+  }
+
+  getValues(
+    useTable?: boolean,
+    useAlias?: boolean,
+    useSubElement?: boolean
+  ): string {
     const values: string[] = [];
-    for (const field in this.aliasFields) {
-      if (Object.prototype.hasOwnProperty.call(this.aliasFields, field)) {
-        const defaultName = this.aliasFields[field];
-        const name = `subElement.${
-          this.aliasFields && this.aliasFields[defaultName]
-            ? this.aliasFields[defaultName]
-            : defaultName
-        } AS ${field}`;
+    const aliasFields = this.aliasFields;
+    for (const field in aliasFields) {
+      if (Object.prototype.hasOwnProperty.call(aliasFields, field)) {
+        const defaultName = aliasFields[field] || field;
+        const hasFields = useAlias && aliasFields;
+        const realName = hasFields ? defaultName : field;
+        const aliasFieldTable = this.getFieldTable(
+          realName,
+          useTable,
+          useSubElement
+        );
+        const name = `${aliasFieldTable}${realName} AS ${field}`;
         values.push(name);
       }
     }
@@ -123,54 +174,136 @@ export default class BaseDAODefault extends Default {
   protected async generateWhere(
     filter,
     initialPosition = 1,
-    withElement?: boolean
+    withElement?: boolean,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean
   ): Promise<string> {
-    const fields = await this.generateFields(filter);
+    const fields = await this.generateFields(
+      filter,
+      useTable,
+      useAlias,
+      useCompound,
+      withElement ? 'element.' : false
+    );
+    // console.log('filter:', filter);
+    // const aliasFields = this.aliasFields;
+    // console.log('aliasFields:', aliasFields);
+    const aliasFields = filter ? Object.keys(filter) : [];
+    // console.log('aliasFieldsArray:', aliasFieldsArray);
     const where =
       filter && fields.length > 0
         ? `WHERE ${fields
-            .map(
-              (x) =>
-                (withElement ? 'element.' : '') +
-                '"' +
+            .map((x, index: number) => {
+              const y = aliasFields[index];
+              // console.log('y:', y);
+              const value = filter[x] || filter[y];
+              // console.log('x:', x);
+              // console.log('value:', value);
+
+              return (
                 x +
-                '" ' +
-                this.getEquals(filter[x]) +
+                ' ' +
+                this.getEquals(value) +
                 ' ' +
                 (initialPosition > -1
                   ? '$' + initialPosition++
-                  : this.generateValueFromUnknown(filter[x]))
-            )
+                  : this.generateValueFromUnknown(value))
+              );
+            })
             .join(' AND ')}`
         : '';
     return where;
   }
 
-  protected basicGenerateFields(content?: IDAOSimple): string[] {
-    const fields = content
-      ? this.aliasFields
-        ? Object.keys(content).map((value) => {
-            return this.aliasFields ? this.aliasFields[value] || value : value;
-          })
-        : Object.keys(content)
-      : [];
+  protected async getIdField(
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean | string
+  ): Promise<string> {
+    const idField = (
+      await this.generateFields(
+        { id: '' },
+        useTable,
+        useAlias,
+        useCompound,
+        useSubElement
+      )
+    )[0];
+    return idField;
+  }
 
+  protected basicGenerateFields(
+    content?: IDAOSimple,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: string | boolean
+  ): string[] {
+    const newContent = this.filteredContent(content, useCompound);
+    const fields = newContent
+      ? useTable || (useAlias && this.aliasFields)
+        ? Object.keys(newContent).map((key) => {
+            const aliasFieldTable = this.getFieldTable(
+              key,
+              useTable,
+              useSubElement
+            );
+            const newKey =
+              aliasFieldTable +
+              (useAlias && this.aliasFields
+                ? this.aliasFields[key] || key
+                : key);
+            return newKey;
+          })
+        : Object.keys(newContent)
+      : [];
     return fields;
   }
 
-  protected async generateFields(content?: IDAOSimple): Promise<string[]> {
+  protected async generateFields(
+    content?: IDAOSimple,
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: string | boolean
+  ): Promise<string[]> {
     return new Promise((resolve) => {
-      resolve(this.basicGenerateFields(content));
+      resolve(
+        this.basicGenerateFields(
+          content,
+          useTable,
+          useAlias,
+          useCompound,
+          useSubElement
+        )
+      );
     });
   }
 
-  protected basicGenerateValues(content?: IDAOSimple): unknown[] {
-    return content ? Object.values(content) : [];
+  protected filteredContent(content?: IDAOSimple, useCompound?: boolean) {
+    return useCompound
+      ? content
+      : ObjectUtils.filter(content, (key) =>
+          this.aliasFieldsCompound ? !this.aliasFieldsCompound[key] : true
+        );
   }
 
-  protected async generateValues(content?: IDAOSimple): Promise<unknown[]> {
+  protected basicGenerateValues(
+    content?: IDAOSimple,
+    useCompound?: boolean
+  ): unknown[] {
+    const newContent = this.filteredContent(content, useCompound);
+    return newContent ? Object.values(newContent) : [];
+  }
+
+  protected async generateValues(
+    content?: IDAOSimple,
+    useCompound?: boolean
+  ): Promise<unknown[]> {
     return new Promise((resolve) => {
-      resolve(this.basicGenerateValues(content));
+      resolve(this.basicGenerateValues(content, useCompound));
     });
   }
 
@@ -204,23 +337,60 @@ export default class BaseDAODefault extends Default {
     result.recordset = undefined;
     if (result.rows)
       if (result?.rows[0]) {
-        for (const nullProperty of this.nullProperties) {
-          if (result.rows[0][nullProperty] === null) {
-            result.rows = this.fixUndefined(result.rows, nullProperty);
-          }
+        if (result.rows[0].ID) {
+          result.rows = this.fixId(result.rows);
         }
-        for (const dateProperty of this.dateProperties) {
-          if (result.rows[0][dateProperty]) {
-            result.rows = this.fixDate(result.rows, dateProperty);
+        if (this.aliasFields) result.rows = this.fixAlias(result.rows);
+        if (this.nullProperties)
+          for (const nullProperty of this.nullProperties) {
+            if (result.rows[0][nullProperty] === null) {
+              result.rows = this.fixUndefined(result.rows, nullProperty);
+            }
           }
-        }
-        for (const bigNumberProperty of this.bigNumberProperties) {
-          if (result.rows[0][bigNumberProperty]) {
-            result.rows = this.fixBigNumber(result.rows, bigNumberProperty);
+        if (this.dateProperties)
+          for (const dateProperty of this.dateProperties) {
+            if (result.rows[0][dateProperty]) {
+              result.rows = this.fixDate(result.rows, dateProperty);
+            }
           }
-        }
+        if (this.bigNumberProperties)
+          for (const bigNumberProperty of this.bigNumberProperties) {
+            if (result.rows[0][bigNumberProperty]) {
+              result.rows = this.fixBigNumber(result.rows, bigNumberProperty);
+            }
+          }
       }
     return result;
+  }
+  fixId(rows: any): any {
+    rows = rows.map((row) => {
+      row.id = row.ID ? row.ID : row.id;
+      delete row.ID;
+      return row;
+    });
+    return rows;
+  }
+
+  fixAlias(rows: any): any {
+    for (const key in this.aliasFields) {
+      if (Object.prototype.hasOwnProperty.call(this.aliasFields, key)) {
+        const alias = this.aliasFields[key];
+        if (alias)
+          rows = rows.map((row) => {
+            const rAlias =
+              row[alias] ||
+              row[alias.toLowerCase()] ||
+              row[alias.toUpperCase()];
+            row[key] = rAlias ? rAlias : row[key];
+            delete row[alias];
+            delete row[alias.toLowerCase()];
+            delete row[alias.toUpperCase()];
+            return row;
+          });
+      }
+    }
+
+    return rows;
   }
 
   protected aggregateFromReceivedArray(realInput: any[]): any[] {

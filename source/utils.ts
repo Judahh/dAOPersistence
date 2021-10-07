@@ -1,33 +1,35 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import { promises } from 'fs';
 import { IPool } from './database/iPool';
 
-export default class Utils {
-  static async init(pool: IPool): Promise<void> {
+class Utils {
+  static async query(pool: IPool, file: string): Promise<void> {
+    const script = await promises.readFile(file, 'utf8');
+    // console.log('Query:', script);
+    await pool.query(script);
+  }
+
+  static async create(pool: IPool): Promise<void> {
+    // console.log('create:', pool);
+    await Utils.query(pool, './database/createDB.sql');
+  }
+
+  static async init(pool: IPool, isMSSQL?: boolean): Promise<void> {
     await Utils.dropTables(pool);
-    let script = await promises.readFile(
-      './database/createExtension.sql',
-      'utf8'
+    await Utils.query(pool, './database/createExtension.sql');
+    await Utils.query(
+      pool,
+      './database/createTables.' + (isMSSQL ? 'ms' : '') + 'sql'
     );
-    await pool.query(script);
-    script = await promises.readFile('./database/createTables.sql', 'utf8');
-    await pool.query(script);
   }
 
   static async dropTables(pool: IPool): Promise<void> {
-    const dropTables = await promises.readFile(
-      './database/dropTables.sql',
-      'utf8'
-    );
-    await pool.query(dropTables);
+    await Utils.query(pool, './database/dropTables.sql');
   }
 
   static async deleteTables(pool: IPool): Promise<void> {
-    const dropTables = await promises.readFile(
-      './database/deleteTables.sql',
-      'utf8'
-    );
-    await pool.query(dropTables);
+    await Utils.query(pool, './database/deleteTables.sql');
   }
 
   static async end(pool: IPool): Promise<void> {
@@ -44,3 +46,5 @@ export default class Utils {
     return string === '' || string === undefined || string === null;
   }
 }
+
+export { Utils };
