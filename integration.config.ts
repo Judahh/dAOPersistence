@@ -6,7 +6,7 @@ import { PersistenceInfo } from 'flexiblepersistence';
 import { Journaly, SenderReceiver } from 'journaly';
 
 export default async (): Promise<Config.InitialOptions> => {
-  console.log('Init Tests...', jest);
+  console.log('Init Tests...');
   try {
     const journaly = Journaly.newJournaly() as SenderReceiver<unknown>;
     const database = new PersistenceInfo(readInfo1, journaly);
@@ -15,9 +15,8 @@ export default async (): Promise<Config.InitialOptions> => {
   } catch (error) {
     console.error('Error:', error);
   }
-
   console.log('Init done!');
-  return {
+  const config = {
     verbose: true,
     testTimeout: 500000,
     testEnvironment: 'node',
@@ -32,4 +31,5 @@ export default async (): Promise<Config.InitialOptions> => {
     coverageDirectory: 'test/integration/coverage',
     setupFilesAfterEnv: ['./test/integration/setup.ts'],
   };
+  return config;
 };
