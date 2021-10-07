@@ -13,7 +13,7 @@ const readInfo = {
   pool: {
     min: 0,
     max: 10,
-    acquireTimeoutMillis: 60000,
+    acquireTimeoutMillis: 600000,
     idleTimeoutMillis: 600000,
   },
 };

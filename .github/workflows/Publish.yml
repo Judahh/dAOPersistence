@@ -16,7 +16,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:10.8
+        image: postgres:latest
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_USER: postgres
@@ -25,10 +25,12 @@ jobs:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
       mongo:
         image: mongo:latest
         ports:
-          - 27017:2701
+          - 27017:27017
+
       mssql:
         image: "mcr.microsoft.com/mssql/server:latest"
         ports:
