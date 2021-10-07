@@ -10,7 +10,12 @@ const readInfo = {
   port: process.env.MSSQL_PORT || 5432,
   username: process.env.MSSQL_USER || 'postgres',
   password: process.env.MSSQL_PASSWORD,
-  pool: { min: 2, max: 10 },
+  pool: {
+    min: 0,
+    max: 10,
+    acquireTimeoutMillis: 60000,
+    idleTimeoutMillis: 600000,
+  },
 };
 
 const readInfo1 = {
