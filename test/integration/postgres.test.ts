@@ -9,7 +9,7 @@ import {
   IOutput,
 } from 'flexiblepersistence';
 import TestDAO from './testDAO';
-import ObjectDAO from './objectWithAliasDAO';
+import ObjectDAO from './objectDAO';
 
 import { Postgres } from '../../source/postgres/postgres';
 import { DAOPersistence, Utils } from '../../source';

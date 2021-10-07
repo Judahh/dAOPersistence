@@ -12,12 +12,10 @@ export default class BaseDAOCreate
   implements IStore<IDAOSimple, IDAO>
 {
   // @ts-ignore
-  protected abstract insert: string;
+  protected insert?: string;
   // @ts-ignore
-  protected abstract insertValues: string;
+  protected insertValues?: string;
   protected beforeInsert = '';
-  // @ts-ignore
-  protected abstract updateQuery: string;
 
   existent(
     input: IInputCreate<IDAOSimple>
@@ -74,11 +72,17 @@ export default class BaseDAOCreate
       fields
     );
 
-    const insert = `INSERT INTO ${
-      tableName ? tableName : this.getName()
-    } (${fields.join(', ')}) VALUES (${values
-      .map((_value, index) => '$' + (index + startValue))
-      .join(', ')})`;
+    const insertFields = fields?.join(', ') || this.insert;
+    let insertValues =
+      values && values.length > 0
+        ? values.map((_value, index) => '$' + (index + startValue)).join(', ')
+        : undefined;
+    insertValues = insertValues || this.insertValues || '';
+    tableName = tableName || this.getName();
+
+    const insert =
+      `INSERT INTO ${tableName} (${insertFields}) ` +
+      `VALUES (${insertValues})`;
     return new Promise((resolve) => {
       resolve(insert);
     });

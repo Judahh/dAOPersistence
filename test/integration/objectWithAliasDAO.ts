@@ -5,14 +5,11 @@ export default class ObjectWithAliasDAO extends BaseDAO {
     this.setName('ObjectWithAlias');
   }
 
-  protected values = 'subElement.ID, subElement.test, subElement.testNumber';
-
-  protected insert = 'id, test, testNumber';
-
-  protected insertValues = '$1, $2, $3';
-
-  protected updateQuery = '';
-
+  aliasFields = {
+    id: 'dumbid',
+    test: 'dumbtest',
+    testNumber: 'dumbtestNumber',
+  };
   constructor(initDefault?) {
     super(initDefault);
   }

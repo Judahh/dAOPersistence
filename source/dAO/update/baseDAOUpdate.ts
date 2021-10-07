@@ -10,8 +10,6 @@ export default class BaseDAOUpdate
   extends BaseDAORestrictedDefault
   implements IAlter<IDAOSimple, IDAO>
 {
-  // @ts-ignore
-  protected abstract updateQuery: string;
   correct(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     //! Envia o input para o service determinado pelo esquema e lá ele faz as

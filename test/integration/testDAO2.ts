@@ -1,12 +1,12 @@
 import { BaseDAO, IBaseDAODefault } from '../../source/index';
 /* eslint-disable no-unused-vars */
-export default class TestWithAliasDAO extends BaseDAO {
+export default class TestDAO extends BaseDAO {
   generateName(): void {
-    this.setName('testWithAlias');
+    this.setName('tests');
   }
 
   aliasFields = {
-    id: 'dumbid',
+    id: undefined,
   };
 
   constructor(initDefault?: IBaseDAODefault) {

@@ -8,7 +8,7 @@ import {
   PersistenceInfo,
   IOutput,
 } from 'flexiblepersistence';
-import TestDAO from './testDAO';
+import TestDAO from './testWithAliasDAO';
 import ObjectDAO from './objectWithAliasDAO';
 
 import { MSSQL } from '@flexiblepersistence/mssql';

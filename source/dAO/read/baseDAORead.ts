@@ -16,8 +16,6 @@ export default class BaseDAORead
       ? this.makePromise(input, 'readSingle')
       : this.makePromise(input, 'readArray');
   }
-  // @ts-ignore
-  protected abstract updateQuery: string;
   async readById(id: string): Promise<IDAO> {
     const select = await this.generateSelect(this.getName());
     const idName = await this.getIdField(false, true, false, 'element.');

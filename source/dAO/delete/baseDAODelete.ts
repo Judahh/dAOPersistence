@@ -9,9 +9,6 @@ export default class BaseDAODelete
   extends BaseDAODefault
   implements IRemove<IDAOSimple, IDAO>
 {
-  // @ts-ignore
-  protected abstract updateQuery: string;
-
   nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
     return this.delete(input);

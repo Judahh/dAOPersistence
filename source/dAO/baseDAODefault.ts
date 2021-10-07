@@ -42,7 +42,7 @@ export default class BaseDAODefault extends Default {
     numberOfPages?: number;
   };
   protected aliasFields?: {
-    [key: string]: string;
+    [key: string]: string | undefined;
   };
   protected aliasFieldsTable?: {
     [key: string]: string;
@@ -56,7 +56,7 @@ export default class BaseDAODefault extends Default {
   protected selectJoin = '';
 
   // @ts-ignore
-  protected abstract updateQuery: string;
+  protected updateQuery: string;
 
   protected stringEquals?: string;
   protected regularEquals = '=';
@@ -151,9 +151,9 @@ export default class BaseDAODefault extends Default {
     const aliasFields = this.aliasFields;
     for (const field in aliasFields) {
       if (Object.prototype.hasOwnProperty.call(aliasFields, field)) {
-        const defaultName = aliasFields[field];
-        const hasFields = useAlias && aliasFields && aliasFields[defaultName];
-        const realName = hasFields ? aliasFields[defaultName] : defaultName;
+        const defaultName = aliasFields[field] || field;
+        const hasFields = useAlias && aliasFields;
+        const realName = hasFields ? defaultName : field;
         const aliasFieldTable = this.getFieldTable(
           realName,
           useTable,
