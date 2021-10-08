@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - main
 
 jobs:
   postgres:
@@ -59,13 +60,6 @@ jobs:
           POSTGRES_USER: "postgres"
           MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}"
-      - name: Publish
-        if: contains(matrix.node-version, '14.x')
-        run: |
-          npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-          CI: true
 
   mssql:
     runs-on: ubuntu-latest
