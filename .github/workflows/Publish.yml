@@ -6,38 +6,6 @@ on:
       - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    # runs all of the steps inside the specified container rather than on the VM host.
-    # Because of this the network configuration changes from host based network to a container network.
-    container:
-      image: node:latest
-    strategy:
-      matrix:
-        node-version: [14.x]
-
-    steps:
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@main
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: https://registry.npmjs.org
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Install
-        uses: borales/actions-yarn@master
-        with:
-          cmd: install # will run `yarn install` command
-      - name: Build
-        uses: borales/actions-yarn@master
-        with:
-          cmd: build # will run `yarn build` command
-      - name: Test
-        uses: borales/actions-yarn@master
-        with:
-          cmd: test # will run `yarn test` command
-
   postgres:
     runs-on: ubuntu-latest
 
@@ -152,7 +120,7 @@ jobs:
           MSSQL_USER: "sa"
 
   publish:
-    needs: [build, postgres, mssql]
+    needs: [postgres, mssql]
     runs-on: ubuntu-latest
 
     # runs all of the steps inside the specified container rather than on the VM host.
@@ -176,6 +144,14 @@ jobs:
         uses: borales/actions-yarn@master
         with:
           cmd: install # will run `yarn install` command
+      - name: Build
+        uses: borales/actions-yarn@master
+        with:
+          cmd: build # will run `yarn build` command
+      - name: Test
+        uses: borales/actions-yarn@master
+        with:
+          cmd: test # will run `yarn test` command
       - name: Publish
         if: contains(matrix.node-version, '14.x')
         run: |
