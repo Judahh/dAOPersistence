@@ -21,7 +21,7 @@ import { ObjectId } from 'mongoose';
 
 let read;
 let write;
-test('add and read array and find object', async (done) => {
+test('add and read array and find object', async () => {
   const journaly = Journaly.newJournaly() as SenderReceiver<any>;
   const eventDatabase = new MongoPersistence(
     new PersistenceInfo(eventInfo, journaly)
@@ -271,7 +271,6 @@ test('add and read array and find object', async (done) => {
     await write.close();
     await Utils.dropTables(pool);
     expect(error).toBe(null);
-    done();
   }
   await handler.addEvent(
     new Event({ operation: Operation.delete, name: 'Object' })
@@ -279,10 +278,9 @@ test('add and read array and find object', async (done) => {
   await handler.getWrite()?.clear();
   await write.close();
   await Utils.dropTables(pool);
-  done();
 });
 
-test('add array and read elements, update and delete object', async (done) => {
+test('add array and read elements, update and delete object', async () => {
   const journaly = Journaly.newJournaly() as SenderReceiver<any>;
   const eventDatabase = new MongoPersistence(
     new PersistenceInfo(eventInfo, journaly)
@@ -428,7 +426,6 @@ test('add array and read elements, update and delete object', async (done) => {
     await write.close();
     await Utils.end(pool);
     expect(error).toBe(null);
-    done();
   }
   await handler.addEvent(
     new Event({ operation: Operation.delete, name: 'Object' })
@@ -436,5 +433,4 @@ test('add array and read elements, update and delete object', async (done) => {
   await handler.getWrite()?.clear();
   await write.close();
   await Utils.end(pool);
-  done();
 });
