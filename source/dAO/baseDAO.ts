@@ -7,7 +7,9 @@ import {
   IInputUpdate,
   IOutput,
 } from 'flexiblepersistence';
-import { IDAOSimple, IDAO, BaseDAODefault } from '..';
+import BaseDAODefault from './baseDAODefault';
+import IDAOSimple from '../model/iDAOSimple';
+import IDAO from '../model/iDAO';
 
 export default abstract class BaseDAO extends BaseDAODefault {
   protected insert?: string;
