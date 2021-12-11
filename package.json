@@ -35,19 +35,19 @@
   "homepage": "https://github.com/Judahh/flexiblePersistence#readme",
   "dependencies": {
     "pg": "latest",
-    "ts-mixer": "latest",
     "bignumber.js": "latest",
     "journaly": "latest"
   },
   "devDependencies": {
-    "mongodb": "latest",
     "@flexiblepersistence/mssql": "latest",
     "@flexiblepersistence/default-initializer": "latest",
     "flexiblepersistence": "latest",
+    "@jest/types": "latest",
     "@types/jest": "latest",
     "@types/node": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
+    "mongoose": "latest",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
     "eslint-plugin-filenames": "latest",
