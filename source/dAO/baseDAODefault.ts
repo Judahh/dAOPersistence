@@ -3,7 +3,6 @@
 // file deepcode ignore no-any: any needed
 // file deepcode ignore object-literal-shorthand: argh
 import BigNumber from 'bignumber.js';
-import { settings } from 'ts-mixer';
 import { IInput, IOutput } from 'flexiblepersistence';
 import BaseDAODefaultInitializer from './iBaseDAODefault';
 import IDAOSimple from '../model/iDAOSimple';
@@ -12,9 +11,8 @@ import { Default } from '@flexiblepersistence/default-initializer';
 import { IPool } from '../database/iPool';
 import { Utils } from '../utils';
 import { ObjectUtils } from '../objectUtils';
-settings.initFunction = 'init';
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export default class BaseDAODefault extends Default {
+export default abstract class BaseDAODefault extends Default {
   protected constructor(initDefault?: BaseDAODefaultInitializer) {
     super(initDefault);
   }
@@ -461,5 +459,33 @@ export default class BaseDAODefault extends Default {
     return new Promise((resolve, reject) => {
       this.IOutput(input, method, resolve, reject);
     });
+  }
+
+  protected async generateVectorValuesFromArray(
+    content: IDAOSimple[],
+    useTable?: boolean,
+    useAlias?: boolean,
+    useCompound?: boolean,
+    useSubElement?: boolean
+  ): Promise<unknown[][]> {
+    const values: unknown[][] = [];
+    const first = content[0];
+    const fields = await this.generateFields(
+      first,
+      useTable,
+      useAlias,
+      useCompound,
+      useSubElement
+    );
+
+    for (const subContent of content) {
+      const value: unknown[] = [];
+      for (const field of fields) {
+        value.push(subContent[field]);
+      }
+      values.push(value);
+    }
+
+    return new Promise((resolve) => resolve(values));
   }
 }
