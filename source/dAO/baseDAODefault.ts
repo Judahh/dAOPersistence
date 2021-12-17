@@ -13,7 +13,7 @@ import { Utils } from '../utils';
 import { ObjectUtils } from '../objectUtils';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export default abstract class BaseDAODefault extends Default {
-  protected constructor(initDefault?: BaseDAODefaultInitializer) {
+  constructor(initDefault?: BaseDAODefaultInitializer) {
     super(initDefault);
   }
   init(initDefault?: BaseDAODefaultInitializer): void {
