@@ -16,19 +16,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
   protected insertValues?: string;
   protected beforeInsert = '';
 
-  existent(
-    input: IInputCreate<IDAOSimple>
-  ): Promise<IOutput<IDAOSimple, IDAO>> {
-    this.options = input.eventOptions;
-    return this.create(input);
-  }
-  create(input: IInputCreate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
-    this.options = input.eventOptions;
-    return Array.isArray(input.item)
-      ? this.makePromise(input as IInput<IDAOSimple>, 'createArray')
-      : this.makePromise(input as IInput<IDAOSimple>, 'createSingle');
-  }
-
   protected async generateInsertPreGenerateFields(
     _content?: IDAOSimple,
     _values?,
@@ -287,6 +274,18 @@ export default abstract class BaseDAO extends BaseDAODefault {
         }
       );
     });
+  }
+
+  existent(
+    input: IInputCreate<IDAOSimple>
+  ): Promise<IOutput<IDAOSimple, IDAO>> {
+    return this.create(input);
+  }
+  create(input: IInputCreate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
+    this.options = input.eventOptions;
+    return Array.isArray(input.item)
+      ? this.makePromise(input as IInput<IDAOSimple>, 'createArray')
+      : this.makePromise(input as IInput<IDAOSimple>, 'createSingle');
   }
 
   async createSingle(content: IDAOSimple): Promise<IDAO> {
@@ -561,7 +560,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
     >;
   }
   nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
-    this.options = input.eventOptions;
     return this.delete(input);
   }
   delete(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
