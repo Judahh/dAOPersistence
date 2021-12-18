@@ -11,7 +11,7 @@ import {
 import TestDAO from './testDAO2';
 import ObjectDAO from './objectDAO2';
 
-import { Postgres } from '../../source/postgres/postgres';
+import { PGSQL } from '@flexiblepersistence/pgsql';
 import { DAOPersistence, Utils } from '../../source';
 import { Journaly, SenderReceiver } from 'journaly';
 import { eventInfo, readInfo } from './databaseInfos';
@@ -27,7 +27,7 @@ test('add and read array and find object', async () => {
   );
   const database = new PersistenceInfo(readInfo, journaly);
   write = eventDatabase;
-  const postgres = new Postgres(database);
+  const postgres = new PGSQL(database);
   read = new DAOPersistence(postgres, {
     test: new TestDAO(),
     object: new ObjectDAO(),
@@ -283,7 +283,7 @@ test('add array and read elements, update and delete object', async () => {
   );
   const database = new PersistenceInfo(readInfo, journaly);
   write = eventDatabase;
-  const postgres = new Postgres(database);
+  const postgres = new PGSQL(database);
   read = new DAOPersistence(postgres);
   const pool = read.getPool();
   await Utils.init(pool);

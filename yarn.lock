@@ -505,15 +505,6 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@flexiblepersistence/dao@latest":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@flexiblepersistence/dao/-/dao-1.2.6.tgz#ebbd8d06c65b3b51ddcab9d5e324ce62019c474e"
-  integrity sha512-vOkX6nbBJHFKuOyyT60vcpkIKuigXE8NqpvaPaTZMCejIPA6e7Rh3m4PpeVTCa9NZCN/SOfqnB+u7vRH7pAXPg==
-  dependencies:
-    bignumber.js latest
-    journaly latest
-    pg latest
-
 "@flexiblepersistence/default-initializer@latest":
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/@flexiblepersistence/default-initializer/-/default-initializer-1.0.5.tgz#459bf8b6da7d8db2f27f2e054efb6e0d25a89fa2"
@@ -522,14 +513,21 @@
     journaly latest
 
 "@flexiblepersistence/mssql@latest":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@flexiblepersistence/mssql/-/mssql-0.2.4.tgz#2682c952f269edea8abc7ebeb4938146901c076e"
-  integrity sha512-w/iUoJ4MScKp3klrYkBdqmMLXyI1mMr3Unc5sqYCthzBWnC/gUAfPlIzRBguHAmYNDgPWpgfWRj4To8m8JG48Q==
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/@flexiblepersistence/mssql/-/mssql-0.2.6.tgz#118c149019f4415cb83e115f9e6a40b6fe413685"
+  integrity sha512-RvFAMSIOyjjXzy2uThv5KZ+y0bS6HnwOOLR6TfJjqv4ISCYzcq1qoSpjMQtW6yTyLt0sbLh4Lcm2FPwSI8mSpg==
   dependencies:
-    "@flexiblepersistence/dao" latest
     flexiblepersistence latest
     mssql latest
     tsqlstring latest
+
+"@flexiblepersistence/pgsql@latest":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@flexiblepersistence/pgsql/-/pgsql-0.1.0.tgz#636930d1dfad14006a45a138cd68ebf25b5f34fa"
+  integrity sha512-aKbh5/MneUBRe8O5Dh6AMR5O+lscnd2R/guaJDLEs79qYnJXQqQGksT3jLwx4k6V67LdY9IOh2BTSJLRJlLo1g==
+  dependencies:
+    flexiblepersistence latest
+    pg latest
 
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.2"
@@ -1419,9 +1417,9 @@ camelcase@^6.2.0:
   integrity sha512-tVI4q5jjFV5CavAU8DXfza/TJcZutVKo/5Foskmsqcm0MsL91moHvwiGNnqaa2o6PF/7yT5ikDRcVcl8Rj6LCA==
 
 caniuse-lite@^1.0.30001286:
-  version "1.0.30001289"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001289.tgz#d62a20175c4d9e740feda12a78b7c8df7866329e"
-  integrity sha512-hV6x4IfrYViN8cJbGFVbjD7KCrhS/O7wfDgvevYRanJ/IN+hhxpTcXXqaxy3CzPNFe5rlqdimdEB/k7H0YzxHg==
+  version "1.0.30001291"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001291.tgz#08a8d2cfea0b2cf2e1d94dd795942d0daef6108c"
+  integrity sha512-roMV5V0HNGgJ88s42eE70sstqGW/gwFndosYrikHthw98N5tLnOTxFqMLQjZVRxTWFlJ4rn+MsgXrR7MDPY4jA==
 
 chalk@^2.0.0:
   version "2.4.2"
