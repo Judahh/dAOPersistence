@@ -156,6 +156,139 @@ export default abstract class BaseDAO extends BaseDAODefault {
     return baseValues;
   }
 
+  async queryCreate(
+    content: IDAOSimple | IDAOSimple[],
+    query: string,
+    values: unknown[]
+  ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
+    return new Promise((resolve, reject) => {
+      this.pool?.query(
+        query,
+        values,
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[] }) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          result = this.fixType(result);
+          type ResultType = typeof content extends [] ? IDAO[] : IDAO;
+          let finalResult: ResultType = (
+            Array.isArray(content)
+              ? (result.rows as IDAO[])
+              : result.rows
+              ? (result.rows[0] as IDAO)
+              : ({} as IDAO)
+          ) as ResultType;
+          const simpleResult: ResultType = (
+            Array.isArray(content)
+              ? Array.isArray(content)
+                ? (content as IDAO[])
+                : ([content] as unknown as IDAO[])
+              : (content as IDAO)
+          ) as ResultType;
+          finalResult = this.pool?.simpleUpdate ? simpleResult : finalResult;
+          resolve(finalResult);
+        }
+      );
+    });
+  }
+
+  async queryRead(
+    defaultOutput: object | [],
+    query: string,
+    values: unknown[]
+  ): Promise<typeof defaultOutput extends [] ? IDAO[] : IDAO> {
+    return new Promise((resolve, reject) => {
+      this.pool?.query(
+        query,
+        values,
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          type ResultType = typeof defaultOutput extends [] ? IDAO[] : IDAO;
+          result = this.fixType(result);
+          const finalResult: ResultType = (
+            Array.isArray(defaultOutput)
+              ? (result.rows as IDAO[])
+              : result.rows
+              ? (result.rows[0] as IDAO)
+              : ({} as IDAO)
+          ) as ResultType;
+          resolve(finalResult);
+        }
+      );
+    });
+  }
+
+  async queryUpdate(
+    content: IDAOSimple | IDAOSimple[],
+    query: string,
+    values: unknown[]
+  ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
+    return new Promise((resolve, reject) => {
+      this.pool?.query(
+        query,
+        values,
+        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          type ResultType = typeof content extends [] ? IDAO[] : IDAO;
+          result = this.fixType(result);
+          let finalResult: ResultType = (
+            Array.isArray(content)
+              ? (result.rows as IDAO[])
+              : result.rows
+              ? result.rows[0]
+              : ({} as IDAO)
+          ) as ResultType;
+          const simpleResult: ResultType = content as ResultType;
+          finalResult = this.pool?.simpleUpdate ? simpleResult : finalResult;
+          resolve(finalResult);
+        }
+      );
+    });
+  }
+
+  async queryDelete(
+    defaultOutput: boolean | number,
+    query: string,
+    values: unknown[]
+  ): Promise<typeof defaultOutput> {
+    return new Promise(async (resolve, reject) => {
+      this.pool?.query(
+        query,
+        values,
+        (
+          error,
+          result: {
+            rows?: (IDAO | PromiseLike<IDAO>)[];
+            rowCount?;
+            rowsAffected?: number[];
+          }
+        ) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          if (result.rowCount || result.rowsAffected) {
+            resolve(
+              typeof defaultOutput === 'boolean'
+                ? true
+                : result.rowCount ||
+                    result.rowsAffected?.reduce((a, b) => a + b)
+            );
+            return;
+          }
+          resolve(defaultOutput);
+        }
+      );
+    });
+  }
+
   async createSingle(content: IDAOSimple): Promise<IDAO> {
     let values = await this.generateValues(content);
     values = await this.addPredefinedValues(content, values);
@@ -183,26 +316,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // console.log('STORE:', query);
     // console.log('values:', values);
 
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[] }) => {
-          if (error) {
-            // console.log('error:', error);
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          // console.log('result.rows[0]:', result.rows[0]);
-          let finalResult = result.rows ? result.rows[0] : ({} as IDAO);
-          finalResult = this.pool?.simpleUpdate
-            ? (content as IDAO)
-            : finalResult;
-          resolve(finalResult);
-        }
-      );
-    });
+    return this.queryCreate(content, query, values);
   }
 
   async createArray(content: IDAOSimple[]): Promise<IDAO[]> {
@@ -237,26 +351,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // console.log('STORE:', query);
     // console.log('values:', values);
 
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[] }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          let finalResult = result.rows as IDAO[];
-          finalResult = this.pool?.simpleUpdate
-            ? Array.isArray(content as unknown)
-              ? (content as IDAO[])
-              : ([content] as unknown as IDAO[])
-            : finalResult;
-          resolve(finalResult);
-        }
-      );
-    });
+    return this.queryCreate(content, query, values) as unknown as Promise<
+      IDAO[]
+    >;
   }
 
   read(input: IInputRead): Promise<IOutput<IDAOSimple, IDAO>> {
@@ -271,22 +368,10 @@ export default abstract class BaseDAO extends BaseDAODefault {
     const select = await this.generateSelect(this.getName());
     const idName = await this.getIdField(false, true, false, 'element.');
     // console.log('ID NAME:', idName);
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        `${select} WHERE ${idName} ` +
-          this.getEquals(id) +
-          ` $1 ${this.groupBy}`,
-        [id],
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          resolve(result.rows ? result.rows[0] : ({} as IDAO));
-        }
-      );
-    });
+    const query =
+      `${select} WHERE ${idName} ` + this.getEquals(id) + ` $1 ${this.groupBy}`;
+    const values = [id];
+    return this.queryRead({}, query, values);
   }
   async readSingle(filter): Promise<IDAO> {
     const limit =
@@ -306,22 +391,8 @@ export default abstract class BaseDAO extends BaseDAODefault {
       true,
       true
     )} ${this.groupBy} ${this.pool?.isReadLimitBefore ? '' : limit}`;
-
-    // console.log(query);
-    return new Promise(async (resolve, reject) => {
-      this.pool?.query(
-        query,
-        await this.generateValues(filter, true),
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          resolve(result.rows ? result.rows[0] : ({} as IDAO));
-        }
-      );
-    });
+    const values = await this.generateValues(filter, true);
+    return this.queryRead({}, query, values);
   }
   async readArray(filter): Promise<IDAO[]> {
     const select = await this.generateSelect(this.getName());
@@ -341,30 +412,10 @@ export default abstract class BaseDAO extends BaseDAODefault {
         this.groupBy
       }`;
 
-    return new Promise(async (resolve, reject) => {
-      this.pool?.query(
-        query,
-        await this.generateValues(filter, true),
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          resolve(result.rows as IDAO[]);
-        }
-      );
-    });
+    const values = await this.generateValues(filter, true);
+    return this.queryRead([], query, values) as unknown as Promise<IDAO[]>;
   }
   correct(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
-    this.options = input.eventOptions;
-    //! Envia o input para o service determinado pelo esquema e lá ele faz as
-    //! operações necessárias usando o journaly para acessar outros DAOs ou
-    //! DAOs.
-    //! Sempre deve-se receber informações do tipo input e o output deve ser
-    //! compatível com o input para pemitir retro-alimentação.
-    //! Atualizar o input para que utilize o melhor dos dois
-    //! (input e parametros usados no SimpleAPI).
     return this.update(input);
   }
 
@@ -382,7 +433,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       ' 1';
 
     const idName = await this.getIdField(false, true, false, false);
-    const values = await this.generateValues(content, false);
+    let values = await this.generateValues(content, false);
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
@@ -423,32 +474,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // console.log('content:', content);
     // console.log('UPDATE BY ID QUERY:', query);
     // console.log('values:', values);
-    return new Promise((resolve, reject) => {
-      // console.log('updateById Promise');
-      this.pool?.query(
-        query,
-        [...values, id],
-        async (
-          error,
-          result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }
-        ) => {
-          // console.log('updateById Promise result');
-          if (error) {
-            // console.error('error:', error);
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          // console.error('result:', result);
-          // console.error('result.rows:', result.rows);
-          let finalResult = result.rows ? result.rows[0] : ({} as IDAO);
-          finalResult = this.pool?.simpleUpdate
-            ? ({ id, ...content } as IDAO)
-            : finalResult;
-          resolve(finalResult);
-        }
-      );
-    });
+    values = [...values, id];
+    const newContent = { id, ...content } as IDAO;
+    return this.queryUpdate(newContent, query, values);
   }
   async updateSingle(filter, content: IDAOSimple): Promise<IDAO> {
     const limit =
@@ -488,24 +516,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // console.log('UPDATE SINGLE QUERY:', query);
     // console.log('values:', values);
 
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          let finalResult = result.rows ? result.rows[0] : ({} as IDAO);
-          finalResult = this.pool?.simpleUpdate
-            ? ({ ...filter, ...content } as IDAO)
-            : finalResult;
-          resolve(finalResult);
-        }
-      );
-    });
+    const newContent = { ...filter, ...content } as IDAO;
+
+    return this.queryUpdate(newContent, query, values);
   }
 
   async updateArray(filter, content: IDAOSimple): Promise<IDAO[]> {
@@ -539,26 +552,13 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // console.log('UPDATE QUERY:', query);
     // console.log('values:', values);
 
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          let finalResult = result.rows as IDAO[];
-          finalResult = this.pool?.simpleUpdate
-            ? Array.isArray(content as unknown)
-              ? (content as IDAO[]).map((item) => ({ ...filter, ...item }))
-              : [{ ...filter, ...content }]
-            : finalResult;
-          resolve(finalResult);
-        }
-      );
-    });
+    const newContent = Array.isArray(content as unknown)
+      ? (content as IDAO[]).map((item) => ({ ...filter, ...item }))
+      : [{ ...filter, ...content }];
+
+    return this.queryUpdate(newContent, query, values) as unknown as Promise<
+      IDAO[]
+    >;
   }
   nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
     this.options = input.eventOptions;
@@ -576,48 +576,17 @@ export default abstract class BaseDAO extends BaseDAODefault {
   }
   async deleteById(id: string): Promise<boolean> {
     // console.log(this.getName());
+    const filter = { id: id };
     const query = `DELETE FROM ${this.getName()} ${await this.generateWhere(
-      { id: id },
+      filter,
       1,
       false,
       true,
       true,
       true
     )}`;
-    // console.log('DELETE ID QUERY:', query);
-    // console.log('DELETE ID VALUES:', [id]);
-
-    return new Promise(async (resolve, reject) => {
-      this.pool?.query(
-        query,
-        [id],
-        (
-          error,
-          result: {
-            rows?: (IDAO | PromiseLike<IDAO>)[];
-            rowCount?;
-            rowsAffected?;
-          }
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          if (result.rowCount || result.rowsAffected) {
-            resolve(true);
-            return;
-          }
-          // console.log(result);
-          resolve(false);
-          // console.log(result);
-
-          // error = new Error();
-          // error.name = 'RemoveError';
-          // error.message = 'Unable to remove a non existent element.';
-          // reject(error);
-        }
-      );
-    });
+    const values = [id];
+    return this.queryDelete(false, query, values) as Promise<boolean>;
   }
   async deleteSingle(filter): Promise<boolean> {
     const limit = this.pool?.simpleDelete
@@ -626,68 +595,38 @@ export default abstract class BaseDAO extends BaseDAODefault {
         : this.regularLimit
       : (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) +
         ' 1';
+    const limitBefore = this.pool?.isDeleteLimitBefore ? limit : '';
+    const limitAfter = this.pool?.isDeleteLimitBefore ? '' : limit;
+    const readLimitBefore = this.pool?.isReadLimitBefore ? limit : undefined;
+    const readLimitAfter = this.pool?.isReadLimitBefore ? '' : limit;
+
     const idName = await this.getIdField(false, true, false, false);
     const query = this.pool?.simpleDelete
-      ? `DELETE ${
-          this.pool?.isDeleteLimitBefore ? limit : ''
-        } FROM ${this.getName()} ${await this.generateWhere(
+      ? `DELETE ${limitBefore} FROM ${this.getName()} ${await this.generateWhere(
           filter,
           1,
           false,
           true,
           true,
           true
-        )} ${this.pool?.isDeleteLimitBefore ? '' : limit}`
+        )} ${limitAfter}`
       : `DELETE FROM ${this.getName()} WHERE ${idName} IN ` +
         `(${await this.generateSelect(
           this.getName(),
-          this.pool?.isReadLimitBefore ? limit : undefined,
+          readLimitBefore,
           true,
           idName
         )} ` +
-        `${await this.generateWhere(filter, 1, false, true, true, true)} ${
-          this.pool?.isReadLimitBefore ? '' : limit
-        }) `;
-
-    // console.log('DELETE QUERY:', query);
-    // console.log(
-    //   'DELETE limit:',
-    //   limit,
-    //   this.pool?.simpleDelete,
-    //   this.pool?.deleteLimit,
-    //   this.pool?.readLimit
-    // );
-
-    return new Promise(async (resolve, reject) => {
-      this.pool?.query(
-        query,
-        await this.generateValues(filter, true),
-        (
-          error,
-          result: {
-            rows?: (IDAO | PromiseLike<IDAO>)[];
-            rowCount?;
-            rowsAffected?;
-          }
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          // console.log('DELETE SINGLE: ', result);
-          if (result.rowCount || result.rowsAffected) {
-            resolve(true);
-            return;
-          }
-          resolve(true);
-
-          // error = new Error();
-          // error.name = 'RemoveError';
-          // error.message = 'Unable to remove a non existent element.';
-          // reject(error);
-        }
-      );
-    });
+        `${await this.generateWhere(
+          filter,
+          1,
+          false,
+          true,
+          true,
+          true
+        )} ${readLimitAfter}) `;
+    const values = await this.generateValues(filter, true);
+    return this.queryDelete(false, query, values) as Promise<boolean>;
   }
   async deleteArray(filter): Promise<number> {
     // console.log('filter=', filter);
@@ -711,40 +650,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
         `${await this.generateWhere(filter, 1, false, true, true, true)}) `;
 
     const values = await this.generateValues(filter, true);
-    // console.log('DELETE Array QUERY:', query);
-    // console.log('DELETE Array Values:', values);
-
-    return new Promise(async (resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (
-          error,
-          result: {
-            rows?: (IDAO | PromiseLike<IDAO>)[];
-            rowCount?;
-            rowsAffected?: number[];
-          }
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          if (result.rowCount || result.rowsAffected) {
-            resolve(
-              result.rowCount || result.rowsAffected?.reduce((a, b) => a + b)
-            );
-            return;
-          }
-          resolve(0);
-          // console.log(result);
-
-          // error = new Error();
-          // error.name = 'RemoveError';
-          // error.message = 'Unable to remove a non existent element.';
-          // reject(error);
-        }
-      );
-    });
+    return this.queryDelete(0, query, values) as Promise<number>;
   }
 }
