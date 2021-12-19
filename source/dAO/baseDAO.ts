@@ -185,6 +185,8 @@ export default abstract class BaseDAO extends BaseDAODefault {
     query: string,
     values: unknown[]
   ): Promise<typeof defaultOutput extends [] ? IDAO[] : IDAO> {
+    // console.log('READ QUERY:', query, values);
+
     return new Promise((resolve, reject) => {
       this.pool?.query(
         query,
@@ -214,6 +216,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     query: string,
     values: unknown[]
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
+    // console.log('UPDATE QUERY:', query, values);
     return new Promise((resolve, reject) => {
       this.pool?.query(
         query,
@@ -261,13 +264,18 @@ export default abstract class BaseDAO extends BaseDAODefault {
             reject(error);
             return;
           }
+          // console.log('DELETE RESULT: ', result);
+          // console.log(
+          //   'DELETE typeof defaultOutput: ',
+          //   typeof defaultOutput === 'boolean'
+          // );
           if (result.rowCount || result.rowsAffected) {
-            resolve(
-              typeof defaultOutput === 'boolean'
-                ? true
-                : result.rowCount ||
-                    result.rowsAffected?.reduce((a, b) => a + b)
-            );
+            const returned =
+              typeof defaultOutput === 'boolean' ||
+              result.rowCount ||
+              result.rowsAffected?.reduce((a, b) => a + b);
+            // console.log('DELETE returned: ', returned);
+            resolve(returned);
             return;
           }
           resolve(defaultOutput);
@@ -282,7 +290,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
     return this.create(input);
   }
   create(input: IInputCreate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
-    this.options = input.eventOptions;
     return Array.isArray(input.item)
       ? this.makePromise(input as IInput<IDAOSimple>, 'createArray')
       : this.makePromise(input as IInput<IDAOSimple>, 'createSingle');
@@ -356,7 +363,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
   }
 
   read(input: IInputRead): Promise<IOutput<IDAOSimple, IDAO>> {
-    this.options = input.eventOptions;
     return input.id
       ? this.makePromise(input, 'readById')
       : input.single
@@ -366,7 +372,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
   async readById(id: string): Promise<IDAO> {
     const select = await this.generateSelect(this.getName());
     const idName = await this.getIdField(false, true, false, 'element.');
-    // console.log('ID NAME:', idName);
     const query =
       `${select} WHERE ${idName} ` + this.getEquals(id) + ` $1 ${this.groupBy}`;
     const values = [id];
@@ -380,25 +385,19 @@ export default abstract class BaseDAO extends BaseDAODefault {
       this.getName(),
       this.pool?.isReadLimitBefore ? limit : undefined
     );
-    filter = filter ? filter : {};
-
-    const query = `${select} ${await this.generateWhere(
-      filter,
-      1,
-      true,
-      true,
-      true,
-      true
-    )} ${this.groupBy} ${this.pool?.isReadLimitBefore ? '' : limit}`;
+    const where = await this.generateWhere(filter, 1, true, true, true, true);
+    const query = `${select} ${where} ${this.groupBy} ${
+      this.pool?.isReadLimitBefore ? '' : limit
+    }`;
     const values = await this.generateValues(filter, true);
     return this.queryRead({}, query, values);
   }
-  async readArray(filter): Promise<IDAO[]> {
+  async readArray(filter, options): Promise<IDAO[]> {
     const select = await this.generateSelect(this.getName());
-    await this.pool?.getNumberOfPages(select, this.options);
+    await this.pool?.getNumberOfPages(select, options);
     filter = filter ? filter : {};
     const query =
-      `${await this.pool?.generatePaginationPrefix(this.options)} ` +
+      `${await this.pool?.generatePaginationPrefix(options)} ` +
       `${select} ${await this.generateWhere(
         filter,
         1,
@@ -407,9 +406,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
         true,
         true
       )} ` +
-      `${await this.pool?.generatePaginationSuffix(this.options)} ${
-        this.groupBy
-      }`;
+      `${await this.pool?.generatePaginationSuffix(options)} ${this.groupBy}`;
 
     const values = await this.generateValues(filter, true);
     return this.queryRead([], query, values) as unknown as Promise<IDAO[]>;
@@ -419,195 +416,93 @@ export default abstract class BaseDAO extends BaseDAODefault {
   }
 
   update(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
-    this.options = input.eventOptions;
-    return input.id
-      ? this.makePromise(input as IInput<IDAOSimple>, 'updateById')
-      : input.single
-      ? this.makePromise(input as IInput<IDAOSimple>, 'updateSingle')
-      : this.makePromise(input as IInput<IDAOSimple>, 'updateArray');
+    return this.makePromise(input as IInput<IDAOSimple>, 'updateByFilter');
   }
-  async updateById(id: string, content: IDAOSimple): Promise<IDAO> {
-    const limit =
-      (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
-      ' 1';
+  async updateByFilter(
+    filter,
+    isSingle: boolean,
+    options,
+    content: IDAOSimple
+  ): Promise<IDAO | IDAO[]> {
+    const limit = isSingle
+      ? (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
+        ' 1'
+      : '';
 
-    const idName = await this.getIdField(false, true, false, false);
     let values = await this.generateValues(content, false);
+    const idName = await this.getIdField(false, true, false, false);
+    const filterValues = await this.generateValues(filter, true);
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
     );
-    const update = await this.generateUpdate(1, content, false, true);
+    const update = await this.generateUpdate(
+      filterValues.length,
+      content,
+      false,
+      true
+    );
     const length = Object.keys(content).length + 1;
-    // console.log('len:', length);
-
+    const where = await this.generateWhere(
+      filter,
+      length,
+      false,
+      true,
+      true,
+      true
+    );
     const query = this.pool?.simpleUpdate
-      ? `${update} ` +
-        `${await this.generateWhere(
-          {
-            id: this.generateValueFromUnknown(id),
-          },
-          length,
-          false,
-          true,
-          true,
-          true
-        )}`
+      ? `${update} ` + `${where}`
       : `WITH updated AS (${update} WHERE ${idName} IN (SELECT ${idName} FROM ${this.getName()} ` +
-        `${await this.generateWhere(
-          {
-            id: this.generateValueFromUnknown(id),
-          },
-          length,
-          false,
-          true,
-          true,
-          true
-        )} ORDER BY ${idName} ${
+        `${where} ORDER BY ${idName} ${
           this.pool?.isUpdateLimitBefore ? '' : limit
         }) ` +
         `RETURNING *` +
         `) ${select} ${this.groupBy}`;
 
-    // console.log('id:', id);
-    // console.log('content:', content);
-    // console.log('UPDATE BY ID QUERY:', query);
-    // console.log('values:', values);
-    values = [...values, id];
-    const newContent = { id, ...content } as IDAO;
-    return this.queryUpdate(newContent, query, values);
-  }
-  async updateSingle(filter, content: IDAOSimple): Promise<IDAO> {
-    const limit =
-      (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
-      ' 1';
-
-    const idName = await this.getIdField(false, true, false, false);
-    const values = await this.generateValues(content, false);
-    filter = filter ? filter : {};
-    const filterValues = await this.generateValues(filter, true);
-    const select = await this.generateSelect(
-      'updated',
-      this.pool?.isUpdateLimitBefore ? limit : undefined
-    );
-    const update = await this.generateUpdate(
-      filterValues.length,
-      content,
-      false,
-      true
-    );
-    const query = this.pool?.simpleUpdate
-      ? `${update}`
-      : `WITH updated AS (${update} WHERE ${idName} IN (SELECT ${idName} FROM ${this.getName()} ` +
-        `${await this.generateWhere(
-          filter,
-          -1,
-          false,
-          true,
-          true,
-          true
-        )} ORDER BY ${idName} ${limit}) ` +
-        `RETURNING *` +
-        `) ${select} ${this.groupBy}`;
-
-    // console.log('filter:', filter);
-    // console.log('content:', content);
-    // console.log('UPDATE SINGLE QUERY:', query);
-    // console.log('values:', values);
-
-    const newContent = { ...filter, ...content } as IDAO;
-
-    return this.queryUpdate(newContent, query, values);
-  }
-
-  async updateArray(filter, content: IDAOSimple): Promise<IDAO[]> {
-    const values = await this.generateValues(content, false);
-    const idName = await this.getIdField(false, true, false, false);
-    const filterValues = await this.generateValues(filter, true);
-    const select = await this.generateSelect('updated');
-    filter = filter ? filter : {};
-    const update = await this.generateUpdate(
-      filterValues.length,
-      content,
-      false,
-      true
-    );
-    const query = this.pool?.simpleUpdate
-      ? `${update}`
-      : `WITH updated AS (${update} WHERE ${idName} IN (SELECT ${idName} FROM ${this.getName()} ` +
-        `${await this.generateWhere(
-          filter,
-          -1,
-          false,
-          true,
-          true,
-          true
-        )} ORDER BY ${idName}) ` +
-        `RETURNING *` +
-        `) ${select} ${this.groupBy}`;
-
-    // console.log('filter:', filter);
-    // console.log('content:', content);
-    // console.log('UPDATE QUERY:', query);
-    // console.log('values:', values);
-
-    const newContent = Array.isArray(content as unknown)
+    values = [...values, ...filterValues];
+    const newContent = isSingle
+      ? ({ ...filter, ...content } as IDAO)
+      : Array.isArray(content as unknown)
       ? (content as IDAO[]).map((item) => ({ ...filter, ...item }))
       : [{ ...filter, ...content }];
-
-    return this.queryUpdate(newContent, query, values) as unknown as Promise<
-      IDAO[]
-    >;
+    return this.queryUpdate(newContent, query, values);
   }
+
   nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
     return this.delete(input);
   }
   delete(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
-    // console.log('FUCKING DELETE');
-    this.options = input.eventOptions;
+    return this.makePromise(input, 'deleteByFilter');
+  }
 
-    return input.id
-      ? this.makePromise(input, 'deleteById')
-      : input.single
-      ? this.makePromise(input, 'deleteSingle')
-      : this.makePromise(input, 'deleteArray');
-  }
-  async deleteById(id: string): Promise<boolean> {
-    // console.log(this.getName());
-    const filter = { id: id };
-    const query = `DELETE FROM ${this.getName()} ${await this.generateWhere(
-      filter,
-      1,
-      false,
-      true,
-      true,
-      true
-    )}`;
-    const values = [id];
-    return this.queryDelete(false, query, values) as Promise<boolean>;
-  }
-  async deleteSingle(filter): Promise<boolean> {
-    const limit = this.pool?.simpleDelete
-      ? this.pool?.deleteLimit
+  async deleteByFilter(
+    filter,
+    isSingle: boolean,
+    options
+  ): Promise<boolean | number> {
+    let limit = '';
+    let limitBefore = limit;
+    let limitAfter = limit;
+    let readLimitBefore = limit;
+    let readLimitAfter = limit;
+    if (isSingle) {
+      limit = this.pool?.simpleDelete
         ? this.pool?.deleteLimit
-        : this.regularLimit
-      : (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) +
-        ' 1';
-    const limitBefore = this.pool?.isDeleteLimitBefore ? limit : '';
-    const limitAfter = this.pool?.isDeleteLimitBefore ? '' : limit;
-    const readLimitBefore = this.pool?.isReadLimitBefore ? limit : undefined;
-    const readLimitAfter = this.pool?.isReadLimitBefore ? '' : limit;
+          ? this.pool?.deleteLimit
+          : this.regularLimit
+        : (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) +
+          ' 1';
+      limitBefore = this.pool?.isDeleteLimitBefore ? limit : '';
+      limitAfter = this.pool?.isDeleteLimitBefore ? '' : limit;
+      readLimitBefore = this.pool?.isReadLimitBefore ? limit : '';
+      readLimitAfter = this.pool?.isReadLimitBefore ? '' : limit;
+    }
 
     const idName = await this.getIdField(false, true, false, false);
+    const where = await this.generateWhere(filter, 1, false, true, true, true);
     const query = this.pool?.simpleDelete
-      ? `DELETE ${limitBefore} FROM ${this.getName()} ${await this.generateWhere(
-          filter,
-          1,
-          false,
-          true,
-          true,
-          true
-        )} ${limitAfter}`
+      ? `DELETE ${limitBefore} FROM ${this.getName()} ${where} ${limitAfter}`
       : `DELETE FROM ${this.getName()} WHERE ${idName} IN ` +
         `(${await this.generateSelect(
           this.getName(),
@@ -615,39 +510,16 @@ export default abstract class BaseDAO extends BaseDAODefault {
           true,
           idName
         )} ` +
-        `${await this.generateWhere(
-          filter,
-          1,
-          false,
-          true,
-          true,
-          true
-        )} ${readLimitAfter}) `;
+        `${where} ${readLimitAfter}) `;
     const values = await this.generateValues(filter, true);
-    return this.queryDelete(false, query, values) as Promise<boolean>;
-  }
-  async deleteArray(filter): Promise<number> {
-    // console.log('filter=', filter);
-    filter = filter ? filter : {};
-    const idName = await this.getIdField(false, true, false, false);
-    const query = this.pool?.simpleDelete
-      ? `DELETE FROM ${this.getName()} ${await this.generateWhere(
-          filter,
-          1,
-          false,
-          true,
-          true,
-          true
-        )} `
-      : `DELETE FROM ${this.getName()} WHERE ${idName} IN (${await this.generateSelect(
-          this.getName(),
-          undefined,
-          true,
-          idName
-        )} ` +
-        `${await this.generateWhere(filter, 1, false, true, true, true)}) `;
-
-    const values = await this.generateValues(filter, true);
-    return this.queryDelete(0, query, values) as Promise<number>;
+    // console.log('Query:', query);
+    // console.log('values:', values);
+    const queryResult = await this.queryDelete(
+      isSingle ? false : 0,
+      query,
+      values
+    );
+    // console.log('QueryResult: ', queryResult);
+    return queryResult;
   }
 }
