@@ -48,5 +48,12 @@
   "[pgsql]": {
     "IF": true
   },
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs":"active",
+  "workbench.colorCustomizations": {
+    "editorBracketHighlight.foreground1": "#5bb3b3",
+    "editorBracketHighlight.foreground2": "#98C379",
+    "editorBracketHighlight.foreground3": "#ec5f67",
+  }
 }
