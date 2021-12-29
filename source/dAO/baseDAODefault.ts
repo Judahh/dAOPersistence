@@ -177,6 +177,7 @@ export default abstract class BaseDAODefault extends Default {
     useAlias?: boolean,
     useCompound?: boolean
   ): Promise<string> {
+    filter = filter ? filter : {};
     const fields = await this.generateFields(
       filter,
       useTable,
@@ -300,6 +301,7 @@ export default abstract class BaseDAODefault extends Default {
     content?: IDAOSimple,
     useCompound?: boolean
   ): Promise<unknown[]> {
+    content = content ? content : ({} as IDAOSimple);
     return new Promise((resolve) => {
       resolve(this.basicGenerateValues(content, useCompound));
     });
@@ -420,9 +422,17 @@ export default abstract class BaseDAODefault extends Default {
   protected generateContents(
     input: IInput<IDAOSimple | IDAOSimple[]>,
     method: string
-  ): [any, any] {
+  ): [any, any, any, any] | [any, any] {
+    if (method.includes('delete') || method.includes('update')) {
+      return [
+        input.id ? { id: input.id } : input.selectedItem,
+        input.id || input.single,
+        input.eventOptions,
+        this.realInput(input),
+      ];
+    }
     const input1 = !method.includes('create')
-      ? method.includes('ById')
+      ? input.id
         ? input.id
         : input.selectedItem
       : this.realInput(input);
@@ -444,7 +454,7 @@ export default abstract class BaseDAODefault extends Default {
           selectedItem: input.selectedItem,
           sentItem: input.item, //| input.sentItem,
         };
-        // console.log(IOutput);
+        // console.log('IOutput:', IOutput);
         resolve(IOutput);
       })
       .catch((error) => {

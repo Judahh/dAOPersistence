@@ -9,8 +9,6 @@ import IDAO from './model/iDAO';
 import IDAOSimple from './model/iDAOSimple';
 import { Utils } from './utils';
 
-import { Postgres } from './postgres/postgres';
-
 import { IPool } from './database/iPool';
 
 export {
@@ -22,6 +20,5 @@ export {
   IDAO,
   IDAOSimple,
   Utils,
-  Postgres,
   IPool,
 };

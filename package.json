@@ -1,6 +1,6 @@
 {
   "name": "@flexiblepersistence/dao",
-  "version": "1.2.6",
+  "version": "1.2.8",
   "description": "A DAO implementation for Flexible Persistence's PersistenceAdapter",
   "main": "dist/source/index.js",
   "keywords": [
@@ -34,12 +34,12 @@
   },
   "homepage": "https://github.com/Judahh/flexiblePersistence#readme",
   "dependencies": {
-    "pg": "latest",
     "bignumber.js": "latest",
     "journaly": "latest"
   },
   "devDependencies": {
     "@flexiblepersistence/mssql": "latest",
+    "@flexiblepersistence/pgsql": "latest",
     "@flexiblepersistence/default-initializer": "latest",
     "flexiblepersistence": "latest",
     "@jest/types": "latest",
@@ -47,6 +47,7 @@
     "@types/node": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
+    "pg": "latest",
     "mongoose": "latest",
     "eslint": "latest",
     "eslint-config-prettier": "latest",
