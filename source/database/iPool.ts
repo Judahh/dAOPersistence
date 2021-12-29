@@ -25,11 +25,14 @@ export interface IPool {
     }
   ): Promise<void>;
 
-  generatePaginationPrefix(options?: {
-    page?: number;
-    pageSize?: number;
-    numberOfPages?: number;
-  }): Promise<unknown>;
+  generatePaginationPrefix(
+    options?: {
+      page?: number;
+      pageSize?: number;
+      numberOfPages?: number;
+    },
+    idName?: string
+  ): Promise<unknown>;
 
   generatePaginationSuffix(options?: {
     page?: number;

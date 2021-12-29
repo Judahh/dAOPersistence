@@ -396,8 +396,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     const select = await this.generateSelect(this.getName());
     await this.pool?.getNumberOfPages(select, options);
     filter = filter ? filter : {};
+    const idName = await this.getIdField(false, true, false, 'pagingElement.');
     const query =
-      `${await this.pool?.generatePaginationPrefix(options)} ` +
+      `${await this.pool?.generatePaginationPrefix(options, idName)} ` +
       `${select} ${await this.generateWhere(
         filter,
         1,
