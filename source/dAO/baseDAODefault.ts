@@ -255,6 +255,7 @@ export default abstract class BaseDAODefault extends Default {
     const fields = newContent
       ? useTable || (useAlias && this.aliasFields)
         ? Object.keys(newContent).map((key) => {
+            key = key.replace('[]', '');
             const aliasFieldTable = this.getFieldTable(
               key,
               useTable,
@@ -267,7 +268,7 @@ export default abstract class BaseDAODefault extends Default {
                 : key);
             return newKey;
           })
-        : Object.keys(newContent)
+        : Object.keys(newContent).map((key) => key.replace('[]', ''))
       : [];
     return fields;
   }
