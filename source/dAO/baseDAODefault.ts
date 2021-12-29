@@ -59,6 +59,7 @@ export default abstract class BaseDAODefault extends Default {
 
   protected stringEquals?: string;
   protected regularEquals = '=';
+  protected arrayEquals = 'IN';
   protected regularLimit = 'LIMIT';
   protected nullProperties?: string[];
 
@@ -69,12 +70,22 @@ export default abstract class BaseDAODefault extends Default {
   getEquals(element: unknown): string {
     return this.stringEquals && typeof element === 'string'
       ? this.stringEquals
+      : Array.isArray(element)
+      ? this.arrayEquals
       : this.regularEquals;
   }
 
   protected generateValueFromUnknown(element: unknown): unknown | string {
     if (element === undefined || element === null) {
       return 'NULL';
+    }
+
+    if (Array.isArray(element)) {
+      return (
+        '(' +
+        element.map((a) => this.generateValueFromUnknown(a)).join(',') +
+        ')'
+      );
     }
 
     if (typeof element === 'string' || element instanceof String)
