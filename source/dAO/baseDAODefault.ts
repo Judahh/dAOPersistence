@@ -434,8 +434,12 @@ export default abstract class BaseDAODefault extends Default {
   protected generateContents(
     input: IInput<IDAOSimple | IDAOSimple[]>,
     method: string
-  ): [any, any, any, any] | [any, any] {
-    if (method.includes('delete') || method.includes('update')) {
+  ): [any, any, any, any] | [any, any?, any?, any?] {
+    if (
+      method.includes('read') ||
+      method.includes('delete') ||
+      method.includes('update')
+    ) {
       return [
         input.id ? { id: input.id } : input.selectedItem,
         input.id || input.single,
@@ -443,13 +447,7 @@ export default abstract class BaseDAODefault extends Default {
         this.realInput(input),
       ];
     }
-    const input1 = !method.includes('create')
-      ? input.id
-        ? input.id
-        : input.selectedItem
-      : this.realInput(input);
-    const input2 = this.realInput(input);
-    return [input1, input2];
+    return [this.realInput(input)];
   }
 
   protected IOutput(

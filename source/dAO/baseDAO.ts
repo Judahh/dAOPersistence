@@ -143,85 +143,25 @@ export default abstract class BaseDAO extends BaseDAODefault {
     return baseValues;
   }
 
-  async queryCreate(
+  async query(
     content: IDAOSimple | IDAOSimple[],
     query: string,
-    values: unknown[]
-  ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[] }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          result = this.fixType(result);
-          type ResultType = typeof content extends [] ? IDAO[] : IDAO;
-          let finalResult: ResultType = (
-            Array.isArray(content)
-              ? (result.rows as IDAO[])
-              : result.rows
-              ? (result.rows[0] as IDAO)
-              : ({} as IDAO)
-          ) as ResultType;
-          const simpleResult: ResultType = (
-            Array.isArray(content)
-              ? Array.isArray(content)
-                ? (content as IDAO[])
-                : ([content] as unknown as IDAO[])
-              : (content as IDAO)
-          ) as ResultType;
-          finalResult = this.pool?.simpleUpdate ? simpleResult : finalResult;
-          resolve(finalResult);
-        }
-      );
-    });
-  }
-
-  async queryRead(
-    defaultOutput: object | [],
-    query: string,
-    values: unknown[]
-  ): Promise<typeof defaultOutput extends [] ? IDAO[] : IDAO> {
-    // console.log('READ QUERY:', query, values);
-
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          type ResultType = typeof defaultOutput extends [] ? IDAO[] : IDAO;
-          result = this.fixType(result);
-          const finalResult: ResultType = (
-            Array.isArray(defaultOutput)
-              ? (result.rows as IDAO[])
-              : result.rows
-              ? (result.rows[0] as IDAO)
-              : ({} as IDAO)
-          ) as ResultType;
-          resolve(finalResult);
-        }
-      );
-    });
-  }
-
-  async queryUpdate(
-    content: IDAOSimple | IDAOSimple[],
-    query: string,
-    values: unknown[]
+    values: unknown[],
+    isSimple = false
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
     // console.log('UPDATE QUERY:', query, values);
     return new Promise((resolve, reject) => {
       this.pool?.query(
         query,
         values,
-        (error, result: { rows?: (IDAO | PromiseLike<IDAO>)[]; rowCount? }) => {
+        (
+          error,
+          result: {
+            rows?: (IDAO | PromiseLike<IDAO>)[];
+            rowCount?;
+            rowsAffected?: number[];
+          }
+        ) => {
           if (error) {
             reject(error);
             return;
@@ -236,7 +176,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
               : ({} as IDAO)
           ) as ResultType;
           const simpleResult: ResultType = content as ResultType;
-          finalResult = this.pool?.simpleUpdate ? simpleResult : finalResult;
+          finalResult = isSimple ? simpleResult : finalResult;
           resolve(finalResult);
         }
       );
@@ -264,17 +204,11 @@ export default abstract class BaseDAO extends BaseDAODefault {
             reject(error);
             return;
           }
-          // console.log('DELETE RESULT: ', result);
-          // console.log(
-          //   'DELETE typeof defaultOutput: ',
-          //   typeof defaultOutput === 'boolean'
-          // );
           if (result.rowCount || result.rowsAffected) {
             const returned =
               typeof defaultOutput === 'boolean' ||
               result.rowCount ||
               result.rowsAffected?.reduce((a, b) => a + b);
-            // console.log('DELETE returned: ', returned);
             resolve(returned);
             return;
           }
@@ -322,7 +256,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // console.log('STORE:', query);
     // console.log('values:', values);
 
-    return this.queryCreate(content, query, values);
+    return this.query(content, query, values, this.pool?.simpleUpdate);
   }
 
   async createArray(content: IDAOSimple[]): Promise<IDAO[]> {
@@ -357,43 +291,29 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // console.log('STORE:', query);
     // console.log('values:', values);
 
-    return this.queryCreate(content, query, values) as unknown as Promise<
-      IDAO[]
-    >;
+    return this.query(
+      content,
+      query,
+      values,
+      this.pool?.simpleUpdate
+    ) as unknown as Promise<IDAO[]>;
   }
 
   read(input: IInputRead): Promise<IOutput<IDAOSimple, IDAO>> {
-    return input.id
-      ? this.makePromise(input, 'readById')
-      : input.single
-      ? this.makePromise(input, 'readSingle')
-      : this.makePromise(input, 'readArray');
+    return this.makePromise(input, 'readByFilter');
   }
-  async readById(id: string): Promise<IDAO> {
-    const select = await this.generateSelect(this.getName());
-    const idName = await this.getIdField(false, true, false, 'element.');
-    const query =
-      `${select} WHERE ${idName} ` + this.getEquals(id) + ` $1 ${this.groupBy}`;
-    const values = [id];
-    return this.queryRead({}, query, values);
-  }
-  async readSingle(filter): Promise<IDAO> {
-    const limit =
-      (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) + ' 1';
-
-    const select = await this.generateSelect(
-      this.getName(),
-      this.pool?.isReadLimitBefore ? limit : undefined
-    );
-    const where = await this.generateWhere(filter, 1, true, true, true, true);
-    const query = `${select} ${where} ${this.groupBy} ${
-      this.pool?.isReadLimitBefore ? '' : limit
-    }`;
-    const values = await this.generateValues(filter, true);
-    return this.queryRead({}, query, values);
-  }
-  async readArray(filter, options): Promise<IDAO[]> {
-    const select = await this.generateSelect(this.getName());
+  async readByFilter(filter, isSingle: boolean, options): Promise<IDAO[]> {
+    let limit = '';
+    let limitBefore = limit;
+    let limitAfter = limit;
+    if (isSingle) {
+      limit =
+        (this.pool?.readLimit ? this.pool?.readLimit : this.regularLimit) +
+        ' 1';
+      limitBefore = this.pool?.isReadLimitBefore ? limit : '';
+      limitAfter = this.pool?.isReadLimitBefore ? '' : limit;
+    }
+    const select = await this.generateSelect(this.getName(), limitBefore);
     await this.pool?.getNumberOfPages(select, options);
     filter = filter ? filter : {};
     const idName = await this.getIdField(false, true, false, 'pagingElement.');
@@ -407,10 +327,14 @@ export default abstract class BaseDAO extends BaseDAODefault {
         true,
         true
       )} ` +
-      `${await this.pool?.generatePaginationSuffix(options)} ${this.groupBy}`;
+      `${await this.pool?.generatePaginationSuffix(options)} ${
+        this.groupBy
+      } ${limitAfter}`;
 
     const values = await this.generateValues(filter, true);
-    return this.queryRead([], query, values) as unknown as Promise<IDAO[]>;
+    return this.query(isSingle ? {} : [], query, values) as unknown as Promise<
+      IDAO[]
+    >;
   }
   correct(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     return this.update(input);
@@ -467,7 +391,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       : Array.isArray(content as unknown)
       ? (content as IDAO[]).map((item) => ({ ...filter, ...item }))
       : [{ ...filter, ...content }];
-    return this.queryUpdate(newContent, query, values);
+    return this.query(newContent, query, values, this.pool?.simpleUpdate);
   }
 
   nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
