@@ -332,7 +332,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
       } ${limitAfter}`;
 
     const values = await this.generateValues(filter, true);
-    return this.query([], query, values) as unknown as Promise<IDAO[]>;
+    return this.query(isSingle ? {} : [], query, values) as unknown as Promise<
+      IDAO[]
+    >;
   }
   correct(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     return this.update(input);
