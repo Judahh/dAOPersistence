@@ -58,20 +58,11 @@ export class DAOPersistence implements IPersistence {
       input
     );
   }
-  existent(input: IInputCreate<any>): Promise<IOutput<unknown, unknown>> {
-    return this.create(input);
-  }
-  nonexistent(input: IInputDelete): Promise<IOutput<unknown, unknown>> {
-    return this.delete(input);
-  }
-  delete(input: IInputDelete): Promise<IOutput<unknown, unknown>> {
+  read(input: IInputRead): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
-      input.scheme + this.type + '.' + 'delete',
+      input.scheme + this.type + '.' + 'read',
       input
     );
-  }
-  correct(input: IInputUpdate<any>): Promise<IOutput<unknown, unknown>> {
-    return this.update(input);
   }
   update(input: IInputUpdate<any>): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
@@ -79,9 +70,9 @@ export class DAOPersistence implements IPersistence {
       input
     );
   }
-  read(input: IInputRead): Promise<IOutput<unknown, unknown>> {
+  delete(input: IInputDelete): Promise<IOutput<unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
-      input.scheme + this.type + '.' + 'read',
+      input.scheme + this.type + '.' + 'delete',
       input
     );
   }

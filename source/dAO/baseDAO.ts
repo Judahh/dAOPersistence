@@ -218,11 +218,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
     });
   }
 
-  existent(
-    input: IInputCreate<IDAOSimple>
-  ): Promise<IOutput<IDAOSimple, IDAO>> {
-    return this.create(input);
-  }
   create(input: IInputCreate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     return Array.isArray(input.item)
       ? this.makePromise(input as IInput<IDAOSimple>, 'createArray')
@@ -336,9 +331,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
       IDAO[]
     >;
   }
-  correct(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
-    return this.update(input);
-  }
 
   update(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
     return this.makePromise(input as IInput<IDAOSimple>, 'updateByFilter');
@@ -392,10 +384,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
       ? (content as IDAO[]).map((item) => ({ ...filter, ...item }))
       : [{ ...filter, ...content }];
     return this.query(newContent, query, values, this.pool?.simpleUpdate);
-  }
-
-  nonexistent(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
-    return this.delete(input);
   }
   delete(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
     return this.makePromise(input, 'deleteByFilter');
