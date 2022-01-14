@@ -514,18 +514,18 @@
     journaly latest
 
 "@flexiblepersistence/mssql@latest":
-  version "0.2.10"
-  resolved "https://registry.yarnpkg.com/@flexiblepersistence/mssql/-/mssql-0.2.10.tgz#746302578b522fcfaab8e1bb32c062458fd7d038"
-  integrity sha512-R4Y1rVGamPQ0o9DW6NjbNczYLtYcOjWdmQ+ige1C/fja+Yn695YFbN9icACh7GpDtR83HVxCO0GhfVgN94QjaA==
+  version "0.2.11"
+  resolved "https://registry.yarnpkg.com/@flexiblepersistence/mssql/-/mssql-0.2.11.tgz#1a8d4e987c0609f41404d151423993615899d43d"
+  integrity sha512-zK8ixvA59JgyiDWAKuqx8xfNehGYiJyW7aPyjpr+0frVk1Sq9KaAwKDcI/MdpR+blN8E0k7RAduJWPmZr8sIWg==
   dependencies:
     flexiblepersistence latest
     mssql latest
     tsqlstring latest
 
 "@flexiblepersistence/pgsql@latest":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@flexiblepersistence/pgsql/-/pgsql-0.1.3.tgz#ec661682e648d80b86874ba0e9895a9d18c58c4c"
-  integrity sha512-73EjQFv1XYfKyOjkuRPJIlwtJYAQZ1Idz4wL/xpAo5E9VdJzC2jgOQkqqlndFg18mf8+wkWAnNQ7ToIJ20or2g==
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@flexiblepersistence/pgsql/-/pgsql-0.1.4.tgz#3535b02ca6a7f96e6607a8bd4a2483cb4abeba52"
+  integrity sha512-aXd2YxIeBsppMARxVU2XODUHTlNN/clN7PMGb13msCkeXhGc1vnHnUiCbXBlHipWzZQ023+49D8nXEnkXMtQoQ==
   dependencies:
     flexiblepersistence latest
     pg latest
