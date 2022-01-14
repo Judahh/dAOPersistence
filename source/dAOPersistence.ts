@@ -104,14 +104,6 @@ export class DAOPersistence implements IPersistence {
   }
 
   close(): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      this.end(resolve);
-    });
-  }
-
-  private end(resolve): void {
-    this.pool.end(() => {
-      resolve(true);
-    });
+    return this.pool.end();
   }
 }

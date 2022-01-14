@@ -150,36 +150,20 @@ export default abstract class BaseDAO extends BaseDAODefault {
     isSimple = false
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
     // console.log('UPDATE QUERY:', query, values);
-    return new Promise((resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (
-          error,
-          result: {
-            rows?: (IDAO | PromiseLike<IDAO>)[];
-            rowCount?;
-            rowsAffected?: number[];
-          }
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          type ResultType = typeof content extends [] ? IDAO[] : IDAO;
-          result = this.fixType(result);
-          let finalResult: ResultType = (
-            Array.isArray(content)
-              ? (result.rows as IDAO[])
-              : result.rows
-              ? result.rows[0]
-              : ({} as IDAO)
-          ) as ResultType;
-          const simpleResult: ResultType = content as ResultType;
-          finalResult = isSimple ? simpleResult : finalResult;
-          resolve(finalResult);
-        }
-      );
+    return new Promise(async (resolve, reject) => {
+      let result = await this.pool?.query(query, values).catch(reject);
+      type ResultType = typeof content extends [] ? IDAO[] : IDAO;
+      result = this.fixType(result);
+      let finalResult: ResultType = (
+        Array.isArray(content)
+          ? (result?.rows as IDAO[])
+          : result?.rows
+          ? result?.rows[0]
+          : ({} as IDAO)
+      ) as ResultType;
+      const simpleResult: ResultType = content as ResultType;
+      finalResult = isSimple ? simpleResult : finalResult;
+      resolve(finalResult);
     });
   }
 
@@ -189,32 +173,18 @@ export default abstract class BaseDAO extends BaseDAODefault {
     values: unknown[]
   ): Promise<typeof defaultOutput> {
     return new Promise(async (resolve, reject) => {
-      this.pool?.query(
-        query,
-        values,
-        (
-          error,
-          result: {
-            rows?: (IDAO | PromiseLike<IDAO>)[];
-            rowCount?;
-            rowsAffected?: number[];
-          }
-        ) => {
-          if (error) {
-            reject(error);
-            return;
-          }
-          if (result.rowCount || result.rowsAffected) {
-            const returned =
-              typeof defaultOutput === 'boolean' ||
-              result.rowCount ||
-              result.rowsAffected?.reduce((a, b) => a + b);
-            resolve(returned);
-            return;
-          }
-          resolve(defaultOutput);
-        }
-      );
+      const result = await this.pool?.query(query, values).catch(reject);
+
+      if (result?.rowCount || result?.rowsAffected) {
+        const returned =
+          typeof defaultOutput === 'boolean' ||
+          result.rowCount ||
+          result.rowsAffected?.reduce((a, b) => a + b) ||
+          0;
+        resolve(returned);
+        return;
+      }
+      resolve(defaultOutput);
     });
   }
 
@@ -309,7 +279,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       limitAfter = this.pool?.isReadLimitBefore ? '' : limit;
     }
     const select = await this.generateSelect(this.getName(), limitBefore);
-    await this.pool?.getNumberOfPages(select, options);
+    if (options) options.pages = await this.pool?.getPages(select, options);
     filter = filter ? filter : {};
     const idName = await this.getIdField(false, true, false, 'pagingElement.');
     const query =
