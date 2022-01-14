@@ -279,7 +279,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       limitAfter = this.pool?.isReadLimitBefore ? '' : limit;
     }
     const select = await this.generateSelect(this.getName(), limitBefore);
-    options.pages = await this.pool?.getPages(select, options);
+    if (options) options.pages = await this.pool?.getPages(select, options);
     filter = filter ? filter : {};
     const idName = await this.getIdField(false, true, false, 'pagingElement.');
     const query =
