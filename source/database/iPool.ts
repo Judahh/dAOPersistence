@@ -16,14 +16,14 @@ export interface IPool {
   updateLimit?: string;
   deleteLimit?: string;
 
-  getNumberOfPages(
+  getPages(
     script: string,
     options?: {
       page?: number;
       pageSize?: number;
       numberOfPages?: number;
     }
-  ): Promise<void>;
+  ): Promise<number>;
 
   generatePaginationPrefix(
     options?: {
@@ -32,22 +32,23 @@ export interface IPool {
       numberOfPages?: number;
     },
     idName?: string
-  ): Promise<unknown>;
+  ): Promise<string>;
 
   generatePaginationSuffix(options?: {
     page?: number;
     pageSize?: number;
     numberOfPages?: number;
-  }): Promise<unknown>;
-  connect(
-    callback?: (error?: Error, client?: unknown, release?: unknown) => void
-  ): Promise<unknown>;
+  }): Promise<string>;
+  connect(): Promise<boolean>;
   query(
     script: string,
-    values?: Array<unknown>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    callback?: (error?: any, result?: any) => unknown
-  ): Promise<unknown>;
-  end(callback?: () => unknown): Promise<unknown>;
+    values?: Array<unknown>
+  ): Promise<{
+    rows?: Array<unknown>;
+    rowCount?: number;
+    rowsAffected?: number[];
+    recordset?;
+  }>;
+  end(): Promise<boolean>;
   getPersistenceInfo(): PersistenceInfo;
 }

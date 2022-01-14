@@ -39,6 +39,7 @@ export default abstract class BaseDAODefault extends Default {
     page?: number;
     pageSize?: number;
     numberOfPages?: number;
+    pages?: number;
   };
   protected aliasFields?: {
     [key: string]: string | undefined;
