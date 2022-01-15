@@ -1,4 +1,4 @@
-import { PersistenceInfo } from 'flexiblepersistence';
+import { PersistenceInfo, IEventOptions } from 'flexiblepersistence';
 
 /* eslint-disable no-unused-vars */
 export interface IPool {
@@ -16,29 +16,17 @@ export interface IPool {
   updateLimit?: string;
   deleteLimit?: string;
 
-  getPages(
-    script: string,
-    options?: {
-      page?: number;
-      pageSize?: number;
-      numberOfPages?: number;
-    }
-  ): Promise<number>;
+  getPages(script: string, options?: IEventOptions): Promise<number>;
 
   generatePaginationPrefix(
-    options?: {
-      page?: number;
-      pageSize?: number;
-      numberOfPages?: number;
-    },
+    options?: IEventOptions,
     idName?: string
   ): Promise<string>;
 
-  generatePaginationSuffix(options?: {
-    page?: number;
-    pageSize?: number;
-    numberOfPages?: number;
-  }): Promise<string>;
+  generatePaginationSuffix(
+    options?: IEventOptions,
+    idName?: string
+  ): Promise<string>;
   connect(): Promise<boolean>;
   query(
     script: string,

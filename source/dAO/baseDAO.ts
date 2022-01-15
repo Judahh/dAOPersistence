@@ -278,20 +278,21 @@ export default abstract class BaseDAO extends BaseDAODefault {
       limitBefore = this.pool?.isReadLimitBefore ? limit : '';
       limitAfter = this.pool?.isReadLimitBefore ? '' : limit;
     }
-    const select = await this.generateSelect(this.getName(), limitBefore);
-    if (options) options.pages = await this.pool?.getPages(select, options);
+    let select = await this.generateSelect(this.getName(), limitBefore);
     filter = filter ? filter : {};
     const idName = await this.getIdField(false, true, false, 'pagingElement.');
+    select = `${select} ${await this.generateWhere(
+      filter,
+      1,
+      true,
+      true,
+      true,
+      true
+    )} `;
+    if (options) options.pages = await this.pool?.getPages(select, options);
     const query =
       `${await this.pool?.generatePaginationPrefix(options, idName)} ` +
-      `${select} ${await this.generateWhere(
-        filter,
-        1,
-        true,
-        true,
-        true,
-        true
-      )} ` +
+      select +
       `${await this.pool?.generatePaginationSuffix(options)} ${
         this.groupBy
       } ${limitAfter}`;
