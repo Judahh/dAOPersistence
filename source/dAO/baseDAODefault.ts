@@ -3,7 +3,7 @@
 // file deepcode ignore no-any: any needed
 // file deepcode ignore object-literal-shorthand: argh
 import BigNumber from 'bignumber.js';
-import { IInput, IOutput } from 'flexiblepersistence';
+import { IInput, IOutput, IEventOptions } from 'flexiblepersistence';
 import BaseDAODefaultInitializer from './iBaseDAODefault';
 import IDAOSimple from '../model/iDAOSimple';
 import IDAO from '../model/iDAO';
@@ -35,12 +35,7 @@ export default abstract class BaseDAODefault extends Default {
   }
 
   protected pool?: IPool;
-  protected options?: {
-    page?: number;
-    pageSize?: number;
-    numberOfPages?: number;
-    pages?: number;
-  };
+  protected options?: IEventOptions;
   protected aliasFields?: {
     [key: string]: string | undefined;
   };
