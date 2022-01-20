@@ -267,7 +267,12 @@ export default abstract class BaseDAO extends BaseDAODefault {
   read(input: IInputRead): Promise<IOutput<IDAOSimple, IDAO>> {
     return this.makePromise(input, 'readByFilter');
   }
-  async readByFilter(filter, isSingle: boolean, options): Promise<IDAO[]> {
+  async readByFilter(
+    filter,
+    isSingle: boolean,
+    options,
+    useDenseRank?: boolean | string
+  ): Promise<IDAO[]> {
     let limit = '';
     let limitBefore = limit;
     let limitAfter = limit;
@@ -290,7 +295,15 @@ export default abstract class BaseDAO extends BaseDAODefault {
       true
     )} `;
     if (options)
-      options.pages = await this.pool?.getPages(select, options, idName);
+      options.pages = await this.pool?.getPages(
+        select,
+        options,
+        useDenseRank === true
+          ? idName
+          : typeof useDenseRank === 'string'
+          ? useDenseRank
+          : undefined
+      );
     const query =
       `${await this.pool?.generatePaginationPrefix(options, idName)} ` +
       select +
