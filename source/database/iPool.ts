@@ -16,7 +16,11 @@ export interface IPool {
   updateLimit?: string;
   deleteLimit?: string;
 
-  getPages(script: string, options?: IEventOptions): Promise<number>;
+  getPages(
+    script: string,
+    options?: IEventOptions,
+    idName?: string
+  ): Promise<number>;
 
   generatePaginationPrefix(
     options?: IEventOptions,

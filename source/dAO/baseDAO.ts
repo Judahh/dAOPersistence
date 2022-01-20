@@ -289,7 +289,8 @@ export default abstract class BaseDAO extends BaseDAODefault {
       true,
       true
     )} `;
-    if (options) options.pages = await this.pool?.getPages(select, options);
+    if (options)
+      options.pages = await this.pool?.getPages(select, options, idName);
     const query =
       `${await this.pool?.generatePaginationPrefix(options, idName)} ` +
       select +
