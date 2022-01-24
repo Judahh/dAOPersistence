@@ -18,6 +18,7 @@ export interface IPool {
 
   getPages(
     script: string,
+    values?: Array<unknown>,
     options?: IEventOptions,
     idName?: string
   ): Promise<number>;

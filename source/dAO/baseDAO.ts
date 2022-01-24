@@ -285,6 +285,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     }
     let select = await this.generateSelect(this.getName(), limitBefore);
     filter = filter ? filter : {};
+    const values = await this.generateValues(filter, true);
     const idName = await this.getIdField(false, true, false, 'pagingElement.');
     select = `${select} ${await this.generateWhere(
       filter,
@@ -297,6 +298,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     if (options)
       options.pages = await this.pool?.getPages(
         select,
+        values,
         options,
         useDenseRank === true
           ? idName
@@ -310,8 +312,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
       `${await this.pool?.generatePaginationSuffix(options)} ${
         this.groupBy
       } ${limitAfter}`;
-
-    const values = await this.generateValues(filter, true);
     return this.query(isSingle ? {} : [], query, values) as unknown as Promise<
       IDAO[]
     >;
