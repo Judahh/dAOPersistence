@@ -45,6 +45,7 @@ jobs:
           production: true
 
   postgres:
+    needs: [build]
     runs-on: ubuntu-latest
 
     # runs all of the steps inside the specified container rather than on the VM host.
@@ -93,6 +94,7 @@ jobs:
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
 
   mssql:
+    needs: [build]
     runs-on: ubuntu-latest
 
     # runs all of the steps inside the specified container rather than on the VM host.
