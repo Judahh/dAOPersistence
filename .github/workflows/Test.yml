@@ -38,6 +38,10 @@ jobs:
         uses: judahh/nodeBuild@main
         with:
           node_version: ${{ matrix.node-version }}
+      - name: TEST
+        uses: judahh/yarnTest@main
+        with:
+          run_integraton: 'false'
       - name: ZIP TO ARTIFACT
         uses: judahh/zipToArtifact@main
         with:
@@ -45,7 +49,7 @@ jobs:
           addTests: true
           tests: 'tests/ test/ *test.* *config.* source/ database/'
 
-  postgres:
+  pgsql:
     needs: [build]
     runs-on: ubuntu-latest
 
@@ -82,6 +86,9 @@ jobs:
           production: true
       - name: TEST
         uses: judahh/yarnTest@main
+        with:
+          run_test: 'false'
+          integration_filter: 'pgsql'
         env:
           POSTGRES_HOST: postgres
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
@@ -124,6 +131,9 @@ jobs:
           production: true
       - name: TEST
         uses: judahh/yarnTest@main
+        with:
+          run_test: 'false'
+          integration_filter: 'mssql'
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
