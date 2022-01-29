@@ -5,6 +5,13 @@ on:
     branches:
       - "*" # matches every branch
       - "*/*" # matches every branch containing a single '/'
+  push:
+    branches:
+      - master
+      - main
+#     - devel
+#     - develop
+#     - development
 
 jobs:
   build:
@@ -14,6 +21,7 @@ jobs:
     # Because of this the network configuration changes from host based network to a container network.
     container:
       image: node:latest
+
     strategy:
       matrix:
         node-version: [14.x]
@@ -26,26 +34,24 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Checkout
         uses: actions/checkout@main
-      - name: Install
-        uses: borales/actions-yarn@master
+      - name: BUILD
+        uses: judahh/nodeBuild@main
         with:
-          cmd: install # will run `yarn install` command
-      - name: Build
-        uses: borales/actions-yarn@master
+          node_version: ${{ matrix.node-version }}
+      - name: TEST
+        uses: judahh/yarnTest@main
         with:
-          cmd: build # will run `yarn build` command
-      - name: Test
-        uses: borales/actions-yarn@master
+          run_integration: 'false'
+      - name: ZIP TO ARTIFACT
+        uses: judahh/zipToArtifact@main
         with:
-          cmd: test # will run `yarn test` command
+          production: true
+          addTests: true
+          tests: 'tests/ test/ *test.* *config.* source/ database/'
 
-  postgres:
+  pgsql:
+    needs: [build]
     runs-on: ubuntu-latest
-
-    # runs all of the steps inside the specified container rather than on the VM host.
-    # Because of this the network configuration changes from host based network to a container network.
-    container:
-      image: node:latest
 
     services:
       postgres:
@@ -74,19 +80,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Install
-        uses: borales/actions-yarn@master
+      - name: ARTIFACT TO UNZIP
+        uses: judahh/artifactToUnzip@main
         with:
-          cmd: install # will run `yarn install` command
-      - name: Test Integration
-        uses: borales/actions-yarn@master
+          production: true
+      - name: TEST
+        uses: judahh/yarnTest@main
         with:
-          cmd: integration pgsql # will run `yarn test` command
+          run_test: 'false'
+          integration_filter: 'pgsql'
         env:
-          # use postgres for the host here because we have specified a container for the job.
-          # If we were running the job on the VM this would be localhost
           POSTGRES_HOST: postgres
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           POSTGRES_USER: "postgres"
@@ -94,12 +97,8 @@ jobs:
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
 
   mssql:
+    needs: [build]
     runs-on: ubuntu-latest
-
-    # runs all of the steps inside the specified container rather than on the VM host.
-    # Because of this the network configuration changes from host based network to a container network.
-    container:
-      image: node:latest
 
     services:
       mongo:
@@ -126,16 +125,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Install
-        uses: borales/actions-yarn@master
+      - name: ARTIFACT TO UNZIP
+        uses: judahh/artifactToUnzip@main
         with:
-          cmd: install # will run `yarn install` command
-      - name: Test Integration
-        uses: borales/actions-yarn@master
+          production: true
+      - name: TEST
+        uses: judahh/yarnTest@main
         with:
-          cmd: integration mssql # will run `yarn test` command
+          run_test: 'false'
+          integration_filter: 'mssql'
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
