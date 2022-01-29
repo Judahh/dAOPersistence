@@ -41,7 +41,7 @@ jobs:
       - name: TEST
         uses: judahh/yarnTest@main
         with:
-          run_integraton: 'false'
+          run_integration: 'false'
       - name: ZIP TO ARTIFACT
         uses: judahh/zipToArtifact@main
         with:
