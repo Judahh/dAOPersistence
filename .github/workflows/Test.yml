@@ -42,6 +42,7 @@ jobs:
         uses: judahh/zipToArtifact@main
         with:
           production: true
+          addTests: true
 
   postgres:
     needs: [build]
