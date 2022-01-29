@@ -39,7 +39,6 @@ jobs:
         with:
           node_version: ${{ matrix.node-version }}
       - name: ZIP TO ARTIFACT
-        if: ${{ github.ref_name == 'main' || github.ref_name == 'master' }}
         uses: judahh/zipToArtifact@main
         with:
           production: true
