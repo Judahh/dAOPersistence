@@ -5,6 +5,13 @@ on:
     branches:
       - "*" # matches every branch
       - "*/*" # matches every branch containing a single '/'
+  push:
+    branches:
+      - master
+      - main
+#     - devel
+#     - develop
+#     - development
 
 jobs:
   build:
@@ -14,6 +21,7 @@ jobs:
     # Because of this the network configuration changes from host based network to a container network.
     container:
       image: node:latest
+
     strategy:
       matrix:
         node-version: [14.x]
@@ -26,18 +34,15 @@ jobs:
           registry-url: https://registry.npmjs.org
       - name: Checkout
         uses: actions/checkout@main
-      - name: Install
-        uses: borales/actions-yarn@master
+      - name: BUILD
+        uses: judahh/nodeBuild@main
         with:
-          cmd: install # will run `yarn install` command
-      - name: Build
-        uses: borales/actions-yarn@master
+          node_version: ${{ matrix.node-version }}
+      - name: ZIP TO ARTIFACT
+        if: ${{ github.ref_name == 'main' || github.ref_name == 'master' }}
+        uses: judahh/zipToArtifact@main
         with:
-          cmd: build # will run `yarn build` command
-      - name: Test
-        uses: borales/actions-yarn@master
-        with:
-          cmd: test # will run `yarn test` command
+          production: true
 
   postgres:
     runs-on: ubuntu-latest
@@ -74,19 +79,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Install
-        uses: borales/actions-yarn@master
+      - name: ARTIFACT TO UNZIP
+        uses: judahh/artifactToUnzip@main
         with:
-          cmd: install # will run `yarn install` command
-      - name: Test Integration
-        uses: borales/actions-yarn@master
-        with:
-          cmd: integration pgsql # will run `yarn test` command
+          production: true
+      - name: TEST
+        uses: judahh/yarnTest@main
         env:
-          # use postgres for the host here because we have specified a container for the job.
-          # If we were running the job on the VM this would be localhost
           POSTGRES_HOST: postgres
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           POSTGRES_USER: "postgres"
@@ -126,16 +125,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
-      - name: Checkout
-        uses: actions/checkout@main
-      - name: Install
-        uses: borales/actions-yarn@master
+      - name: ARTIFACT TO UNZIP
+        uses: judahh/artifactToUnzip@main
         with:
-          cmd: install # will run `yarn install` command
-      - name: Test Integration
-        uses: borales/actions-yarn@master
-        with:
-          cmd: integration mssql # will run `yarn test` command
+          production: true
+      - name: TEST
+        uses: judahh/yarnTest@main
         env:
           # use postgres for the host here because we have specified a container for the job.
           # If we were running the job on the VM this would be localhost
