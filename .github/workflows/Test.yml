@@ -43,7 +43,7 @@ jobs:
         with:
           production: true
           addTests: true
-          tests: 'tests/ test/ *test.* *config.* source/*tils.*'
+          tests: 'tests/ test/ *test.* *config.* source/'
 
   postgres:
     needs: [build]
