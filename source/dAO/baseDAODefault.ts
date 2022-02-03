@@ -437,7 +437,7 @@ export default abstract class BaseDAODefault extends Default {
       method.includes('update')
     ) {
       return [
-        input.id ? { id: input.id } : input.selectedItem,
+        input.id ? { ...input.selectedItem, id: input.id } : input.selectedItem,
         input.id || input.single,
         input.eventOptions,
         this.realInput(input),
