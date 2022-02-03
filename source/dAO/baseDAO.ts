@@ -151,6 +151,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
     // console.log('UPDATE QUERY:', query, values);
     return new Promise(async (resolve, reject) => {
+      console.log('QUERY:', query, values);
       let result = await this.pool?.query(query, values).catch(reject);
       type ResultType = typeof content extends [] ? IDAO[] : IDAO;
       result = this.fixType(result ? result : {});
