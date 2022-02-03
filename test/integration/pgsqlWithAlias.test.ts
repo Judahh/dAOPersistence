@@ -198,6 +198,13 @@ test('add and read array and find object', async () => {
     expect(persistencePromise22?.sentItem).toStrictEqual(undefined);
 
     // console.log('TEST04');
+    // console.log('<----------------------------------------------->');
+    // console.log('Event:', {
+    //   operation: Operation.update,
+    //   name: 'ObjectWithAlias',
+    //   selection: { test: 'test' },
+    //   content: { test: 'bob' },
+    // });
     const persistencePromise3 = await handler.addEvent(
       new Event({
         operation: Operation.update,
@@ -367,7 +374,15 @@ test('add array and read elements, update and delete object', async () => {
     expect(persistencePromise2?.selectedItem).toStrictEqual(obj01);
     expect(persistencePromise2?.sentItem).toStrictEqual(undefined);
 
-    const obj02 = { ...obj01, test: 'ObjectWithAlias' };
+    const obj02 = { ...obj01, test: 'ObjectWithAlias-test' };
+    // console.log('<----------------------------------------------->');
+    // console.log('Event:', {
+    //   operation: Operation.update,
+    //   name: 'ObjectWithAlias',
+    //   single: false,
+    //   selection: obj01,
+    //   content: { test: obj02.test },
+    // });
     const persistencePromise3 = await handler.addEvent(
       new Event({
         operation: Operation.update,
@@ -386,6 +401,14 @@ test('add array and read elements, update and delete object', async () => {
     expect(persistencePromise3?.selectedItem).toStrictEqual(obj01);
     expect(persistencePromise3?.sentItem).toStrictEqual({ test: obj02.test });
 
+    // console.log('<----------------------------------------------->');
+    // console.log('Event:', {
+    //   operation: Operation.update,
+    //   name: 'ObjectWithAlias',
+    //   single: true,
+    //   selection: { id: obj3.id },
+    //   content: obj01,
+    // });
     const persistencePromise4 = await handler.addEvent(
       new Event({
         operation: Operation.update,
