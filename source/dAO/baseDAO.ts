@@ -333,8 +333,10 @@ export default abstract class BaseDAO extends BaseDAODefault {
       : '';
 
     let values = await this.generateValues(content, false);
+    console.log('update values:', values);
     const idName = await this.getIdField(false, true, false, false);
     const filterValues = await this.generateValues(filter, true);
+    console.log('update filterValues:', filterValues);
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
