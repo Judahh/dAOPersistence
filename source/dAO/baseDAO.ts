@@ -304,9 +304,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
           ? idName
           : typeof useDenseRank === 'string'
           ? useDenseRank
-          : options?.useRowNumber
-          ? idName
-          : undefined
+          : idName
       );
     const query =
       `${await this.pool?.generatePaginationPrefix(options, idName)} ` +
