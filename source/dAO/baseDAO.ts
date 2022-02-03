@@ -151,9 +151,10 @@ export default abstract class BaseDAO extends BaseDAODefault {
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
     // console.log('UPDATE QUERY:', query, values);
     return new Promise(async (resolve, reject) => {
+      // console.log('QUERY:', query, values);
       let result = await this.pool?.query(query, values).catch(reject);
       type ResultType = typeof content extends [] ? IDAO[] : IDAO;
-      result = this.fixType(result);
+      result = this.fixType(result ? result : {});
       let finalResult: ResultType = (
         Array.isArray(content)
           ? (result?.rows as IDAO[])
@@ -334,16 +335,22 @@ export default abstract class BaseDAO extends BaseDAODefault {
     let values = await this.generateValues(content, false);
     const idName = await this.getIdField(false, true, false, false);
     const filterValues = await this.generateValues(filter, true);
+    // console.log(
+    //   'update content, values, filter, filterValues:',
+    //   '\n',
+    //   content,
+    //   '\n',
+    //   values,
+    //   '\n',
+    //   filter,
+    //   '\n',
+    //   filterValues
+    // );
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
     );
-    const update = await this.generateUpdate(
-      filterValues.length,
-      content,
-      false,
-      true
-    );
+    const update = await this.generateUpdate(1, content, false, true);
     const length = Object.keys(content).length + 1;
     const where = await this.generateWhere(
       filter,
@@ -368,6 +375,23 @@ export default abstract class BaseDAO extends BaseDAODefault {
       : Array.isArray(content as unknown)
       ? (content as IDAO[]).map((item) => ({ ...filter, ...item }))
       : [{ ...filter, ...content }];
+    // console.log(
+    //   'update content, select, update, where, query, newContent,values:',
+    //   '\n',
+    //   content,
+    //   '\n',
+    //   select,
+    //   '\n',
+    //   update,
+    //   '\n',
+    //   where,
+    //   '\n',
+    //   query,
+    //   '\n',
+    //   newContent,
+    //   '\n',
+    //   values
+    // );
     return this.query(newContent, query, values, this.pool?.simpleUpdate);
   }
   delete(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
