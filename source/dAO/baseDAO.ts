@@ -151,7 +151,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
     // console.log('UPDATE QUERY:', query, values);
     return new Promise(async (resolve, reject) => {
-      console.log('QUERY:', query, values);
+      // console.log('QUERY:', query, values);
       let result = await this.pool?.query(query, values).catch(reject);
       type ResultType = typeof content extends [] ? IDAO[] : IDAO;
       result = this.fixType(result ? result : {});
@@ -332,11 +332,12 @@ export default abstract class BaseDAO extends BaseDAODefault {
         ' 1'
       : '';
 
+    console.log('update values:', content);
     let values = await this.generateValues(content, false);
     console.log('update values:', values);
     const idName = await this.getIdField(false, true, false, false);
     const filterValues = await this.generateValues(filter, true);
-    console.log('update filterValues:', filterValues);
+    // console.log('update filterValues:', filterValues);
     const select = await this.generateSelect(
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
