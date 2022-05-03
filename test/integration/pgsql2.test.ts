@@ -20,33 +20,70 @@ import { ObjectId } from 'mongoose';
 
 let read;
 let write;
-test('add and read array and find object', async () => {
-  const journaly = Journaly.newJournaly() as SenderReceiver<any>;
-  const eventDatabase = new MongoPersistence(
-    new PersistenceInfo(eventInfo, journaly)
-  );
-  const database = new PersistenceInfo(readInfo, journaly);
-  write = eventDatabase;
-  const postgres = new PGSQL(database);
-  read = new DAOPersistence(postgres, {
-    test: new TestDAO(),
-    object: new ObjectDAO(),
+let handler;
+let journaly;
+
+describe('1', () => {
+  beforeEach(async () => {
+    // console.log('beforeEach');
+    // if (handler !== undefined) {
+    //   await handler?.getRead()?.clear();
+    //   await handler?.getWrite()?.clear();
+    // }
+    journaly = Journaly.newJournaly() as SenderReceiver<any>;
+    const eventDatabase = new MongoPersistence(
+      new PersistenceInfo(eventInfo, journaly)
+    );
+    const database = new PersistenceInfo(readInfo, journaly);
+    write = eventDatabase;
+    const postgres = new PGSQL(database);
+    read = new DAOPersistence(postgres, {
+      test: new TestDAO(),
+      object: new ObjectDAO(),
+    });
+    handler = new Handler(write, read, { isInSeries: true });
+    // await handler?.getRead()?.clear();
+    // await handler?.getWrite()?.clear();
   });
-  const pool = read.getPool();
-  await Utils.init(pool);
-  // new TestDAO({
-  //   pool,
-  //   journaly,
-  // });
-  // new ObjectDAO({
-  //   pool,
-  //   journaly,
-  // });
-  const handler = new Handler(write, read);
-  await handler.getWrite()?.clear();
-  const obj = {};
-  obj['test'] = 'test';
-  try {
+
+  afterEach(async () => {
+    // console.log('afterEach');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (read !== undefined) await read?.close();
+    if (write !== undefined) await write?.close();
+    read = undefined;
+    write = undefined;
+    handler = undefined;
+  });
+
+  afterAll(async () => {
+    // console.log('afterAll');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (read !== undefined) await read?.close();
+    if (write !== undefined) await write?.close();
+  });
+
+  test('add and read array and find object', async () => {
+    const pool = read.getPool();
+    await Utils.init(pool);
+    // new TestDAO({
+    //   pool,
+    //   journaly,
+    // });
+    // new ObjectDAO({
+    //   pool,
+    //   journaly,
+    // });
+    const handler = new Handler(write, read);
+    await handler.getWrite()?.clear();
+    const obj = {};
+    obj['test'] = 'test';
     // console.log('TEST00');
     const persistencePromise = await handler.addEvent(
       new Event({ operation: Operation.create, name: 'Object', content: obj })
@@ -126,7 +163,9 @@ test('add and read array and find object', async () => {
     >;
     // console.log('TEST04', persistencePromise11);
     expect(persistencePromise11?.receivedItem).toStrictEqual([obj0, obj1]);
-    expect(persistencePromise11?.selectedItem).toStrictEqual({ test: 'test' });
+    expect(persistencePromise11?.selectedItem).toStrictEqual({
+      test: 'test',
+    });
     expect(persistencePromise11?.sentItem).toStrictEqual(undefined);
 
     // console.log('TEST04');
@@ -252,176 +291,166 @@ test('add and read array and find object', async () => {
     expect(persistencePromise6?.receivedItem).toStrictEqual(0);
     expect(persistencePromise6?.selectedItem).toStrictEqual(undefined);
     expect(persistencePromise6?.sentItem).toStrictEqual(undefined);
-  } catch (error) {
-    console.error(error);
-    await handler.addEvent(
-      new Event({
-        operation: Operation.delete,
-        name: 'Object',
-        single: false,
-      })
-    );
-    // const persistencePromise7 = await handler.readArray('Object', {});
-    // expect(persistencePromise7?.result.rowCount).toBe(0);
-    await handler.getWrite()?.clear();
-    await write.close();
-    await Utils.dropTables(pool);
-    expect(error).toBe(null);
-  }
-  await handler.addEvent(
-    new Event({ operation: Operation.delete, name: 'Object' })
-  );
-  await handler.getWrite()?.clear();
-  await write.close();
-  await Utils.dropTables(pool);
-});
-
-test('add array and read elements, update and delete object', async () => {
-  const journaly = Journaly.newJournaly() as SenderReceiver<any>;
-  const eventDatabase = new MongoPersistence(
-    new PersistenceInfo(eventInfo, journaly)
-  );
-  const database = new PersistenceInfo(readInfo, journaly);
-  write = eventDatabase;
-  const postgres = new PGSQL(database);
-  read = new DAOPersistence(postgres);
-  const pool = read.getPool();
-  await Utils.init(pool);
-  new TestDAO({
-    pool,
-    journaly,
   });
-  new ObjectDAO({
-    pool,
-    journaly,
+  describe('1', () => {
+    beforeEach(async () => {
+      // console.log('beforeEach');
+      // if (handler !== undefined) {
+      //   await handler?.getRead()?.clear();
+      //   await handler?.getWrite()?.clear();
+      // }
+      journaly = Journaly.newJournaly() as SenderReceiver<any>;
+      const eventDatabase = new MongoPersistence(
+        new PersistenceInfo(eventInfo, journaly)
+      );
+      const database = new PersistenceInfo(readInfo, journaly);
+      write = eventDatabase;
+      const postgres = new PGSQL(database);
+      read = new DAOPersistence(postgres);
+      handler = new Handler(write, read, { isInSeries: true });
+      // await handler?.getRead()?.clear();
+      // await handler?.getWrite()?.clear();
+    });
+
+    afterEach(async () => {
+      // console.log('afterEach');
+      if (handler !== undefined) {
+        await handler?.getRead()?.clear();
+        await handler?.getWrite()?.clear();
+      }
+      if (read !== undefined) await read?.close();
+      if (write !== undefined) await write?.close();
+      read = undefined;
+      write = undefined;
+      handler = undefined;
+    });
+
+    afterAll(async () => {
+      // console.log('afterAll');
+      if (handler !== undefined) {
+        await handler?.getRead()?.clear();
+        await handler?.getWrite()?.clear();
+      }
+      if (read !== undefined) await read?.close();
+      if (write !== undefined) await write?.close();
+    });
+    test('add array and read elements, update and delete object', async () => {
+      const pool = read.getPool();
+      await Utils.init(pool);
+      new TestDAO({
+        pool,
+        journaly,
+      });
+      new ObjectDAO({
+        pool,
+        journaly,
+      });
+      const handler = new Handler(write, read);
+      const obj00 = {};
+      obj00['test'] = 'test';
+      const obj01 = {};
+      obj01['test'] = 'test2';
+      // console.log('TEST00');
+      const persistencePromise = (await handler.addEvent(
+        new Event({
+          operation: Operation.create,
+          name: 'Object',
+          single: false,
+          content: [obj00, obj01],
+        })
+      )) as IOutput<
+        { id: ObjectId; test: string; timestamp: string },
+        { id: ObjectId; test: string; timestamp: string }
+      >;
+
+      // console.log('TEST00:', persistencePromise);
+      const receivedItem = persistencePromise?.receivedItem;
+      const receivedItemI0 = receivedItem ? receivedItem[0]?.id : undefined;
+      const receivedItemI1 = receivedItem ? receivedItem[1]?.id : undefined;
+
+      const obj0 = {
+        ...obj00,
+        id: receivedItemI0,
+        testnumber: null,
+      };
+      const obj1 = {
+        ...obj01,
+        id: receivedItemI1,
+        testnumber: null,
+      };
+
+      expect(persistencePromise?.receivedItem).toStrictEqual([obj0, obj1]);
+
+      // console.log('TEST07');
+      const persistencePromise1 = await handler.addEvent(
+        new Event({
+          operation: Operation.delete,
+          name: 'Object',
+          single: true,
+          selection: obj00,
+        })
+      );
+      expect(persistencePromise1?.receivedItem).toStrictEqual(true);
+      expect(persistencePromise1?.selectedItem).toStrictEqual(obj00);
+      expect(persistencePromise1?.sentItem).toStrictEqual(undefined);
+
+      const persistencePromise2 = await handler.addEvent(
+        new Event({
+          operation: Operation.read,
+          name: 'Object',
+          single: true,
+          selection: obj01,
+        })
+      );
+      expect(persistencePromise2?.receivedItem).toStrictEqual(obj1);
+      expect(persistencePromise2?.selectedItem).toStrictEqual(obj01);
+      expect(persistencePromise2?.sentItem).toStrictEqual(undefined);
+
+      const obj02 = { ...obj01, test: 'Object' };
+      const persistencePromise3 = await handler.addEvent(
+        new Event({
+          operation: Operation.update,
+          name: 'Object',
+          single: false,
+          selection: obj01,
+          content: { test: obj02.test },
+        })
+      );
+      const obj3 = { ...obj1, test: obj02.test };
+      // console.log('TEST03:', persistencePromise3);
+      // console.log('TEST03:', persistencePromise3?.receivedItem);
+      // console.log('TEST03:', obj3);
+
+      expect(persistencePromise3?.receivedItem).toStrictEqual(obj3);
+      expect(persistencePromise3?.selectedItem).toStrictEqual(obj01);
+      expect(persistencePromise3?.sentItem).toStrictEqual({ test: obj02.test });
+
+      const persistencePromise4 = await handler.addEvent(
+        new Event({
+          operation: Operation.update,
+          name: 'Object',
+          single: true,
+          selection: { id: obj3.id },
+          content: obj01,
+        })
+      );
+
+      expect(persistencePromise4?.receivedItem).toStrictEqual(obj1);
+      expect(persistencePromise4?.selectedItem).toStrictEqual({ id: obj3.id });
+      expect(persistencePromise4?.sentItem).toStrictEqual(obj01);
+
+      const persistencePromise5 = await handler.addEvent(
+        new Event({
+          operation: Operation.read,
+          name: 'Object',
+          single: true,
+          selection: { id: obj1.id },
+        })
+      );
+
+      expect(persistencePromise5?.receivedItem).toStrictEqual(obj1);
+      expect(persistencePromise5?.selectedItem).toStrictEqual({ id: obj1.id });
+      expect(persistencePromise5?.sentItem).toStrictEqual(undefined);
+    });
   });
-  const handler = new Handler(write, read);
-  const obj00 = {};
-  obj00['test'] = 'test';
-  const obj01 = {};
-  obj01['test'] = 'test2';
-  try {
-    // console.log('TEST00');
-    const persistencePromise = (await handler.addEvent(
-      new Event({
-        operation: Operation.create,
-        name: 'Object',
-        single: false,
-        content: [obj00, obj01],
-      })
-    )) as IOutput<
-      { id: ObjectId; test: string; timestamp: string },
-      { id: ObjectId; test: string; timestamp: string }
-    >;
-
-    // console.log('TEST00:', persistencePromise);
-    const receivedItem = persistencePromise?.receivedItem;
-    const receivedItemI0 = receivedItem ? receivedItem[0]?.id : undefined;
-    const receivedItemI1 = receivedItem ? receivedItem[1]?.id : undefined;
-
-    const obj0 = {
-      ...obj00,
-      id: receivedItemI0,
-      testnumber: null,
-    };
-    const obj1 = {
-      ...obj01,
-      id: receivedItemI1,
-      testnumber: null,
-    };
-
-    expect(persistencePromise?.receivedItem).toStrictEqual([obj0, obj1]);
-
-    // console.log('TEST07');
-    const persistencePromise1 = await handler.addEvent(
-      new Event({
-        operation: Operation.delete,
-        name: 'Object',
-        single: true,
-        selection: obj00,
-      })
-    );
-    expect(persistencePromise1?.receivedItem).toStrictEqual(true);
-    expect(persistencePromise1?.selectedItem).toStrictEqual(obj00);
-    expect(persistencePromise1?.sentItem).toStrictEqual(undefined);
-
-    const persistencePromise2 = await handler.addEvent(
-      new Event({
-        operation: Operation.read,
-        name: 'Object',
-        single: true,
-        selection: obj01,
-      })
-    );
-    expect(persistencePromise2?.receivedItem).toStrictEqual(obj1);
-    expect(persistencePromise2?.selectedItem).toStrictEqual(obj01);
-    expect(persistencePromise2?.sentItem).toStrictEqual(undefined);
-
-    const obj02 = { ...obj01, test: 'Object' };
-    const persistencePromise3 = await handler.addEvent(
-      new Event({
-        operation: Operation.update,
-        name: 'Object',
-        single: false,
-        selection: obj01,
-        content: { test: obj02.test },
-      })
-    );
-    const obj3 = { ...obj1, test: obj02.test };
-    // console.log('TEST03:', persistencePromise3);
-    // console.log('TEST03:', persistencePromise3?.receivedItem);
-    // console.log('TEST03:', obj3);
-
-    expect(persistencePromise3?.receivedItem).toStrictEqual(obj3);
-    expect(persistencePromise3?.selectedItem).toStrictEqual(obj01);
-    expect(persistencePromise3?.sentItem).toStrictEqual({ test: obj02.test });
-
-    const persistencePromise4 = await handler.addEvent(
-      new Event({
-        operation: Operation.update,
-        name: 'Object',
-        single: true,
-        selection: { id: obj3.id },
-        content: obj01,
-      })
-    );
-
-    expect(persistencePromise4?.receivedItem).toStrictEqual(obj1);
-    expect(persistencePromise4?.selectedItem).toStrictEqual({ id: obj3.id });
-    expect(persistencePromise4?.sentItem).toStrictEqual(obj01);
-
-    const persistencePromise5 = await handler.addEvent(
-      new Event({
-        operation: Operation.read,
-        name: 'Object',
-        single: true,
-        selection: { id: obj1.id },
-      })
-    );
-
-    expect(persistencePromise5?.receivedItem).toStrictEqual(obj1);
-    expect(persistencePromise5?.selectedItem).toStrictEqual({ id: obj1.id });
-    expect(persistencePromise5?.sentItem).toStrictEqual(undefined);
-  } catch (error) {
-    console.error(error);
-    await handler.addEvent(
-      new Event({
-        operation: Operation.delete,
-        name: 'Object',
-        single: false,
-      })
-    );
-    // const persistencePromise7 = await handler.readArray('Object', {});
-    // expect(persistencePromise7?.result.rowCount).toBe(0);
-    await handler.getWrite()?.clear();
-    await write.close();
-    await Utils.end(pool);
-    expect(error).toBe(null);
-  }
-  await handler.addEvent(
-    new Event({ operation: Operation.delete, name: 'Object' })
-  );
-  await handler.getWrite()?.clear();
-  await write.close();
-  await Utils.end(pool);
 });
