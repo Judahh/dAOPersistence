@@ -208,11 +208,11 @@ export default abstract class BaseDAODefault extends Default {
               // console.log('y:', y);
               const value = filter[x] || filter[y];
               let found = y
-                .match(/\(<*>*=*&*\)/)?.[0]
+                ?.match(/\(<*>*=*&*\)/)?.[0]
                 ?.replace('(', '')
-                .replace(')', '')
-                .replace('&', '=')
-                .trim();
+                ?.replace(')', '')
+                ?.replace('&', '=')
+                ?.trim();
               found =
                 found !== undefined && found !== null && found !== ''
                   ? found
