@@ -42,8 +42,7 @@
     "@flexiblepersistence/pgsql": "latest",
     "@flexiblepersistence/default-initializer": "latest",
     "flexiblepersistence": "latest",
-    "@jest/types": "latest",
-    "@types/jest": "latest",
+    "@types/jest": "27.4.1",
     "@types/node": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
@@ -54,10 +53,10 @@
     "eslint-plugin-filenames": "latest",
     "eslint-plugin-prettier": "latest",
     "eslint-plugin-import": "latest",
-    "jest": "latest",
+    "jest": "27.5.1",
     "prettier": "latest",
     "reflect-metadata": "latest",
-    "ts-jest": "latest",
+    "ts-jest": "27.1.4",
     "ts-node": "latest",
     "typescript": "latest"
   }
