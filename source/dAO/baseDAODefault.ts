@@ -118,10 +118,13 @@ export default abstract class BaseDAODefault extends Default {
     alias: string,
     limit?: string,
     useAll?: boolean,
-    selection?: string
+    selection?: string,
+    options?: { distinct?: boolean }
   ): Promise<string> {
     const select =
-      `SELECT ${limit ? limit : ''} ` +
+      `SELECT ` +
+      (options && options.distinct ? 'DISTINCT ' : '') +
+      +`${limit ? limit : ''} ` +
       (selection ? selection : '*') +
       ` FROM ` +
       (useAll
@@ -204,13 +207,23 @@ export default abstract class BaseDAODefault extends Default {
               const y = aliasFields[index];
               // console.log('y:', y);
               const value = filter[x] || filter[y];
+              let found = y
+                .match(/\(<*>*=*&*\)/)?.[0]
+                ?.replace('(', '')
+                .replace(')', '')
+                .replace('&', '=')
+                .trim();
+              found =
+                found !== undefined && found !== null && found !== ''
+                  ? found
+                  : this.getEquals(value);
               // console.log('x:', x);
               // console.log('value:', value);
 
               return (
                 x +
                 ' ' +
-                this.getEquals(value) +
+                found +
                 ' ' +
                 (initialPosition > -1
                   ? '$' + initialPosition++
@@ -252,6 +265,7 @@ export default abstract class BaseDAODefault extends Default {
       ? useTable || (useAlias && this.aliasFields)
         ? Object.keys(newContent).map((key) => {
             key = key.replace('[]', '');
+            key = key.replace(/\(<*>*=*&*\)/, '');
             const aliasFieldTable = this.getFieldTable(
               key,
               useTable,
@@ -264,7 +278,9 @@ export default abstract class BaseDAODefault extends Default {
                 : key);
             return newKey;
           })
-        : Object.keys(newContent).map((key) => key.replace('[]', ''))
+        : Object.keys(newContent).map((key) =>
+            key.replace('[]', '').replace(/\(<*>*=*&*\)/, '')
+          )
       : [];
     return fields;
   }
