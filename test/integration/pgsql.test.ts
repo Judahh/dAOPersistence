@@ -26,10 +26,16 @@ let journaly;
 describe('1', () => {
   beforeEach(async () => {
     // console.log('beforeEach');
-    // if (handler !== undefined) {
-    //   await handler?.getRead()?.clear();
-    //   await handler?.getWrite()?.clear();
-    // }
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (write !== undefined) {
+      await write?.close();
+    }
+    if (read !== undefined) {
+      await read?.close();
+    }
     journaly = Journaly.newJournaly() as SenderReceiver<any>;
     const eventDatabase = new MongoPersistence(
       new PersistenceInfo(eventInfo, journaly)
@@ -297,10 +303,16 @@ describe('1', () => {
 describe('2', () => {
   beforeEach(async () => {
     // console.log('beforeEach');
-    // if (handler !== undefined) {
-    //   await handler?.getRead()?.clear();
-    //   await handler?.getWrite()?.clear();
-    // }
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (write !== undefined) {
+      await write?.close();
+    }
+    if (read !== undefined) {
+      await read?.close();
+    }
     journaly = Journaly.newJournaly() as SenderReceiver<any>;
     const eventDatabase = new MongoPersistence(
       new PersistenceInfo(eventInfo, journaly)
