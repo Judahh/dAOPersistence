@@ -8,7 +8,7 @@ const readInfo = {
   database: 'read_DB',
   host: process.env.PGSQL_HOST || 'localhost',
   port: process.env.PGSQL_PORT || 5432,
-  username: process.env.PGSQL_USER || 'postgres',
+  username: process.env.PGSQL_USER || 'pgsql',
   password: process.env.PGSQL_PASSWORD,
   pool: {
     min: 0,
@@ -28,7 +28,7 @@ const readInfo1 = {
   },
   host: process.env.MSSQL_HOST || 'localhost',
   port: process.env.MSSQL_PORT || 1433,
-  username: process.env.MSSQL_USER || 'SA',
+  username: process.env.MSSQL_USER || 'sa',
   password: process.env.MSSQL_PASSWORD || 'yourStrong(!)Password',
   ssl: false,
 };
@@ -43,7 +43,7 @@ const readInfo2 = {
   },
   host: process.env.MSSQL_HOST || 'localhost',
   port: process.env.MSSQL_PORT || 1433,
-  username: process.env.MSSQL_USER || 'SA',
+  username: process.env.MSSQL_USER || 'sa',
   password: process.env.MSSQL_PASSWORD || 'yourStrong(!)Password',
   ssl: false,
 };
