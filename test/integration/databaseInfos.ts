@@ -6,10 +6,10 @@ const eventInfo = {
 
 const readInfo = {
   database: 'read_DB',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: process.env.POSTGRES_PORT || 5432,
-  username: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD,
+  host: process.env.PGSQL_HOST || 'localhost',
+  port: process.env.PGSQL_PORT || 5432,
+  username: process.env.PGSQL_USER || 'postgres',
+  password: process.env.PGSQL_PASSWORD,
   pool: {
     min: 0,
     max: 10,

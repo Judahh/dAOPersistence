@@ -91,9 +91,9 @@ jobs:
           integration_filter: 'pgsql'
           change_permissions: 'true'
         env:
-          POSTGRES_HOST: postgres
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-          POSTGRES_USER: "postgres"
+          PGSQL_HOST: postgres
+          PGSQL_PORT: ${{ job.services.postgres.ports[5432] }}
+          PGSQL_USER: "postgres"
           MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
 
