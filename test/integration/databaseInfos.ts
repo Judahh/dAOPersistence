@@ -18,21 +18,6 @@ const readInfo = {
   },
 };
 
-const readInfo1 = {
-  database: 'master',
-  uri: process.env.MSSQL_URI,
-  connectionType: process.env.MSSQL_CONNECTION_TYPE,
-  options: process.env.MSSQL_OPTIONS || {
-    encrypt: false,
-    trustServerCertificate: false,
-  },
-  host: process.env.MSSQL_HOST || 'localhost',
-  port: process.env.MSSQL_PORT || 1433,
-  username: process.env.MSSQL_USER || 'sa',
-  password: process.env.MSSQL_PASSWORD || 'yourStrong(!)Password',
-  ssl: false,
-};
-
 const readInfo2 = {
   database: 'read_DB',
   uri: process.env.MSSQL_URI,
@@ -46,6 +31,12 @@ const readInfo2 = {
   username: process.env.MSSQL_USER || 'sa',
   password: process.env.MSSQL_PASSWORD || 'yourStrong(!)Password',
   ssl: false,
+  pool: {
+    min: 0,
+    max: 10,
+    acquireTimeoutMillis: 600000,
+    idleTimeoutMillis: 600000,
+  },
 };
 
-export { eventInfo, readInfo, readInfo1, readInfo2 };
+export { eventInfo, readInfo, readInfo2 };

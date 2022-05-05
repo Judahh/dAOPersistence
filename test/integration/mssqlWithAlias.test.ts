@@ -17,6 +17,7 @@ import { Journaly, SenderReceiver } from 'journaly';
 import { eventInfo, readInfo2 } from './databaseInfos';
 
 import { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
 
 let read;
 let write;
@@ -63,6 +64,7 @@ describe('1', () => {
     read = undefined;
     write = undefined;
     handler = undefined;
+    mongoose.disconnect();
   });
 
   afterAll(async () => {
@@ -354,6 +356,7 @@ describe('2', () => {
     read = undefined;
     write = undefined;
     handler = undefined;
+    mongoose.disconnect();
   });
 
   afterAll(async () => {
