@@ -144,3 +144,4 @@ jobs:
           MSSQL_HOST: mssql
           MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
           MSSQL_USER: "sa"
+          MSSQL_PASSWORD: "yourStrong(!)Password"
