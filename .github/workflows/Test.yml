@@ -111,8 +111,8 @@ jobs:
           SA_PASSWORD: yourStrong(!)Password
           MSSQL_PID: Developer
 
-      minion:
-        image: mcr.microsoft.com/mssql-tools:latest
+      # minion:
+      #   image: mcr.microsoft.com/mssql-tools:latest
         # depends_on:
         # - mssql
         # command: >
