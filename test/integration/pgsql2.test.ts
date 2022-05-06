@@ -74,7 +74,7 @@ describe('1', () => {
     if (read !== undefined) await read?.close();
     if (write !== undefined) await write?.close();
   });
-  
+
   test('add and read array and find object', async () => {
     const pool = read.getPool();
     await Utils.init(pool);
