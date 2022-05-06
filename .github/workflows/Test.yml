@@ -134,6 +134,15 @@ jobs:
         node-version: [14.x]
 
     steps:
+      - name: INIT MSSQL
+        run: |
+          docker run --rm --entrypoint /bin/bash mcr.microsoft.com/mssql/server:latest -c "
+          echo 'START' &&
+          echo sleep 60 &&
+          /opt/mssql-tools/bin/sqlcmd -S mssql -U SA -P 'yourStrong(!)Password'
+          -Q 'CREATE DATABASE read_DB' &&
+          echo 'END'
+          "
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@main
         with:
