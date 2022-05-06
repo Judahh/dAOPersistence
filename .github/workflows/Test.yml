@@ -138,7 +138,7 @@ jobs:
         run: |
           docker run --rm --entrypoint /bin/bash mcr.microsoft.com/mssql/server:latest -c "
           echo 'START' &&
-          echo sleep 60 &&
+          echo sleep 10 &&
           /opt/mssql-tools/bin/sqlcmd -S mssql -U SA -P 'yourStrong(!)Password'
           -Q 'CREATE DATABASE read_DB' &&
           echo 'END'
