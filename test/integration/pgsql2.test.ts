@@ -74,7 +74,7 @@ describe('1', () => {
     if (read !== undefined) await read?.close();
     if (write !== undefined) await write?.close();
   });
-
+  
   test('add and read array and find object', async () => {
     const pool = read.getPool();
     await Utils.init(pool);
@@ -452,14 +452,19 @@ describe('2', () => {
     expect(persistencePromise4?.selectedItem).toStrictEqual({ id: obj3.id });
     expect(persistencePromise4?.sentItem).toStrictEqual(obj01);
 
-    const persistencePromise5 = await handler.addEvent(
-      new Event({
-        operation: Operation.read,
-        name: 'Object',
-        single: true,
-        selection: { id: obj1.id },
-      })
-    );
+    afterEach(async () => {
+      // console.log('afterEach');
+      if (handler !== undefined) {
+        await handler?.getRead()?.clear();
+        await handler?.getWrite()?.clear();
+      }
+      if (read !== undefined) await read?.close();
+      if (write !== undefined) await write?.close();
+      read = undefined;
+      write = undefined;
+      handler = undefined;
+    });
+
 
     expect(persistencePromise5?.receivedItem).toStrictEqual(obj1);
     expect(persistencePromise5?.selectedItem).toStrictEqual({ id: obj1.id });

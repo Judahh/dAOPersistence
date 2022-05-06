@@ -53,9 +53,15 @@ export default abstract class BaseDAODefault extends Default {
   // @ts-ignore
   protected updateQuery: string;
 
-  protected stringEquals?: string;
+  protected stringEquals = 'LIKE';
   protected regularEquals = '=';
+  protected notEquals = '<>';
   protected arrayEquals = 'IN';
+  protected arrayNotEquals = 'NOT IN';
+  protected greaterOrEquals = '>=';
+  protected lessOrEquals = '<=';
+  protected greater = '>';
+  protected less = '<';
   protected regularLimit = 'LIMIT';
   protected nullProperties?: string[];
 
@@ -63,12 +69,27 @@ export default abstract class BaseDAODefault extends Default {
 
   protected dateProperties?: string[];
 
-  getEquals(element: unknown): string {
-    return this.stringEquals && typeof element === 'string'
-      ? this.stringEquals
-      : Array.isArray(element)
-      ? this.arrayEquals
-      : this.regularEquals;
+  getEquals(element: unknown, found?: string): string {
+    if (Array.isArray(element)) {
+      if (found === this.notEquals || found === this.arrayNotEquals) {
+        return this.arrayNotEquals;
+      } else {
+        return this.arrayEquals;
+      }
+    }
+    if (found === undefined || found === null || found === '') {
+      if (
+        typeof element === 'string' &&
+        this.stringEquals !== undefined &&
+        this.stringEquals !== null
+      ) {
+        found = this.stringEquals;
+      } else {
+        found = this.regularEquals;
+      }
+    }
+    found = found || this.regularEquals;
+    return found;
   }
 
   protected generateValueFromUnknown(element: unknown): unknown | string {
@@ -118,10 +139,13 @@ export default abstract class BaseDAODefault extends Default {
     alias: string,
     limit?: string,
     useAll?: boolean,
-    selection?: string
+    selection?: string,
+    options?: { distinct?: boolean }
   ): Promise<string> {
     const select =
-      `SELECT ${limit ? limit : ''} ` +
+      `SELECT ` +
+      (options && options.distinct ? 'DISTINCT ' : '') +
+      +`${limit ? limit : ''} ` +
       (selection ? selection : '*') +
       ` FROM ` +
       (useAll
@@ -204,18 +228,30 @@ export default abstract class BaseDAODefault extends Default {
               const y = aliasFields[index];
               // console.log('y:', y);
               const value = filter[x] || filter[y];
+              let found = y
+                ?.match(/\.\$\w*/)?.[0]
+                ?.replace('.$gte', this.greaterOrEquals)
+                ?.replace('.$lte', this.lessOrEquals)
+                ?.replace('.$gt', this.greater)
+                ?.replace('.$lt', this.less)
+                ?.replace('.$ne', this.notEquals)
+                ?.replace('.$nin', this.notEquals)
+                ?.trim();
+              found = this.getEquals(value, found);
+              // console.log('found:', found);
               // console.log('x:', x);
               // console.log('value:', value);
-
-              return (
+              const toReturn =
                 x +
                 ' ' +
-                this.getEquals(value) +
+                found +
                 ' ' +
                 (initialPosition > -1
                   ? '$' + initialPosition++
-                  : this.generateValueFromUnknown(value))
-              );
+                  : this.generateValueFromUnknown(value));
+              console.log('toReturn:', toReturn);
+
+              return toReturn;
             })
             .join(' AND ')}`
         : '';
@@ -248,10 +284,12 @@ export default abstract class BaseDAODefault extends Default {
     useSubElement?: string | boolean
   ): string[] {
     const newContent = this.filteredContent(content, useCompound);
+    console.log('newContent:', newContent);
     const fields = newContent
       ? useTable || (useAlias && this.aliasFields)
         ? Object.keys(newContent).map((key) => {
-            key = key.replace('[]', '');
+            key = key?.replace('[]', '');
+            key = key?.replace(/\.\$\w*/, '');
             const aliasFieldTable = this.getFieldTable(
               key,
               useTable,
@@ -264,8 +302,11 @@ export default abstract class BaseDAODefault extends Default {
                 : key);
             return newKey;
           })
-        : Object.keys(newContent).map((key) => key.replace('[]', ''))
+        : Object.keys(newContent).map((key) =>
+            key?.replace('[]', '')?.replace(/\.\$\w*/, '')
+          )
       : [];
+    console.log('fields:', fields);
     return fields;
   }
 
