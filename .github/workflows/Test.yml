@@ -112,6 +112,7 @@ jobs:
           - 1433:1433
         env:
           ACCEPT_EULA: "Y"
+          INSTANCE: "tcp:127.0.0.1"
           SA_PASSWORD: "yourStrong(!)Password"
           MSSQL_PASSWORD: "yourStrong(!)Password"
           MSSQL_SA_PASSWORD: "yourStrong(!)Password"
@@ -139,7 +140,7 @@ jobs:
           integration_filter: 'mssql'
           change_permissions: 'true'
         env:
-          MSSQL_HOST: localhost
+          MSSQL_HOST: mssql
           MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
           MSSQL_USER: "SA"
           SA_PASSWORD: "yourStrong(!)Password"
