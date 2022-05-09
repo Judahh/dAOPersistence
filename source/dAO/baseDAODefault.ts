@@ -144,13 +144,11 @@ export default abstract class BaseDAODefault extends Default {
   ): Promise<string> {
     const mainSelect =
       'SELECT ' +
-        (options?.distinct !== undefined && options?.distinct
-          ? 'DISTINCT '
-          : '') +
-        limit !==
-      undefined
-        ? limit
-        : '' + (selection !== undefined ? selection : '*');
+      (options?.distinct !== undefined && options?.distinct
+        ? 'DISTINCT '
+        : '') +
+      (limit !== undefined ? limit + ' ' : '') +
+      (selection !== undefined ? selection : '*');
 
     const subSelect =
       (useAll !== undefined && useAll
@@ -158,7 +156,7 @@ export default abstract class BaseDAODefault extends Default {
         : `(SELECT ${this.values} FROM ${alias} ` +
           `AS subElement ${this.selectJoin}) `) + `as element`;
 
-    const select = `${mainSelect} FROM ${subSelect}`;
+    const select = mainSelect + ' FROM ' + subSelect;
 
     // console.log('generateSelect:');
 
@@ -270,7 +268,7 @@ export default abstract class BaseDAODefault extends Default {
                 (initialPosition > -1
                   ? '$' + initialPosition++
                   : this.generateValueFromUnknown(value));
-              console.log('toReturn:', toReturn);
+              // console.log('toReturn:', toReturn);
 
               return toReturn;
             })
