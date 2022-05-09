@@ -139,7 +139,7 @@ jobs:
           integration_filter: 'mssql'
           change_permissions: 'true'
         env:
-          MSSQL_HOST: mssql
+          MSSQL_HOST: localhost
           MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
           MSSQL_USER: "SA"
           SA_PASSWORD: "yourStrong(!)Password"
