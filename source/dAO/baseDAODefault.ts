@@ -142,17 +142,36 @@ export default abstract class BaseDAODefault extends Default {
     selection?: string,
     options?: { distinct?: boolean }
   ): Promise<string> {
-    const select =
-      `SELECT ` +
-      (options && options.distinct ? 'DISTINCT ' : '') +
-      +`${limit ? limit : ''} ` +
-      (selection ? selection : '*') +
-      ` FROM ` +
-      (useAll
-        ? `${alias} `
+    const mainSelect =
+      'SELECT ' +
+      (options?.distinct !== undefined && options?.distinct
+        ? 'DISTINCT '
+        : '') +
+      (limit !== undefined ? limit + ' ' : '') +
+      (selection !== undefined ? selection : '*');
+
+    const subSelect =
+      (useAll !== undefined && useAll
+        ? alias + ' '
         : `(SELECT ${this.values} FROM ${alias} ` +
-          `AS subElement ${this.selectJoin}) `) +
-      `as element`;
+          `AS subElement ${this.selectJoin}) `) + `as element`;
+
+    const select = mainSelect + ' FROM ' + subSelect;
+
+    // console.log('generateSelect:');
+
+    // console.log('limit:', limit);
+    // console.log('alias:', alias);
+    // console.log('useAll:', useAll);
+    // console.log('selection:', selection);
+    // console.log('options:', options);
+    // console.log('values:', this.values);
+    // console.log('selectJoin:', this.selectJoin);
+
+    // console.log('mainSelect:', mainSelect);
+    // console.log('subSelect:', subSelect);
+    // console.log('generateSelect:', select);
+
     return new Promise((resolve) => {
       resolve(select);
     });
@@ -249,7 +268,7 @@ export default abstract class BaseDAODefault extends Default {
                 (initialPosition > -1
                   ? '$' + initialPosition++
                   : this.generateValueFromUnknown(value));
-              console.log('toReturn:', toReturn);
+              // console.log('toReturn:', toReturn);
 
               return toReturn;
             })
@@ -284,7 +303,7 @@ export default abstract class BaseDAODefault extends Default {
     useSubElement?: string | boolean
   ): string[] {
     const newContent = this.filteredContent(content, useCompound);
-    console.log('newContent:', newContent);
+    // console.log('newContent:', newContent);
     const fields = newContent
       ? useTable || (useAlias && this.aliasFields)
         ? Object.keys(newContent).map((key) => {
@@ -306,7 +325,7 @@ export default abstract class BaseDAODefault extends Default {
             key?.replace('[]', '')?.replace(/\.\$\w*/, '')
           )
       : [];
-    console.log('fields:', fields);
+    // console.log('fields:', fields);
     return fields;
   }
 

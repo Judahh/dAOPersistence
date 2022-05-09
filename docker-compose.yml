@@ -9,20 +9,21 @@ services:
     image: mongo:latest
     ports:
       - 27017:27017
-  postgres:
+  pgsql:
     image: postgres:latest
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
-      POSTGRES_USER: postgres
+      POSTGRES_USER: pgsql
       POSTGRES_DB: read_DB
     ports:
       - 5432:5432
 
   mssql:
-    image: "mcr.microsoft.com/mssql/server:latest"
+    image: "judahh/mssql-image:latest"
     ports:
     - 1433:1433
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: yourStrong(!)Password
       MSSQL_PID: Developer
+      DATABASE_NAME: read_DB

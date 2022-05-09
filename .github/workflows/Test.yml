@@ -54,11 +54,11 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
+      pgsql:
         image: postgres:latest
         env:
           POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_USER: postgres
+          POSTGRES_USER: pgsql
           POSTGRES_DB: read_DB
         ports:
           - 5432:5432
@@ -91,9 +91,9 @@ jobs:
           integration_filter: 'pgsql'
           change_permissions: 'true'
         env:
-          PGSQL_HOST: postgres
-          PGSQL_PORT: ${{ job.services.postgres.ports[5432] }}
-          PGSQL_USER: "postgres"
+          PGSQL_HOST: pgsql
+          PGSQL_PORT: ${{ job.services.pgsql.ports[5432] }}
+          PGSQL_USER: "pgsql"
           MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
 
@@ -102,19 +102,20 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-
       mssql:
-        image: "mcr.microsoft.com/mssql/server:latest"
+        image: "judahh/mssql-image:latest"
         ports:
           - 1433:1433
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: yourStrong(!)Password
-          MSSQL_PID: Developer
+          SA_PASSWORD: "yourStrong(!)Password"
+          MSSQL_PID: "Developer"
+          DATABASE_NAME: "read_DB"
+
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
 
     strategy:
       matrix:
@@ -137,10 +138,11 @@ jobs:
           integration_filter: 'mssql'
           change_permissions: 'true'
         env:
-          # use postgres for the host here because we have specified a container for the job.
-          # If we were running the job on the VM this would be localhost
-          MONGO_HOST: mongo
-          MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
           MSSQL_HOST: mssql
           MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
-          MSSQL_USER: "sa"
+          MSSQL_USER: "SA"
+          MSSQL_PASSWORD: "yourStrong(!)Password"
+          MSSQL_SSL: "true"
+          MSSQL_OPTIONS: "false"
+          MONGO_HOST: mongo
+          MONGO_PORT: ${{ job.services.mongo.ports[27017] }}

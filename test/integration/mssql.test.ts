@@ -21,68 +21,33 @@ import { ObjectId } from 'mongoose';
 
 let read;
 let write;
-let handler;
-let journaly;
-describe('1', () => {
-  beforeEach(async () => {
-    // console.log('beforeEach');
-    // if (handler !== undefined) {
-    //   await handler?.getRead()?.clear();
-    //   await handler?.getWrite()?.clear();
-    // }
-    journaly = Journaly.newJournaly() as SenderReceiver<any>;
-    const eventDatabase = new MongoPersistence(
-      new PersistenceInfo(eventInfo, journaly)
-    );
-    const database = new PersistenceInfo(readInfo2, journaly);
-    write = eventDatabase;
-    const mSSQL = new MSSQL(database);
-    read = new DAOPersistence(mSSQL, {
-      test: new TestDAO(),
-      object: new ObjectDAO(),
-    });
-    handler = new Handler(write, read, { isInSeries: true });
-    // await handler?.getRead()?.clear();
-    // await handler?.getWrite()?.clear();
+test('add and read array and find object', async () => {
+  const journaly = Journaly.newJournaly() as SenderReceiver<any>;
+  const eventDatabase = new MongoPersistence(
+    new PersistenceInfo(eventInfo, journaly)
+  );
+  const database = new PersistenceInfo(readInfo2, journaly);
+  write = eventDatabase;
+  const mSSQL = new MSSQL(database);
+  read = new DAOPersistence(mSSQL, {
+    test: new TestDAO(),
+    object: new ObjectDAO(),
   });
-
-  afterEach(async () => {
-    // console.log('afterEach');
-    if (handler !== undefined) {
-      await handler?.getRead()?.clear();
-      await handler?.getWrite()?.clear();
-    }
-    if (read !== undefined) await read?.close();
-    if (write !== undefined) await write?.close();
-    read = undefined;
-    write = undefined;
-    handler = undefined;
-  });
-
-  afterAll(async () => {
-    // console.log('afterAll');
-    if (handler !== undefined) {
-      await handler?.getRead()?.clear();
-      await handler?.getWrite()?.clear();
-    }
-    if (read !== undefined) await read?.close();
-    if (write !== undefined) await write?.close();
-  });
-  test('add and read array and find object', async () => {
-    const pool = read.getPool();
-    await Utils.init(pool, true);
-    // new TestDAO({
-    //   pool,
-    //   journaly,
-    // });
-    // new ObjectDAO({
-    //   pool,
-    //   journaly,
-    // });
-    const handler = new Handler(write, read);
-    await handler.getWrite()?.clear();
-    const obj = {};
-    obj['test'] = 'test';
+  const pool = read.getPool();
+  await Utils.init(pool, true);
+  // new TestDAO({
+  //   pool,
+  //   journaly,
+  // });
+  // new ObjectDAO({
+  //   pool,
+  //   journaly,
+  // });
+  const handler = new Handler(write, read);
+  await handler.getWrite()?.clear();
+  const obj = {};
+  obj['test'] = 'test';
+  try {
     // console.log('TEST00');
     const persistencePromise = await handler.addEvent(
       new Event({ operation: Operation.create, name: 'Object', content: obj })
@@ -167,9 +132,7 @@ describe('1', () => {
     >;
     // console.log('TEST04', persistencePromise11);
     expect(persistencePromise11?.receivedItem).toStrictEqual(receivedObjects);
-    expect(persistencePromise11?.selectedItem).toStrictEqual({
-      test: 'test',
-    });
+    expect(persistencePromise11?.selectedItem).toStrictEqual({ test: 'test' });
     expect(persistencePromise11?.sentItem).toStrictEqual(undefined);
 
     // console.log('TEST04');
@@ -293,67 +256,55 @@ describe('1', () => {
     expect(persistencePromise6?.receivedItem).toStrictEqual(0);
     expect(persistencePromise6?.selectedItem).toStrictEqual(undefined);
     expect(persistencePromise6?.sentItem).toStrictEqual(undefined);
-  });
-});
-describe('2', () => {
-  beforeEach(async () => {
-    // console.log('beforeEach');
-    // if (handler !== undefined) {
-    //   await handler?.getRead()?.clear();
-    //   await handler?.getWrite()?.clear();
-    // }
-    journaly = Journaly.newJournaly() as SenderReceiver<any>;
-    const eventDatabase = new MongoPersistence(
-      new PersistenceInfo(eventInfo, journaly)
+  } catch (error) {
+    console.error(error);
+    await handler.addEvent(
+      new Event({
+        operation: Operation.delete,
+        name: 'Object',
+        single: false,
+      })
     );
-    const database = new PersistenceInfo(readInfo2, journaly);
-    write = eventDatabase;
-    const mSSQL = new MSSQL(database);
-    read = new DAOPersistence(mSSQL);
-    handler = new Handler(write, read, { isInSeries: true });
-    // await handler?.getRead()?.clear();
-    // await handler?.getWrite()?.clear();
-  });
+    // const persistencePromise7 = await handler.readArray('Object', {});
+    // expect(persistencePromise7?.result.rowCount).toBe(0);
+    await handler.getWrite()?.clear();
+    await write.close();
+    await Utils.dropTables(pool);
+    expect(error).toBe(null);
+  }
+  await handler.addEvent(
+    new Event({ operation: Operation.delete, name: 'Object' })
+  );
+  await handler.getWrite()?.clear();
+  await write.close();
+  await Utils.dropTables(pool);
+});
 
-  afterEach(async () => {
-    // console.log('afterEach');
-    if (handler !== undefined) {
-      await handler?.getRead()?.clear();
-      await handler?.getWrite()?.clear();
-    }
-    if (read !== undefined) await read?.close();
-    if (write !== undefined) await write?.close();
-    read = undefined;
-    write = undefined;
-    handler = undefined;
+test('add array and read elements, update and delete object', async () => {
+  const journaly = Journaly.newJournaly() as SenderReceiver<any>;
+  const eventDatabase = new MongoPersistence(
+    new PersistenceInfo(eventInfo, journaly)
+  );
+  const database = new PersistenceInfo(readInfo2, journaly);
+  write = eventDatabase;
+  const mSSQL = new MSSQL(database);
+  read = new DAOPersistence(mSSQL);
+  const pool = read.getPool();
+  await Utils.init(pool, true);
+  new TestDAO({
+    pool,
+    journaly,
   });
-
-  afterAll(async () => {
-    // console.log('afterAll');
-    if (handler !== undefined) {
-      await handler?.getRead()?.clear();
-      await handler?.getWrite()?.clear();
-    }
-    if (read !== undefined) await read?.close();
-    if (write !== undefined) await write?.close();
+  new ObjectDAO({
+    pool,
+    journaly,
   });
-  test('add array and read elements, update and delete object', async () => {
-    const pool = read.getPool();
-    await Utils.init(pool, true);
-    new TestDAO({
-      pool,
-      journaly,
-    });
-    new ObjectDAO({
-      pool,
-      journaly,
-    });
-    const handler = new Handler(write, read);
-    const obj00 = {};
-    obj00['test'] = 'test';
-    const obj01 = {};
-    obj01['test'] = 'test2';
-
+  const handler = new Handler(write, read);
+  const obj00 = {};
+  obj00['test'] = 'test';
+  const obj01 = {};
+  obj01['test'] = 'test2';
+  try {
     // console.log('TEST00');
     const persistencePromise = (await handler.addEvent(
       new Event({
@@ -460,8 +411,26 @@ describe('2', () => {
     });
     expect(persistencePromise5?.selectedItem).toStrictEqual({ id: obj1.id });
     expect(persistencePromise5?.sentItem).toStrictEqual(undefined);
+  } catch (error) {
+    console.error(error);
+    await handler.addEvent(
+      new Event({
+        operation: Operation.delete,
+        name: 'Object',
+        single: false,
+      })
+    );
+    // const persistencePromise7 = await handler.readArray('Object', {});
+    // expect(persistencePromise7?.result.rowCount).toBe(0);
     await handler.getWrite()?.clear();
     await write.close();
     await Utils.end(pool);
-  });
+    expect(error).toBe(null);
+  }
+  await handler.addEvent(
+    new Event({ operation: Operation.delete, name: 'Object' })
+  );
+  await handler.getWrite()?.clear();
+  await write.close();
+  await Utils.end(pool);
 });
