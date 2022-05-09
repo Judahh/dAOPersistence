@@ -136,7 +136,7 @@ jobs:
       - name: Wait for mssql to be ready
         uses: jakejarvis/wait-action@master
         with:
-          time: '10s'
+          time: '30s'
       - name: TEST
         uses: judahh/yarnTest@main
         with:
