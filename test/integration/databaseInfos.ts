@@ -6,7 +6,7 @@ const eventInfo = {
   port: process.env.MONGO_PORT,
 };
 
-const readInfo = {
+const readInfo: Info = {
   database: 'read_DB',
   host: process.env.PGSQL_HOST || 'localhost',
   port: process.env.PGSQL_PORT || 5432,
@@ -15,8 +15,10 @@ const readInfo = {
   pool: {
     min: 0,
     max: 10,
-    acquireTimeoutMillis: 600000,
     idleTimeoutMillis: 600000,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    acquireTimeoutMillis: 600000,
   },
 };
 
@@ -37,8 +39,10 @@ const readInfo2: Info = {
   pool: {
     min: 0,
     max: 10,
-    // acquireTimeoutMillis: 600000,
     idleTimeoutMillis: 600000,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    acquireTimeoutMillis: 600000,
   },
 };
 
