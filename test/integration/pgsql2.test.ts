@@ -320,9 +320,17 @@ describe('2', () => {
     write = eventDatabase;
     const postgres = new PGSQL(database);
     read = new DAOPersistence(postgres);
-    handler = new Handler(write, read, { isInSeries: true });
-    // await handler?.getRead()?.clear();
-    // await handler?.getWrite()?.clear();
+    const pool = read.getPool();
+    await Utils.init(pool);
+    new TestDAO({
+      pool,
+      journaly,
+    });
+    new ObjectDAO({
+      pool,
+      journaly,
+    });
+    handler = new Handler(write, read);
   });
 
   afterEach(async () => {
@@ -348,17 +356,6 @@ describe('2', () => {
     if (write !== undefined) await write?.close();
   });
   test('add array and read elements, update and delete object', async () => {
-    const pool = read.getPool();
-    await Utils.init(pool);
-    new TestDAO({
-      pool,
-      journaly,
-    });
-    new ObjectDAO({
-      pool,
-      journaly,
-    });
-    const handler = new Handler(write, read);
     const obj00 = {};
     obj00['test'] = 'test';
     const obj01 = {};
@@ -452,19 +449,14 @@ describe('2', () => {
     expect(persistencePromise4?.selectedItem).toStrictEqual({ id: obj3.id });
     expect(persistencePromise4?.sentItem).toStrictEqual(obj01);
 
-    afterEach(async () => {
-      // console.log('afterEach');
-      if (handler !== undefined) {
-        await handler?.getRead()?.clear();
-        await handler?.getWrite()?.clear();
-      }
-      if (read !== undefined) await read?.close();
-      if (write !== undefined) await write?.close();
-      read = undefined;
-      write = undefined;
-      handler = undefined;
-    });
-
+    const persistencePromise5 = await handler.addEvent(
+      new Event({
+        operation: Operation.read,
+        name: 'Object',
+        single: true,
+        selection: { id: obj1.id },
+      })
+    );
 
     expect(persistencePromise5?.receivedItem).toStrictEqual(obj1);
     expect(persistencePromise5?.selectedItem).toStrictEqual({ id: obj1.id });
