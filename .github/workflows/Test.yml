@@ -103,26 +103,14 @@ jobs:
 
     services:
       mssql:
-        image: "mcr.microsoft.com/mssql/server:latest"
+        image: "judahh/mssql-image:latest"
         ports:
           - 1433:1433
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: "yourStrong(!)Password"
+          SA_PASSWORD: yourStrong(!)Password
           MSSQL_PID: Developer
-
-      # minion:
-      #   image: mcr.microsoft.com/mssql-tools:latest
-        # depends_on:
-        # - mssql
-        # command: >
-        #   sh -c "
-        #   echo 'START' &&
-        #   echo sleep 60 &&
-        #   /opt/mssql-tools/bin/sqlcmd -S mssql -U SA -P 'yourStrong(!)Password'
-        #   -Q 'CREATE DATABASE read_DB' &&
-        #   echo 'END'
-        #   "
+          DATABASE_NAME: read_DB
 
       mongo:
         image: mongo:latest
@@ -134,13 +122,6 @@ jobs:
         node-version: [14.x]
 
     steps:
-      - name: INIT MSSQL
-        run: |
-          apt update && apt install -y unzip sqlcmd &&"
-          echo 'START' &&
-          /opt/mssql-tools/bin/sqlcmd -S mssql -U SA -P 'yourStrong(!)Password' -Q 'CREATE DATABASE read_DB' &&
-          echo 'END'
-          "
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@main
         with:

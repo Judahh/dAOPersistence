@@ -19,22 +19,11 @@ services:
       - 5432:5432
 
   mssql:
-    image: "mcr.microsoft.com/mssql/server:latest"
+    image: "judahh/mssql-image:latest"
     ports:
     - 1433:1433
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: yourStrong(!)Password
       MSSQL_PID: Developer
-  minion:
-    image: mcr.microsoft.com/mssql-tools:latest
-    depends_on:
-    - mssql
-    command: >
-      sh -c "
-      echo 'START' &&
-      echo sleep 60 &&
-      /opt/mssql-tools/bin/sqlcmd -S mssql -U SA -P 'yourStrong(!)Password'
-      -Q 'CREATE DATABASE read_DB' &&
-      echo 'END'
-      "
+      DATABASE_NAME: read_DB
