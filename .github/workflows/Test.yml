@@ -108,9 +108,9 @@ jobs:
           - 1433:1433
         env:
           ACCEPT_EULA: "Y"
-          SA_PASSWORD: yourStrong(!)Password
-          MSSQL_PID: Developer
-          DATABASE_NAME: read_DB
+          SA_PASSWORD: "yourStrong(!)Password"
+          MSSQL_PID: "Developer"
+          DATABASE_NAME: "read_DB"
 
       mongo:
         image: mongo:latest
@@ -140,7 +140,7 @@ jobs:
         env:
           MSSQL_HOST: mssql
           MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
-          MSSQL_USER: "sa"
+          MSSQL_USER: "SA"
           MSSQL_PASSWORD: "yourStrong(!)Password"
           MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}

@@ -28,7 +28,7 @@ const readInfo2 = {
   },
   host: process.env.MSSQL_HOST || 'localhost',
   port: process.env.MSSQL_PORT || 1433,
-  username: process.env.MSSQL_USER || 'sa',
+  username: process.env.MSSQL_USER || 'SA',
   password: process.env.MSSQL_PASSWORD || 'yourStrong(!)Password',
   ssl: false,
   pool: {
