@@ -6,16 +6,6 @@ import type { Config } from '@jest/types';
 // import { Journaly, SenderReceiver } from 'journaly';
 
 export default async (): Promise<Config.InitialOptions> => {
-  console.log('Init Tests...');
-  try {
-    // const journaly = Journaly.newJournaly() as SenderReceiver<unknown>;
-    // const database = new PersistenceInfo(readInfo1, journaly);
-    // console.log('database:', readInfo2);
-    // await Utils.create(new MSSQL(database));
-  } catch (error) {
-    console.error('Error:', error);
-  }
-  console.log('Init done!');
   const config = {
     verbose: true,
     testTimeout: 500000,
