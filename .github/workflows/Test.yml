@@ -145,7 +145,7 @@ jobs:
           SA_PASSWORD: "yourStrong(!)Password"
           MSSQL_PASSWORD: "yourStrong(!)Password"
           MSSQL_SA_PASSWORD: "yourStrong(!)Password"
-          MSSQL_SSL: "false"
-          MSSQL_OPTIONS: "true"
+          MSSQL_SSL: "true"
+          MSSQL_OPTIONS: "false"
           MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
