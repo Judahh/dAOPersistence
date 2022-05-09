@@ -134,12 +134,9 @@ jobs:
         with:
           production: true
       - name: Wait for mssql to be ready
-        uses: actions/wait-for-ssh@main
+        uses: jakejarvis/wait-action@master
         with:
-          host: mssql
-          port: 1433
-          timeout: 10m
-          retries: 5
+          time: '5s'
       - name: TEST
         uses: judahh/yarnTest@main
         with:
