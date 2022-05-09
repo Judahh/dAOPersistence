@@ -32,7 +32,7 @@ const readInfo2: Info = {
   host: process.env.MSSQL_HOST || 'localhost',
   port: process.env.MSSQL_PORT || 1433,
   username: process.env.MSSQL_USER || 'SA',
-  password: process.env.MSSQL_PASSWORD || 'yourStrong(!)Password',
+  password: process.env.SA_PASSWORD || 'yourStrong(!)Password',
   ssl: (process.env.MSSQL_SSL && JSON.parse(process.env.MSSQL_SSL)) || false,
   pool: {
     min: 0,

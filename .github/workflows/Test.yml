@@ -54,6 +54,11 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
       pgsql:
         image: postgres:latest
         env:
@@ -64,11 +69,6 @@ jobs:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
 
     strategy:
       matrix:
@@ -102,6 +102,10 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
       mssql:
         image: "judahh/mssql-image:latest"
         ports:
@@ -111,11 +115,6 @@ jobs:
           SA_PASSWORD: "yourStrong(!)Password"
           MSSQL_PID: "Developer"
           DATABASE_NAME: "read_DB"
-
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
 
     strategy:
       matrix:
@@ -141,7 +140,7 @@ jobs:
           MSSQL_HOST: mssql
           MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
           MSSQL_USER: "SA"
-          MSSQL_PASSWORD: "yourStrong(!)Password"
+          SA_PASSWORD: "yourStrong(!)Password"
           MSSQL_SSL: "true"
           MSSQL_OPTIONS: "false"
           MONGO_HOST: mongo
