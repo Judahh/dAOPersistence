@@ -20,33 +20,76 @@ import { ObjectId } from 'mongoose';
 
 let read;
 let write;
-test('add and read array and find object', async () => {
-  const journaly = Journaly.newJournaly() as SenderReceiver<any>;
-  const eventDatabase = new MongoPersistence(
-    new PersistenceInfo(eventInfo, journaly)
-  );
-  const database = new PersistenceInfo(readInfo, journaly);
-  write = eventDatabase;
-  const postgres = new PGSQL(database);
-  read = new DAOPersistence(postgres, {
-    test: new TestWithAliasDAO(),
-    object: new ObjectWithAliasDAO(),
+let handler;
+let journaly;
+
+describe('1', () => {
+  beforeEach(async () => {
+    // console.log('beforeEach');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (write !== undefined) {
+      await write?.close();
+    }
+    if (read !== undefined) {
+      await read?.close();
+    }
+    journaly = Journaly.newJournaly() as SenderReceiver<any>;
+    const eventDatabase = new MongoPersistence(
+      new PersistenceInfo(eventInfo, journaly)
+    );
+    const database = new PersistenceInfo(readInfo, journaly);
+    write = eventDatabase;
+    const postgres = new PGSQL(database);
+    read = new DAOPersistence(postgres, {
+      test: new TestWithAliasDAO(),
+      object: new ObjectWithAliasDAO(),
+    });
+    handler = new Handler(write, read, { isInSeries: true });
+    // await handler?.getRead()?.clear();
+    // await handler?.getWrite()?.clear();
   });
-  const pool = read.getPool();
-  await Utils.init(pool);
-  // new TestWithAliasDAO({
-  //   pool,
-  //   journaly,
-  // });
-  // new ObjectWithAliasDAO({
-  //   pool,
-  //   journaly,
-  // });
-  const handler = new Handler(write, read);
-  await handler.getWrite()?.clear();
-  const obj = {};
-  obj['test'] = 'test';
-  try {
+
+  afterEach(async () => {
+    // console.log('afterEach');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (read !== undefined) await read?.close();
+    if (write !== undefined) await write?.close();
+    read = undefined;
+    write = undefined;
+    handler = undefined;
+  });
+
+  afterAll(async () => {
+    // console.log('afterAll');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (read !== undefined) await read?.close();
+    if (write !== undefined) await write?.close();
+  });
+
+  test('add and read array and find object', async () => {
+    const pool = read.getPool();
+    await Utils.init(pool);
+    // new TestWithAliasDAO({
+    //   pool,
+    //   journaly,
+    // });
+    // new ObjectWithAliasDAO({
+    //   pool,
+    //   journaly,
+    // });
+    const handler = new Handler(write, read);
+    await handler.getWrite()?.clear();
+    const obj = {};
+    obj['test'] = 'test';
     // console.log('TEST00');
     const persistencePromise = await handler.addEvent(
       new Event({
@@ -134,7 +177,9 @@ test('add and read array and find object', async () => {
     >;
     // console.log('TEST04', persistencePromise11);
     expect(persistencePromise11?.receivedItem).toStrictEqual([obj0, obj1]);
-    expect(persistencePromise11?.selectedItem).toStrictEqual({ test: 'test' });
+    expect(persistencePromise11?.selectedItem).toStrictEqual({
+      test: 'test',
+    });
     expect(persistencePromise11?.sentItem).toStrictEqual(undefined);
 
     // console.log('TEST04');
@@ -269,55 +314,72 @@ test('add and read array and find object', async () => {
     expect(persistencePromise6?.receivedItem).toStrictEqual(0);
     expect(persistencePromise6?.selectedItem).toStrictEqual(undefined);
     expect(persistencePromise6?.sentItem).toStrictEqual(undefined);
-  } catch (error) {
-    console.error(error);
-    await handler.addEvent(
-      new Event({
-        operation: Operation.delete,
-        name: 'ObjectWithAlias',
-        single: false,
-      })
-    );
-    // const persistencePromise7 = await handler.readArray('ObjectWithAlias', {});
-    // expect(persistencePromise7?.result.rowCount).toBe(0);
-    await handler.getWrite()?.clear();
-    await write.close();
-    await Utils.dropTables(pool);
-    expect(error).toBe(null);
-  }
-  await handler.addEvent(
-    new Event({ operation: Operation.delete, name: 'ObjectWithAlias' })
-  );
-  await handler.getWrite()?.clear();
-  await write.close();
-  await Utils.dropTables(pool);
+  });
 });
+describe('2', () => {
+  beforeEach(async () => {
+    // console.log('beforeEach');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (write !== undefined) {
+      await write?.close();
+    }
+    if (read !== undefined) {
+      await read?.close();
+    }
+    journaly = Journaly.newJournaly() as SenderReceiver<any>;
+    const eventDatabase = new MongoPersistence(
+      new PersistenceInfo(eventInfo, journaly)
+    );
+    const database = new PersistenceInfo(readInfo, journaly);
+    write = eventDatabase;
+    const postgres = new PGSQL(database);
+    read = new DAOPersistence(postgres);
+    handler = new Handler(write, read, { isInSeries: true });
+    // await handler?.getRead()?.clear();
+    // await handler?.getWrite()?.clear();
+  });
 
-test('add array and read elements, update and delete object', async () => {
-  const journaly = Journaly.newJournaly() as SenderReceiver<any>;
-  const eventDatabase = new MongoPersistence(
-    new PersistenceInfo(eventInfo, journaly)
-  );
-  const database = new PersistenceInfo(readInfo, journaly);
-  write = eventDatabase;
-  const postgres = new PGSQL(database);
-  read = new DAOPersistence(postgres);
-  const pool = read.getPool();
-  await Utils.init(pool);
-  new TestWithAliasDAO({
-    pool,
-    journaly,
+  afterEach(async () => {
+    // console.log('afterEach');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (read !== undefined) await read?.close();
+    if (write !== undefined) await write?.close();
+    read = undefined;
+    write = undefined;
+    handler = undefined;
   });
-  new ObjectWithAliasDAO({
-    pool,
-    journaly,
+
+  afterAll(async () => {
+    // console.log('afterAll');
+    if (handler !== undefined) {
+      await handler?.getRead()?.clear();
+      await handler?.getWrite()?.clear();
+    }
+    if (read !== undefined) await read?.close();
+    if (write !== undefined) await write?.close();
   });
-  const handler = new Handler(write, read);
-  const obj00 = {};
-  obj00['test'] = 'test';
-  const obj01 = {};
-  obj01['test'] = 'test2';
-  try {
+  test('add array and read elements, update and delete object', async () => {
+    const pool = read.getPool();
+    await Utils.init(pool);
+    new TestWithAliasDAO({
+      pool,
+      journaly,
+    });
+    new ObjectWithAliasDAO({
+      pool,
+      journaly,
+    });
+    const handler = new Handler(write, read);
+    const obj00 = {};
+    obj00['test'] = 'test';
+    const obj01 = {};
+    obj01['test'] = 'test2';
     // console.log('TEST00');
     const persistencePromise = (await handler.addEvent(
       new Event({
@@ -435,26 +497,5 @@ test('add array and read elements, update and delete object', async () => {
     expect(persistencePromise5?.receivedItem).toStrictEqual(obj1);
     expect(persistencePromise5?.selectedItem).toStrictEqual({ id: obj1.id });
     expect(persistencePromise5?.sentItem).toStrictEqual(undefined);
-  } catch (error) {
-    console.error(error);
-    await handler.addEvent(
-      new Event({
-        operation: Operation.delete,
-        name: 'ObjectWithAlias',
-        single: false,
-      })
-    );
-    // const persistencePromise7 = await handler.readArray('ObjectWithAlias', {});
-    // expect(persistencePromise7?.result.rowCount).toBe(0);
-    await handler.getWrite()?.clear();
-    await write.close();
-    await Utils.end(pool);
-    expect(error).toBe(null);
-  }
-  await handler.addEvent(
-    new Event({ operation: Operation.delete, name: 'ObjectWithAlias' })
-  );
-  await handler.getWrite()?.clear();
-  await write.close();
-  await Utils.end(pool);
+  });
 });

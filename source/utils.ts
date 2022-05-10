@@ -7,7 +7,9 @@ class Utils {
   static async query(pool: IPool, file: string): Promise<void> {
     const script = await promises.readFile(file, 'utf8');
     // console.log('Query:', script);
-    await pool.query(script);
+    // console.log('pool:', pool);
+    // console.log('Query:', pool.query);
+    await pool?.query(script);
   }
 
   static async create(pool: IPool): Promise<void> {
