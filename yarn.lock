@@ -502,18 +502,18 @@
     journaly latest
 
 "@flexiblepersistence/mssql@latest":
-  version "0.2.21"
-  resolved "https://registry.yarnpkg.com/@flexiblepersistence/mssql/-/mssql-0.2.21.tgz#d0ddd722633de956b401d45ad5e05be32e8c2d99"
-  integrity sha512-d+J/gslCDwYcXnG5x41VQcTA3KsSJZS8a/sQxDEaQ0YEthvbJkXFGEdIT/8v72kPTQR4tH4uHX58CpMmzRS0zA==
+  version "0.2.22"
+  resolved "https://registry.yarnpkg.com/@flexiblepersistence/mssql/-/mssql-0.2.22.tgz#08292d082ead9b9896f412fca679144f11cc520c"
+  integrity sha512-/yT77515oTcQz/tM+PHNAy/L8F5LjfJXiAErWTieFdFVCsBsLrpDBKkn9BaHCz1cYv7qqNl4vNoPSWbjCH6LLA==
   dependencies:
     flexiblepersistence latest
     mssql latest
     tsqlstring latest
 
 "@flexiblepersistence/pgsql@latest":
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/@flexiblepersistence/pgsql/-/pgsql-0.1.12.tgz#3fa5e9ef14e21024d756295eede58d804594259e"
-  integrity sha512-5qCdW71+hs+VHlv2Jo58QymEycuYG2ncn8cnnwUDXUgmVfdokMZcFPdWlJdBtKrkdNRUFiE+ggsxpitrB6h7tg==
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/@flexiblepersistence/pgsql/-/pgsql-0.1.13.tgz#27b33a98aefdb90e1540f0f6ac071f8140904b13"
+  integrity sha512-W4MwTdiEs4X7yo2rpAw2xx/HhcHN1/46UiBJ1KMVDhl3zaP565WinePbrGDaEb1kTI/PEM1vDqB66vIu11RVlw==
   dependencies:
     flexiblepersistence latest
     pg latest
@@ -2300,9 +2300,9 @@ internal-slot@^1.0.3:
     side-channel "^1.0.4"
 
 ip@^1.1.5:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.6.tgz#5a651a37644586e18b6ba3b48ca122bf56495f67"
-  integrity sha512-/dAvCivFs/VexXAtiAoMIqyhkhStNC9CPD0h1noonimOgB1xrCkexF2c5CjlqQ72GgMPjN6tiV+oreoPv3Ft1g==
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.7.tgz#4f6195d7bdb30435aac35301e7b993c6c8218c0d"
+  integrity sha512-SLm2ERgmBGag79RfrIknk+40ZOJCgUBpCQTl3WE2YER21VR0W3Vt/OAXXaYLSU0AIcBqWnytoTwk2ZcTbxH0xg==
 
 is-arrayish@^0.2.1:
   version "0.2.1"
