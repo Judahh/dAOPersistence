@@ -97,60 +97,60 @@ jobs:
           MONGO_HOST: mongo
           MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
 
-  mssql:
-    needs: [build]
-    runs-on: ubuntu-latest
+  # mssql:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
 
-    services:
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-      mssql:
-        image: "judahh/mssql-image:latest"
-        ports:
-          - 1433:1433
-        env:
-          ACCEPT_EULA: "Y"
-          INSTANCE: "tcp:127.0.0.1"
-          SA_PASSWORD: yourStrong(!)Password
-          MSSQL_PASSWORD: yourStrong(!)Password
-          MSSQL_SA_PASSWORD: yourStrong(!)Password
-          MSSQL_PID: "Developer"
-          DATABASE_NAME: "read_DB"
+  #   services:
+  #     mongo:
+  #       image: mongo:latest
+  #       ports:
+  #         - 27017:27017
+  #     mssql:
+  #       image: "judahh/mssql-image:latest"
+  #       ports:
+  #         - 1433:1433
+  #       env:
+  #         ACCEPT_EULA: "Y"
+  #         INSTANCE: "tcp:127.0.0.1"
+  #         SA_PASSWORD: yourStrong(!)Password
+  #         MSSQL_PASSWORD: yourStrong(!)Password
+  #         MSSQL_SA_PASSWORD: yourStrong(!)Password
+  #         MSSQL_PID: "Developer"
+  #         DATABASE_NAME: "read_DB"
 
-    strategy:
-      matrix:
-        node-version: [14.x]
+  #   strategy:
+  #     matrix:
+  #       node-version: [14.x]
 
-    steps:
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@main
-        with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: https://registry.npmjs.org
-      - name: ARTIFACT TO UNZIP
-        uses: judahh/artifactToUnzip@main
-        with:
-          production: true
-      # - name: Wait for mssql to be ready
-      #   uses: jakejarvis/wait-action@master
-      #   with:
-      #     time: '30s'
-      - name: TEST
-        uses: judahh/yarnTest@main
-        with:
-          run_test: 'false'
-          integration_filter: 'mssql'
-          change_permissions: 'true'
-        env:
-          MSSQL_HOST: mssql
-          MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
-          MSSQL_USER: sa
-          SA_PASSWORD: yourStrong(!)Password
-          MSSQL_PASSWORD: yourStrong(!)Password
-          MSSQL_SA_PASSWORD: yourStrong(!)Password
-          MSSQL_SSL: "true"
-          MSSQL_OPTIONS: "false"
-          MONGO_HOST: mongo
-          MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
+  #   steps:
+  #     - name: Use Node.js ${{ matrix.node-version }}
+  #       uses: actions/setup-node@main
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         registry-url: https://registry.npmjs.org
+  #     - name: ARTIFACT TO UNZIP
+  #       uses: judahh/artifactToUnzip@main
+  #       with:
+  #         production: true
+  #     # - name: Wait for mssql to be ready
+  #     #   uses: jakejarvis/wait-action@master
+  #     #   with:
+  #     #     time: '30s'
+  #     - name: TEST
+  #       uses: judahh/yarnTest@main
+  #       with:
+  #         run_test: 'false'
+  #         integration_filter: 'mssql'
+  #         change_permissions: 'true'
+  #       env:
+  #         MSSQL_HOST: mssql
+  #         MSSQL_PORT: ${{ job.services.mssql.ports[1433] }}
+  #         MSSQL_USER: sa
+  #         SA_PASSWORD: yourStrong(!)Password
+  #         MSSQL_PASSWORD: yourStrong(!)Password
+  #         MSSQL_SA_PASSWORD: yourStrong(!)Password
+  #         MSSQL_SSL: "true"
+  #         MSSQL_OPTIONS: "false"
+  #         MONGO_HOST: mongo
+  #         MONGO_PORT: ${{ job.services.mongo.ports[27017] }}
