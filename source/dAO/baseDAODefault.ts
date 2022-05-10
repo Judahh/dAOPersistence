@@ -81,7 +81,8 @@ export default abstract class BaseDAODefault extends Default {
       if (
         typeof element === 'string' &&
         this.stringEquals !== undefined &&
-        this.stringEquals !== null
+        this.stringEquals !== null &&
+        !((new Date(element) as unknown as number) >= 0)
       ) {
         found = this.stringEquals;
       } else {
