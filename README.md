@@ -1,10 +1,12 @@
 # dAOPersistence
 
 ![Publish](https://github.com/Judahh/dAOPersistence/workflows/Publish/badge.svg)
-[![npm version](https://badge.fury.io/js/@flexiblepersistence/dao.svg)](https://badge.fury.io/js/@flexiblepersistence/dao)
+[![npm version](https://badge.fury.io/js/@flexiblepersistence%2dao.svg)](https://badge.fury.io/js/@flexiblepersistence/dao)
 [![npm downloads](https://img.shields.io/npm/dt/@flexiblepersistence/dao.svg)](https://img.shields.io/npm/dt/@flexiblepersistence/dao.svg)
 
 A DAO implementation for Flexible Persistence's PersistenceAdapter
+
+It's a data access object (DAO) implementation for Flexible Persistence's PersistenceAdapter.
 
 ```js
 // Init Journaly as a observer platform for using as a message broker
@@ -43,8 +45,6 @@ const persistencePromise = await handler.addEvent(
 // prints create event
 console.log(persistencePromise);
 ```
-
-![Overview](./doc/overview.svg)
 
 ## Installation
 
