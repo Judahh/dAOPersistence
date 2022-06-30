@@ -78,11 +78,16 @@ export default abstract class BaseDAODefault extends Default {
       }
     }
     if (found === undefined || found === null || found === '') {
+      const date =
+        typeof element === 'string' &&
+        this.stringEquals !== undefined &&
+        this.stringEquals !== null &&
+        (new Date(element) as unknown as number);
       if (
         typeof element === 'string' &&
         this.stringEquals !== undefined &&
         this.stringEquals !== null &&
-        !((new Date(element) as unknown as number) >= 0)
+        (element.includes('%') || !(date >= 0))
       ) {
         found = this.stringEquals;
       } else {
