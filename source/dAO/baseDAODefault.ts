@@ -504,7 +504,7 @@ export default abstract class BaseDAODefault extends Default {
     ) {
       return [
         input.id ? { ...input.selectedItem, id: input.id } : input.selectedItem,
-        input.id || input.single,
+        (input.id && !Array.isArray(input.id)) || input.single,
         input.eventOptions,
         this.realInput(input),
       ];
