@@ -90,6 +90,7 @@ test('add and read array and find object', async () => {
       })
     )) as IOutput<
       { id: ObjectId; test: string },
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string }
     >;
 
@@ -118,6 +119,7 @@ test('add and read array and find object', async () => {
       {}
     )) as IOutput<
       { id: ObjectId; test: string },
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
 
@@ -135,6 +137,7 @@ test('add and read array and find object', async () => {
       })
     )) as IOutput<
       { id: ObjectId; test: string },
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
     // console.log('TEST04', persistencePromise11);
@@ -148,6 +151,7 @@ test('add and read array and find object', async () => {
       'ObjectWithAlias',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }
     >;
@@ -182,6 +186,7 @@ test('add and read array and find object', async () => {
       'ObjectWithAlias',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -250,6 +255,7 @@ test('add and read array and find object', async () => {
       'ObjectWithAlias',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -328,6 +334,7 @@ test('add array and read elements, update and delete object', async () => {
         content: [obj00, obj01],
       })
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string; timestamp: string }
     >;

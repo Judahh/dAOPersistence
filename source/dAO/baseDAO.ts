@@ -189,10 +189,15 @@ export default abstract class BaseDAO extends BaseDAODefault {
     });
   }
 
-  create(input: IInputCreate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
+  create(
+    input: IInputCreate<IDAOSimple, IDAOSimple>
+  ): Promise<IOutput<IDAOSimple, IDAOSimple, IDAO>> {
     return Array.isArray(input.item)
-      ? this.makePromise(input as IInput<IDAOSimple>, 'createArray')
-      : this.makePromise(input as IInput<IDAOSimple>, 'createSingle');
+      ? this.makePromise(input as IInput<IDAOSimple, IDAOSimple>, 'createArray')
+      : this.makePromise(
+          input as IInput<IDAOSimple, IDAOSimple>,
+          'createSingle'
+        );
   }
 
   async createSingle(content: IDAOSimple): Promise<IDAO> {
@@ -265,7 +270,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     ) as unknown as Promise<IDAO[]>;
   }
 
-  read(input: IInputRead): Promise<IOutput<IDAOSimple, IDAO>> {
+  read(
+    input: IInputRead<IDAOSimple, IDAOSimple>
+  ): Promise<IOutput<IDAOSimple, IDAOSimple, IDAO>> {
     return this.makePromise(input, 'readByFilter');
   }
   async readByFilter(
@@ -318,8 +325,13 @@ export default abstract class BaseDAO extends BaseDAODefault {
     >;
   }
 
-  update(input: IInputUpdate<IDAOSimple>): Promise<IOutput<IDAOSimple, IDAO>> {
-    return this.makePromise(input as IInput<IDAOSimple>, 'updateByFilter');
+  update(
+    input: IInputUpdate<IDAOSimple, IDAOSimple>
+  ): Promise<IOutput<IDAOSimple, IDAOSimple, IDAO>> {
+    return this.makePromise(
+      input as IInput<IDAOSimple, IDAOSimple>,
+      'updateByFilter'
+    );
   }
   async updateByFilter(
     filter,
@@ -394,7 +406,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     // );
     return this.query(newContent, query, values, this.pool?.simpleUpdate);
   }
-  delete(input: IInputDelete): Promise<IOutput<IDAOSimple, IDAO>> {
+  delete(
+    input: IInputDelete<IDAOSimple, IDAOSimple>
+  ): Promise<IOutput<IDAOSimple, IDAOSimple, IDAO>> {
     return this.makePromise(input, 'deleteByFilter');
   }
 

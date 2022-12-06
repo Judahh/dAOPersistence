@@ -53,6 +53,11 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
 
+    # runs all of the steps inside the specified container rather than on the VM host.
+    # Because of this the network configuration changes from host based network to a container network.
+    container:
+      image: ubuntu:latest
+
     services:
       mongo:
         image: mongo:latest
@@ -101,6 +106,11 @@ jobs:
   #   needs: [build]
   #   runs-on: ubuntu-latest
 
+  #  runs all of the steps inside the specified container rather than on the VM host.
+  #  Because of this the network configuration changes from host based network to a container network.
+  #  container:
+  #    image: ubuntu:latest
+
   #   services:
   #     mongo:
   #       image: mongo:latest
@@ -129,6 +139,16 @@ jobs:
   #       with:
   #         node-version: ${{ matrix.node-version }}
   #         registry-url: https://registry.npmjs.org
+  #     - name: Add SPC
+  #       run: apt-get install software-properties-common
+  #     - name: Update
+  #       run: apt-get update
+  #     - name: Add repos
+  #       run: add-apt-repository universe
+  #     - name: Update
+  #       run: apt-get update
+  #     - name: Install 7z
+  #       run: apt-get install p7zip-full
   #     - name: ARTIFACT TO UNZIP
   #       uses: judahh/artifactToUnzip@main
   #       with:

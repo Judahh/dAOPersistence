@@ -82,6 +82,7 @@ test('add and read array and find object', async () => {
         content: { ...obj, id: undefined },
       })
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }
     >;
@@ -110,6 +111,7 @@ test('add and read array and find object', async () => {
       'Object',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -127,6 +129,7 @@ test('add and read array and find object', async () => {
         selection: { test: 'test' },
       })
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -141,6 +144,7 @@ test('add and read array and find object', async () => {
       'Object',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }
     >;
@@ -175,6 +179,7 @@ test('add and read array and find object', async () => {
       'Object',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -236,6 +241,7 @@ test('add and read array and find object', async () => {
       'Object',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -314,6 +320,7 @@ test('add array and read elements, update and delete object', async () => {
         content: [obj00, obj01],
       })
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string; timestamp: string }
     >;
