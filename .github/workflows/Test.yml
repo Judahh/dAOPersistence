@@ -56,7 +56,7 @@ jobs:
     # runs all of the steps inside the specified container rather than on the VM host.
     # Because of this the network configuration changes from host based network to a container network.
     container:
-      image: ubuntu-latest
+      image: ubuntu:latest
 
     services:
       mongo:
@@ -119,7 +119,7 @@ jobs:
   #  runs all of the steps inside the specified container rather than on the VM host.
   #  Because of this the network configuration changes from host based network to a container network.
   #  container:
-  #    image: ubuntu-latest
+  #    image: ubuntu:latest
 
   #   services:
   #     mongo:
