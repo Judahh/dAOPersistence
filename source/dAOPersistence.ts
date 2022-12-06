@@ -46,31 +46,37 @@ export class DAOPersistence implements IPersistence {
       }
     });
   }
-  other(input: IInput<any>): Promise<IOutput<unknown, unknown>> {
+  other(
+    input: IInput<unknown, unknown>
+  ): Promise<IOutput<unknown, unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'other',
       input
     );
   }
-  create(input: IInputCreate<any>): Promise<IOutput<unknown, unknown>> {
+  create(
+    input: IInputCreate<any>
+  ): Promise<IOutput<unknown, unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'create',
       input
     );
   }
-  read(input: IInputRead): Promise<IOutput<unknown, unknown>> {
+  read(input: IInputRead): Promise<IOutput<unknown, unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'read',
       input
     );
   }
-  update(input: IInputUpdate<any>): Promise<IOutput<unknown, unknown>> {
+  update(
+    input: IInputUpdate<any>
+  ): Promise<IOutput<unknown, unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'update',
       input
     );
   }
-  delete(input: IInputDelete): Promise<IOutput<unknown, unknown>> {
+  delete(input: IInputDelete): Promise<IOutput<unknown, unknown, unknown>> {
     return this.persistenceInfo.journaly.publish(
       input.scheme + this.type + '.' + 'delete',
       input

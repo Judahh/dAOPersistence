@@ -480,7 +480,9 @@ export default abstract class BaseDAODefault extends Default {
     return value;
   }
 
-  protected realInput(input: IInput<IDAOSimple | IDAOSimple[]>): any {
+  protected realInput(
+    input: IInput<IDAOSimple | IDAOSimple[], IDAOSimple | IDAOSimple[]>
+  ): any {
     // console.log(input);
 
     let realInput = input.item ? input.item : {};
@@ -494,7 +496,7 @@ export default abstract class BaseDAODefault extends Default {
   }
 
   protected generateContents(
-    input: IInput<IDAOSimple | IDAOSimple[]>,
+    input: IInput<IDAOSimple | IDAOSimple[], IDAOSimple | IDAOSimple[]>,
     method: string
   ): [any, any, any, any] | [any, any?, any?, any?] {
     if (
@@ -513,14 +515,18 @@ export default abstract class BaseDAODefault extends Default {
   }
 
   protected IOutput(
-    input: IInput<IDAOSimple | IDAOSimple[]>,
+    input: IInput<IDAOSimple, IDAOSimple>,
     method: string,
     resolve,
     reject
   ): void {
     this[method](...this.generateContents(input, method))
       .then((output) => {
-        const IOutput: IOutput<IDAOSimple | IDAOSimple[], IDAO> = {
+        const IOutput: IOutput<
+          IDAOSimple | IDAOSimple[],
+          IDAOSimple | IDAOSimple[],
+          IDAO
+        > = {
           receivedItem: output,
           result: output,
           selectedItem: input.selectedItem,
@@ -535,9 +541,9 @@ export default abstract class BaseDAODefault extends Default {
   }
 
   protected makePromise(
-    input: IInput<IDAOSimple>,
+    input: IInput<IDAOSimple, IDAOSimple>,
     method: string
-  ): Promise<IOutput<IDAOSimple, IDAO>> {
+  ): Promise<IOutput<IDAOSimple, IDAOSimple, IDAO>> {
     return new Promise((resolve, reject) => {
       this.IOutput(input, method, resolve, reject);
     });

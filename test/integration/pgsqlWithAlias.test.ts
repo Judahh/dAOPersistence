@@ -132,6 +132,7 @@ describe('1', () => {
       })
     )) as IOutput<
       { id: ObjectId; test: string },
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string }
     >;
 
@@ -156,6 +157,7 @@ describe('1', () => {
       {}
     )) as IOutput<
       { id: ObjectId; test: string },
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
 
@@ -173,6 +175,7 @@ describe('1', () => {
       })
     )) as IOutput<
       { id: ObjectId; test: string },
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
     // console.log('TEST04', persistencePromise11);
@@ -188,6 +191,7 @@ describe('1', () => {
       'ObjectWithAlias',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }
     >;
@@ -224,6 +228,7 @@ describe('1', () => {
       'ObjectWithAlias',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -294,6 +299,7 @@ describe('1', () => {
       'ObjectWithAlias',
       {}
     )) as IOutput<
+      { id: ObjectId; test: string },
       { id: ObjectId; test: string },
       { id: ObjectId; test: string }[]
     >;
@@ -389,6 +395,7 @@ describe('2', () => {
         content: [obj00, obj01],
       })
     )) as IOutput<
+      { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string; timestamp: string },
       { id: ObjectId; test: string; timestamp: string }
     >;
