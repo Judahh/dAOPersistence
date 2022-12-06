@@ -85,9 +85,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           registry-url: https://registry.npmjs.org
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
       # - name: Add SPC
       #   run: apt-get install software-properties-common
       # - name: Update
@@ -152,9 +149,6 @@ jobs:
   #       with:
   #         node-version: ${{ matrix.node-version }}
   #         registry-url: https://registry.npmjs.org
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 16
   #     - name: Add SPC
   #       run: apt-get install software-properties-common
   #     - name: Update
