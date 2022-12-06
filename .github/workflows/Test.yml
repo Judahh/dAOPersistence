@@ -53,6 +53,11 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
 
+    # runs all of the steps inside the specified container rather than on the VM host.
+    # Because of this the network configuration changes from host based network to a container network.
+    container:
+      image: node:latest
+
     services:
       mongo:
         image: mongo:latest
@@ -100,6 +105,11 @@ jobs:
   # mssql:
   #   needs: [build]
   #   runs-on: ubuntu-latest
+
+  #  runs all of the steps inside the specified container rather than on the VM host.
+  #  Because of this the network configuration changes from host based network to a container network.
+  #  container:
+  #    image: node:latest
 
   #   services:
   #     mongo:
