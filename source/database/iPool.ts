@@ -1,4 +1,8 @@
-import { PersistenceInfo, IEventOptions } from 'flexiblepersistence';
+import {
+  PersistenceInfo,
+  IEventOptions,
+  ITransaction,
+} from 'flexiblepersistence';
 
 /* eslint-disable no-unused-vars */
 export interface IPool {
@@ -42,6 +46,9 @@ export interface IPool {
     rowsAffected?: number[];
     recordset?;
   }>;
+  begin(options?): Promise<ITransaction>;
+  commit(transaction: ITransaction): Promise<void>;
+  rollback(transaction: ITransaction): Promise<void>;
   end(): Promise<boolean>;
   getPersistenceInfo(): PersistenceInfo;
 }
