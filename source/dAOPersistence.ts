@@ -2,6 +2,7 @@
 // file deepcode ignore no-any: any needed
 import {
   IPersistence,
+  ITransaction,
   PersistenceInfo,
   IOutput,
   IInputCreate,
@@ -34,6 +35,16 @@ export class DAOPersistence implements IPersistence {
     this.pool = pool;
     this.persistenceInfo = pool.getPersistenceInfo();
     if (element) this.setElement(element);
+  }
+  async transaction(
+    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+    options?: any,
+    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+    callback?: (transaction: any) => Promise<void> // file deepcode ignore no-any: any needed
+  ): Promise<ITransaction> {
+    const transaction = await this.pool.begin(options);
+    await callback?.(transaction);
+    return transaction;
   }
   clear(): Promise<boolean> {
     return new Promise<boolean>(async (resolve, reject) => {
