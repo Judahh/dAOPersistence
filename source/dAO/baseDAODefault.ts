@@ -456,9 +456,9 @@ export default abstract class BaseDAODefault extends Default {
               row[alias.toLowerCase()] ||
               row[alias.toUpperCase()];
             row[key] = rAlias ? rAlias : row[key];
-            delete row[alias];
-            delete row[alias.toLowerCase()];
-            delete row[alias.toUpperCase()];
+            if (key != alias) delete row[alias];
+            if (key != alias.toLowerCase()) delete row[alias.toLowerCase()];
+            if (key != alias.toUpperCase()) delete row[alias.toUpperCase()];
             return row;
           });
       }
