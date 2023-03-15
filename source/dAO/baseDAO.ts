@@ -232,7 +232,10 @@ export default abstract class BaseDAO extends BaseDAODefault {
         );
   }
 
-  async queryCreateSingle(content: IDAOSimple): Promise<ICreateQueryOutput> {
+  async queryCreateSingle(
+    content: IDAOSimple,
+    startValue = 1
+  ): Promise<ICreateQueryOutput> {
     let values = await this.generateValues(content);
     values = await this.addPredefinedValues(content, values);
     const select = await this.generateSelect('created');
@@ -241,7 +244,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       content,
       values,
       undefined,
-      1,
+      startValue,
       false,
       true,
       false,
@@ -262,6 +265,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     return {
       content,
       query,
+      simpleQuery: insert,
       values,
       isSimple: this.pool?.simpleUpdate,
     };
@@ -278,7 +282,10 @@ export default abstract class BaseDAO extends BaseDAODefault {
     );
   }
 
-  async queryCreateArray(content: IDAOSimple[]): Promise<ICreateQueryOutput> {
+  async queryCreateArray(
+    content: IDAOSimple[],
+    startValue = 1
+  ): Promise<ICreateQueryOutput> {
     // console.log('createArray:', content);
     const tempValues: never[][] = (await this.generateVectorValuesFromArray(
       content
@@ -289,7 +296,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       content,
       tempValues,
       undefined,
-      1,
+      startValue,
       false,
       true,
       false,
@@ -313,6 +320,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     return {
       content,
       query,
+      simpleQuery: insert,
       values,
       isSimple: this.pool?.simpleUpdate,
     };
@@ -382,6 +390,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       } ${limitAfter}`;
     return {
       query,
+      simpleQuery: select,
       values,
       content: isSingle ? {} : [],
     };
@@ -417,7 +426,8 @@ export default abstract class BaseDAO extends BaseDAODefault {
     filter,
     isSingle: boolean,
     options,
-    content: IDAOSimple
+    content: IDAOSimple,
+    startValue = 1
   ): Promise<IUpdateQueryOutput> {
     const limit = isSingle
       ? (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
@@ -442,8 +452,8 @@ export default abstract class BaseDAO extends BaseDAODefault {
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
     );
-    const update = await this.generateUpdate(1, content, false, true);
-    const length = Object.keys(content).length + 1;
+    const update = await this.generateUpdate(startValue, content, false, true);
+    const length = Object.keys(content).length + startValue;
     const where = await this.generateWhere(
       filter,
       length,
@@ -469,6 +479,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       : [{ ...filter, ...content }];
     return {
       query,
+      simpleQuery: `${update} ` + `${where}`,
       values,
       content: newContent,
       isSimple: this.pool?.simpleUpdate,
@@ -537,6 +548,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     const values = await this.generateValues(filter, true);
     return {
       defaultOutput: isSingle ? false : 0,
+      simpleQuery: `DELETE ${limitBefore} FROM ${this.getName()} ${where} ${limitAfter}`,
       query,
       values,
     };
