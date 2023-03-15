@@ -123,7 +123,9 @@ export default abstract class BaseDAODefault extends Default {
     useTable?: boolean,
     useAlias?: boolean,
     useCompound?: boolean,
-    useSubElement?: boolean
+    useSubElement?: boolean,
+    manualFields?: string[],
+    manualValues?: string[]
   ): Promise<string> {
     let pos = length;
     let set = this.updateQuery;
@@ -134,8 +136,19 @@ export default abstract class BaseDAODefault extends Default {
       useCompound,
       useSubElement
     );
-    if (content)
-      set = fields.map((x) => '"' + x + '" ' + '=' + ' $' + pos++).join(', ');
+    if (content) {
+      const sets = fields.map((x) => '"' + x + '" ' + '=' + ' $' + pos++);
+      if (
+        manualFields &&
+        manualValues &&
+        manualFields.length == manualValues.length
+      ) {
+        for (let i = 0; i < manualFields.length; i++) {
+          sets.push(`"${manualFields[i]}" = ${manualValues[i]}`);
+        }
+      }
+      set = sets.join(', ');
+    }
     const update = `UPDATE ${this.getName()} SET ${set}`;
     return new Promise((resolve) => {
       resolve(update);
