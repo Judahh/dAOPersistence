@@ -46,7 +46,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     useTable?: boolean,
     useAlias?: boolean,
     useCompound?: boolean,
-    useSubElement?: boolean
+    useSubElement?: boolean,
+    manualFields?: string[],
+    manualValues?: string[]
   ): Promise<string> {
     if (!values) values = await this.generateValues(content);
 
@@ -65,10 +67,16 @@ export default abstract class BaseDAO extends BaseDAODefault {
       fields
     );
 
+    fields.push(...(manualFields || []));
+
     const insertFields = fields?.join(', ') || this.insert;
+    const finalValues = values.map(
+      (_value, index) => '$' + (index + startValue)
+    );
+    finalValues.push(...(manualValues || []));
     let insertValues =
-      values && values.length > 0
-        ? values.map((_value, index) => '$' + (index + startValue)).join(', ')
+      finalValues && finalValues.length > 0
+        ? finalValues.join(', ')
         : undefined;
     insertValues = insertValues || this.insertValues || '';
     tableName = tableName || this.getName();
@@ -104,7 +112,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     useTable?: boolean,
     useAlias?: boolean,
     useCompound?: boolean,
-    useSubElement?: boolean
+    useSubElement?: boolean,
+    manualFields?: string[],
+    manualValues?: string[]
   ): Promise<string> {
     if (!values) values = await this.generateVectorValuesFromArray(content);
 
@@ -116,6 +126,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       useCompound,
       useSubElement
     );
+    fields.push(...(manualFields || []));
     await this.generateInsertArrayPostGenerateFields(
       content,
       values,
@@ -123,21 +134,20 @@ export default abstract class BaseDAO extends BaseDAODefault {
       fields
     );
 
+    const finalValues = values
+      .map((value, index) => {
+        const finalValue = value.map(
+          (_value2, index2) =>
+            '$' + (value.length * index + index2 + startValue)
+        );
+        finalValue.push(...(manualValues || []));
+        return '(' + finalValue.join(', ') + ')';
+      })
+      .join(', ');
+
     const insert = `INSERT INTO ${
       tableName ? tableName : this.getName()
-    } (${fields.join(', ')}) VALUES ${values
-      .map(
-        (value, index) =>
-          '(' +
-          value
-            .map(
-              (_value2, index2) =>
-                '$' + (value.length * index + index2 + startValue)
-            )
-            .join(', ') +
-          ')'
-      )
-      .join(', ')}`;
+    } (${fields.join(', ')}) VALUES ${finalValues}`;
     return new Promise((resolve) => {
       resolve(insert);
     });
@@ -234,7 +244,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
 
   async queryCreateSingle(
     content: IDAOSimple,
-    startValue = 1
+    startValue = 1,
+    manualFields?: string[],
+    manualValues?: string[]
   ): Promise<ICreateQueryOutput> {
     let values = await this.generateValues(content);
     values = await this.addPredefinedValues(content, values);
@@ -248,7 +260,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
       false,
       true,
       false,
-      false
+      false,
+      manualFields,
+      manualValues
     );
     const query = this.pool?.simpleCreate
       ? `${insert}`
@@ -284,7 +298,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
 
   async queryCreateArray(
     content: IDAOSimple[],
-    startValue = 1
+    startValue = 1,
+    manualFields?: string[],
+    manualValues?: string[]
   ): Promise<ICreateQueryOutput> {
     // console.log('createArray:', content);
     const tempValues: never[][] = (await this.generateVectorValuesFromArray(
@@ -300,7 +316,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
       false,
       true,
       false,
-      false
+      false,
+      manualFields,
+      manualValues
     );
     const values: unknown[] = [].concat(...tempValues);
 
@@ -427,7 +445,9 @@ export default abstract class BaseDAO extends BaseDAODefault {
     isSingle: boolean,
     options,
     content: IDAOSimple,
-    startValue = 1
+    startValue = 1,
+    manualFields?: string[],
+    manualValues?: string[]
   ): Promise<IUpdateQueryOutput> {
     const limit = isSingle
       ? (this.pool?.updateLimit ? this.pool?.updateLimit : this.regularLimit) +
@@ -452,7 +472,16 @@ export default abstract class BaseDAO extends BaseDAODefault {
       'updated',
       this.pool?.isUpdateLimitBefore ? limit : undefined
     );
-    const update = await this.generateUpdate(startValue, content, false, true);
+    const update = await this.generateUpdate(
+      startValue,
+      content,
+      false,
+      true,
+      undefined,
+      undefined,
+      manualFields,
+      manualValues
+    );
     const length = Object.keys(content).length + startValue;
     const where = await this.generateWhere(
       filter,
