@@ -198,7 +198,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     pool?: IPool
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
     pool = pool || this.pool;
-    // console.log('UPDATE QUERY:', query, values);
+    // console.log('QUERY:', pool);
     return new Promise(async (resolve, reject) => {
       // console.log('QUERY:', query, values);
       let result = await pool?.query(query, values).catch(reject);
@@ -224,6 +224,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     pool?: IPool
   ): Promise<typeof defaultOutput> {
     pool = pool || this.pool;
+    // console.log('QUERY D:', pool);
     return new Promise(async (resolve, reject) => {
       const result = await pool?.query(query, values).catch(reject);
 
@@ -297,7 +298,13 @@ export default abstract class BaseDAO extends BaseDAODefault {
   }
 
   async createSingle(content: IDAOSimple, pool?: IPool): Promise<IDAO> {
-    const queryOutput = await this.queryCreateSingle(content);
+    const queryOutput = await this.queryCreateSingle(
+      content,
+      undefined,
+      undefined,
+      undefined,
+      pool
+    );
 
     return this.query(
       queryOutput.content,
@@ -360,7 +367,13 @@ export default abstract class BaseDAO extends BaseDAODefault {
   }
 
   async createArray(content: IDAOSimple[], pool?: IPool): Promise<IDAO[]> {
-    const queryOutput = await this.queryCreateArray(content);
+    const queryOutput = await this.queryCreateArray(
+      content,
+      undefined,
+      undefined,
+      undefined,
+      pool
+    );
 
     return this.query(
       queryOutput.content,
@@ -441,7 +454,8 @@ export default abstract class BaseDAO extends BaseDAODefault {
       filter,
       isSingle,
       options,
-      useDenseRank
+      useDenseRank,
+      pool
     );
     return this.query(
       queryOutput.content,
@@ -546,7 +560,11 @@ export default abstract class BaseDAO extends BaseDAODefault {
       filter,
       isSingle,
       options,
-      content
+      content,
+      undefined,
+      undefined,
+      undefined,
+      pool
     );
     return this.query(
       queryOutput.content,
@@ -613,10 +631,12 @@ export default abstract class BaseDAO extends BaseDAODefault {
     options,
     pool?: IPool
   ): Promise<boolean | number> {
+    // console.log('Q D: ', pool);
     const queryOutput = await this.queryDeleteByFilter(
       filter,
       isSingle,
-      options
+      options,
+      pool
     );
     const queryResult = await this.queryDelete(
       queryOutput.defaultOutput,
