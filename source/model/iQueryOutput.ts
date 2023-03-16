@@ -12,6 +12,7 @@ type IReadQueryOutput = {
   query: string;
   simpleQuery: string;
   values: unknown[];
+  isSimple?: boolean;
 };
 type IUpdateQueryOutput = {
   content: any | IDAO;
@@ -25,6 +26,7 @@ type IDeleteQueryOutput = {
   query: string;
   simpleQuery: string;
   values: unknown[];
+  isSimple?: boolean;
 };
 
 export type {
