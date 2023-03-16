@@ -299,8 +299,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
   async createSingle(content: IDAOSimple, pool?: IPool): Promise<IDAO> {
     const queryOutput = await this.queryCreateSingle(content);
 
-    pool = pool || this.pool;
-
     return this.query(
       queryOutput.content,
       queryOutput.query,
@@ -363,8 +361,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
 
   async createArray(content: IDAOSimple[], pool?: IPool): Promise<IDAO[]> {
     const queryOutput = await this.queryCreateArray(content);
-
-    pool = pool || this.pool;
 
     return this.query(
       queryOutput.content,
@@ -447,7 +443,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
       options,
       useDenseRank
     );
-    pool = pool || this.pool;
     return this.query(
       queryOutput.content,
       queryOutput.query,
@@ -553,7 +548,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
       options,
       content
     );
-    pool = pool || this.pool;
     return this.query(
       queryOutput.content,
       queryOutput.query,
@@ -624,7 +618,6 @@ export default abstract class BaseDAO extends BaseDAODefault {
       isSingle,
       options
     );
-    pool = pool || this.pool;
     const queryResult = await this.queryDelete(
       queryOutput.defaultOutput,
       queryOutput.query,
