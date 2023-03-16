@@ -521,7 +521,7 @@ export default abstract class BaseDAODefault extends Default {
         input.id ? { ...input.selectedItem, id: input.id } : input.selectedItem,
         (input.id && !Array.isArray(input.id)) || input.single,
         input.eventOptions,
-        this.realInput(input),
+        method.includes('delete') ? undefined : this.realInput(input),
       ];
     }
     return [this.realInput(input)];
