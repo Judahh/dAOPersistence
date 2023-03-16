@@ -17,6 +17,7 @@ import {
   IReadQueryOutput,
   IUpdateQueryOutput,
 } from '../model/iQueryOutput';
+import { IPool } from '../database/iPool';
 
 export default abstract class BaseDAO extends BaseDAODefault {
   protected insert?: string;
@@ -189,12 +190,14 @@ export default abstract class BaseDAO extends BaseDAODefault {
     content: IDAOSimple | IDAOSimple[],
     query: string,
     values: unknown[],
-    isSimple = false
+    isSimple = false,
+    pool?: IPool
   ): Promise<typeof content extends [] ? IDAO[] : IDAO> {
+    pool = pool || this.pool;
     // console.log('UPDATE QUERY:', query, values);
     return new Promise(async (resolve, reject) => {
       // console.log('QUERY:', query, values);
-      let result = await this.pool?.query(query, values).catch(reject);
+      let result = await pool?.query(query, values).catch(reject);
       type ResultType = typeof content extends [] ? IDAO[] : IDAO;
       result = this.fixType(result ? result : {});
       let finalResult: ResultType = (
