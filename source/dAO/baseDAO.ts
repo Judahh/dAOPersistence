@@ -644,6 +644,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       filter,
       isSingle,
       options,
+      1,
       pool
     );
     const queryResult = await this.queryDelete(
