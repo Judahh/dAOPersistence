@@ -87,6 +87,7 @@ export default abstract class BaseDAODefault extends Default {
         typeof element === 'string' &&
         this.stringEquals !== undefined &&
         this.stringEquals !== null &&
+        // @ts-ignore
         (element.includes('%') || !(date >= 0))
       ) {
         found = this.stringEquals;

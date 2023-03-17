@@ -584,6 +584,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
     filter,
     isSingle: boolean,
     options,
+    startValue = 1,
     pool?: IPool
   ): Promise<IDeleteQueryOutput> {
     let limit = '';
@@ -605,7 +606,14 @@ export default abstract class BaseDAO extends BaseDAODefault {
     }
 
     const idName = await this.getIdField(false, true, false, false);
-    const where = await this.generateWhere(filter, 1, false, true, true, true);
+    const where = await this.generateWhere(
+      filter,
+      startValue,
+      false,
+      true,
+      true,
+      true
+    );
     const query = pool?.simpleDelete
       ? `DELETE ${limitBefore} FROM ${this.getName()} ${where} ${limitAfter}`
       : `DELETE FROM ${this.getName()} WHERE ${idName} IN ` +
@@ -636,6 +644,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
       filter,
       isSingle,
       options,
+      undefined,
       pool
     );
     const queryResult = await this.queryDelete(
