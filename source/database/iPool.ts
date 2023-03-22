@@ -42,6 +42,14 @@ export interface IPool {
     groupBy?: string,
     limitAfter?: string
   ): Promise<string>;
+
+  groupByPagination(
+    options?: IEventOptions,
+    idName?: string,
+    internalQuery?: string,
+    groupBy?: string,
+    limitAfter?: string
+  ): Promise<string | undefined>;
   connect(): Promise<boolean>;
   query(
     script: string,

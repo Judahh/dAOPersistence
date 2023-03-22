@@ -433,22 +433,30 @@ export default abstract class BaseDAO extends BaseDAODefault {
           ? useDenseRank
           : idName
       );
-    const query =
-      `${await pool?.generatePaginationPrefix(
-        options,
-        idName,
-        select,
-        this.getGroupBy(),
-        limitAfter
-      )} ` +
-      select +
-      `${await pool?.generatePaginationSuffix(
-        options,
-        idName,
-        select,
-        this.getGroupBy(),
-        limitAfter
-      )} ${this.getGroupBy()} ${limitAfter}`;
+    const prefix = await pool?.generatePaginationPrefix(
+      options,
+      idName,
+      select,
+      this.getGroupBy(),
+      limitAfter
+    );
+    const suffix = await pool?.generatePaginationSuffix(
+      options,
+      idName,
+      select,
+      this.getGroupBy(),
+      limitAfter
+    );
+    const groupBy = pool?.groupByPagination
+      ? await pool?.groupByPagination(
+          options,
+          idName,
+          select,
+          this.getGroupBy(),
+          limitAfter
+        )
+      : this.getGroupBy();
+    const query = `${prefix} ` + select + ` ${suffix} ${groupBy} ${limitAfter}`;
     return {
       query,
       simpleQuery: select,
