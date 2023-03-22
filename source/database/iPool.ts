@@ -49,7 +49,7 @@ export interface IPool {
     internalQuery?: string,
     groupBy?: string,
     limitAfter?: string
-  ): Promise<string | undefined>;
+  ): Promise<string>;
   connect(): Promise<boolean>;
   query(
     script: string,
