@@ -217,6 +217,10 @@ export default abstract class BaseDAO extends BaseDAODefault {
     });
   }
 
+  getGroupBy(): string {
+    return this.groupBy;
+  }
+
   async queryDelete(
     defaultOutput: boolean | number,
     query: string,
@@ -282,7 +286,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
           this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
         } created AS(${insert} ` +
         `RETURNING * ` +
-        `) ${select} ${this.groupBy} `;
+        `) ${select} ${this.getGroupBy()} `;
 
     // console.log('content:', content);
     // console.log('STORE:', query);
@@ -351,7 +355,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
           this.beforeInsert && this.beforeInsert !== '' ? ',' : ''
         } created AS(${insert} ` +
         `RETURNING * ` +
-        `) ${select} ${this.groupBy} `;
+        `) ${select} ${this.getGroupBy()} `;
 
     // console.log('content:', content);
     // console.log('STORE:', query);
@@ -430,11 +434,21 @@ export default abstract class BaseDAO extends BaseDAODefault {
           : idName
       );
     const query =
-      `${await pool?.generatePaginationPrefix(options, idName)} ` +
+      `${await pool?.generatePaginationPrefix(
+        options,
+        idName,
+        select,
+        this.getGroupBy(),
+        limitAfter
+      )} ` +
       select +
-      `${await pool?.generatePaginationSuffix(options)} ${
-        this.groupBy
-      } ${limitAfter}`;
+      `${await pool?.generatePaginationSuffix(
+        options,
+        idName,
+        select,
+        this.getGroupBy(),
+        limitAfter
+      )} ${this.getGroupBy()} ${limitAfter}`;
     return {
       query,
       simpleQuery: select,
@@ -533,7 +547,7 @@ export default abstract class BaseDAO extends BaseDAODefault {
           pool?.isUpdateLimitBefore ? '' : limit
         }) ` +
         `RETURNING *` +
-        `) ${select} ${this.groupBy}`;
+        `) ${select} ${this.getGroupBy()}`;
 
     values = [...values, ...filterValues];
     const newContent = isSingle
