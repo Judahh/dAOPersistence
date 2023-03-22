@@ -447,15 +447,13 @@ export default abstract class BaseDAO extends BaseDAODefault {
       this.getGroupBy(),
       limitAfter
     );
-    const groupBy = pool?.groupByPagination
-      ? await pool?.groupByPagination(
-          options,
-          idName,
-          select,
-          this.getGroupBy(),
-          limitAfter
-        )
-      : this.getGroupBy();
+    const groupBy = await pool?.groupByPagination(
+      options,
+      idName,
+      select,
+      this.getGroupBy(),
+      limitAfter
+    );
     const query = `${prefix} ` + select + ` ${suffix} ${groupBy} ${limitAfter}`;
     return {
       query,
