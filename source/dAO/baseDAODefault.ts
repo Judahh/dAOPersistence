@@ -21,7 +21,7 @@ export default abstract class BaseDAODefault extends Default {
 
     super.init(initDefault);
     if (initDefault && initDefault.pool) this.setPool(initDefault.pool);
-    if (Utils.empty(this.values)) {
+    if (Utils.empty(this.getSelectValues())) {
       this.values = this.getValues(true, true, true);
     }
   }
@@ -155,6 +155,12 @@ export default abstract class BaseDAODefault extends Default {
       resolve(update);
     });
   }
+  protected getSelectValues(): string {
+    return this.values;
+  }
+  protected getSelectJoin(): string {
+    return this.selectJoin;
+  }
   protected async generateSelect(
     alias: string,
     limit?: string,
@@ -173,8 +179,8 @@ export default abstract class BaseDAODefault extends Default {
     const subSelect =
       (useAll !== undefined && useAll
         ? alias + ' '
-        : `(SELECT ${this.values} FROM ${alias} ` +
-          `AS subElement ${this.selectJoin}) `) + `as element`;
+        : `(SELECT ${this.getSelectValues()} FROM ${alias} ` +
+          `AS subElement ${this.getSelectJoin()}) `) + `as element`;
 
     const select = mainSelect + ' FROM ' + subSelect;
 
@@ -185,8 +191,8 @@ export default abstract class BaseDAODefault extends Default {
     // console.log('useAll:', useAll);
     // console.log('selection:', selection);
     // console.log('options:', options);
-    // console.log('values:', this.values);
-    // console.log('selectJoin:', this.selectJoin);
+    // console.log('values:', this.getSelectValues());
+    // console.log('selectJoin:', this.getSelectJoin());
 
     // console.log('mainSelect:', mainSelect);
     // console.log('subSelect:', subSelect);

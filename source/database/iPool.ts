@@ -25,16 +25,22 @@ export interface IPool {
     values?: Array<unknown>,
     options?: IEventOptions,
     idName?: string
-  ): Promise<number>;
+  ): Promise<number | undefined>;
 
   generatePaginationPrefix(
     options?: IEventOptions,
-    idName?: string
+    idName?: string,
+    internalQuery?: string,
+    groupBy?: string,
+    limitAfter?: string
   ): Promise<string>;
 
   generatePaginationSuffix(
     options?: IEventOptions,
-    idName?: string
+    idName?: string,
+    internalQuery?: string,
+    groupBy?: string,
+    limitAfter?: string
   ): Promise<string>;
   connect(): Promise<boolean>;
   query(
