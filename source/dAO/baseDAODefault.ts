@@ -55,6 +55,8 @@ export default abstract class BaseDAODefault extends Default {
 
   protected stringEquals = 'LIKE';
   protected regularEquals = '=';
+  protected isEquals = 'IS';
+  protected isNotEquals = 'IS NOT';
   protected notEquals = '<>';
   protected arrayEquals = 'IN';
   protected arrayNotEquals = 'NOT IN';
@@ -91,9 +93,14 @@ export default abstract class BaseDAODefault extends Default {
         (element.includes('%') || !(date >= 0))
       ) {
         found = this.stringEquals;
+      } else if (element === null) {
+        found = this.isEquals;
       } else {
         found = this.regularEquals;
       }
+    }
+    if (found === this.notEquals && element !== null) {
+      found = this.isNotEquals;
     }
     found = found || this.regularEquals;
     return found;
