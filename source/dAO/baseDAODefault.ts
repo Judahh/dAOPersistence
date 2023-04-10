@@ -293,7 +293,7 @@ export default abstract class BaseDAODefault extends Default {
               // console.log('found:', found);
               // console.log('x:', x);
               // console.log('value:', value);
-              const toReturn =
+              let toReturn =
                 x +
                 ' ' +
                 found +
@@ -302,7 +302,19 @@ export default abstract class BaseDAODefault extends Default {
                   ? '$' + initialPosition++
                   : this.generateValueFromUnknown(value));
               // console.log('toReturn:', toReturn);
-
+              toReturn =
+                Array.isArray(value) &&
+                (value.some((a) => a == null) ||
+                  (value.some((a) => a == 'null') &&
+                    value.some((a) => !isNaN(a))))
+                  ? `(${toReturn} OR ${x} IS ${
+                      found.includes(this.notEquals) ||
+                      found.includes(this.notEquals) ||
+                      found.includes(this.arrayNotEquals)
+                        ? 'NOT'
+                        : ''
+                    } NULL)`
+                  : toReturn;
               return toReturn;
             })
             .join(' AND ')}`
